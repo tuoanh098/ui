@@ -9,5 +9,8 @@ import java.util.Optional;
 @Repository
 public interface PhongRepository extends JpaRepository<Phong, Long> {
     Optional<Phong> findByMaPhong(String maPhong);
+    long countByToaNhaId(Long toaNhaId);
+    long countByToaNhaIdAndTrangThai(Long toaNhaId, String trangThai);
+    java.util.List<Phong> findAllByToaNhaId(Long toaNhaId);
 }
 

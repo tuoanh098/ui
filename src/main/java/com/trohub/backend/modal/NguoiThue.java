@@ -25,6 +25,12 @@ public class NguoiThue {
     private String gioiTinh;
     private String diaChi;
     private String sdt;
+    // additional info
+    private String queQuan;
+
+    private String ngheNghiep;
+
+    private String thongTinLienLac;
 
     @OneToOne
     @JoinColumn(name = "tai_khoan_id", unique = true)

@@ -77,6 +77,9 @@ public class NguoiThueServiceImpl implements NguoiThueService {
         exist.setGioiTinh(dto.getGioiTinh());
         exist.setDiaChi(dto.getDiaChi());
         exist.setSdt(dto.getSdt());
+        exist.setQueQuan(dto.getQueQuan());
+        exist.setNgheNghiep(dto.getNgheNghiep());
+        exist.setThongTinLienLac(dto.getThongTinLienLac());
         exist.setSophong(dto.getSophong());
 
         NguoiThue saved = nguoiThueRepository.save(exist);

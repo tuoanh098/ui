@@ -35,6 +35,15 @@ public class NguoiThueDto {
     @Pattern(regexp = "^[0-9+\\- ]{7,20}$", message = "sdt must contain only digits, spaces, + or - and be 7-20 chars")
     private String sdt;
 
+    @Size(max = 255)
+    private String queQuan;
+
+    @Size(max = 255)
+    private String ngheNghiep;
+
+    @Size(max = 1024)
+    private String thongTinLienLac;
+
     @Positive(message = "taiKhoanId must be a positive number")
     private Long taiKhoanId;
 

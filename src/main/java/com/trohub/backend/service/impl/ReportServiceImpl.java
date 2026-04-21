@@ -37,5 +37,25 @@ public class ReportServiceImpl implements ReportService {
     public OverdueCountDto overdueCount(LocalDate asOf) {
         return reportRepository.overdueCount(asOf);
     }
+
+    @Override
+    public com.trohub.backend.dto.report.ElectricitySummaryDto totalElectricity(Integer year, Integer month, Long toaNhaId) {
+        return reportRepository.totalElectricity(year, month, toaNhaId);
+    }
+
+    @Override
+    public java.util.List<com.trohub.backend.dto.report.BuildingRevenueDto> revenueByBuilding(LocalDate from, LocalDate to) {
+        return reportRepository.revenueByBuilding(from, to);
+    }
+
+    @Override
+    public java.util.List<com.trohub.backend.dto.report.RoomRevenueDto> revenueByRoom(LocalDate from, LocalDate to) {
+        return reportRepository.revenueByRoom(from, to);
+    }
+
+    @Override
+    public com.trohub.backend.dto.report.LandlordSummaryDto landlordSummary(Long chuTroId, LocalDate from, LocalDate to) {
+        return reportRepository.landlordSummary(chuTroId, from, to);
+    }
 }
 

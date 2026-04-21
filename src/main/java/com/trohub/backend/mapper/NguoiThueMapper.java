@@ -15,6 +15,9 @@ public class NguoiThueMapper {
                 .gioiTinh(e.getGioiTinh())
                 .diaChi(e.getDiaChi())
                 .sdt(e.getSdt())
+                .queQuan(e.getQueQuan())
+                .ngheNghiep(e.getNgheNghiep())
+                .thongTinLienLac(e.getThongTinLienLac())
                 .taiKhoanId(e.getTaiKhoan() != null ? e.getTaiKhoan().getId() : null)
                 .sophong(e.getSophong())
                 .build();
@@ -30,6 +33,9 @@ public class NguoiThueMapper {
                 .gioiTinh(dto.getGioiTinh())
                 .diaChi(dto.getDiaChi())
                 .sdt(dto.getSdt())
+                .queQuan(dto.getQueQuan())
+                .ngheNghiep(dto.getNgheNghiep())
+                .thongTinLienLac(dto.getThongTinLienLac())
                 // Note: taiKhoan association should be resolved in service (fetch by id)
                 .sophong(dto.getSophong())
                 .build();
