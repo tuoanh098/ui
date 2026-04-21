@@ -67,6 +67,11 @@ public class HopDongServiceImpl implements HopDongService {
     }
 
     @Override
+    public List<HopDongDto> listByNguoiId(Long nguoiId) {
+        return ServiceUtils.exec(() -> hopDongRepository.findByNguoiId(nguoiId).stream().map(HopDongMapper::toDto).collect(Collectors.toList()), "list HopDong by nguoiId=" + nguoiId);
+    }
+
+    @Override
     public HopDongDto getById(Long id) {
         return ServiceUtils.exec(() -> hopDongRepository.findById(id).map(HopDongMapper::toDto).orElseThrow(() -> new ResourceNotFoundException("HopDong not found")), "get HopDong id=" + id);
     }

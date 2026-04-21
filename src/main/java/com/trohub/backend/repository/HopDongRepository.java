@@ -9,5 +9,6 @@ import java.util.List;
 @Repository
 public interface HopDongRepository extends JpaRepository<HopDong, Long> {
     List<HopDong> findByPhongId(Long phongId);
+    List<HopDong> findByNguoiId(Long nguoiId);
 }
 

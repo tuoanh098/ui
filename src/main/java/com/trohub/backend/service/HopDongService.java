@@ -9,5 +9,6 @@ public interface HopDongService {
     HopDongDto update(Long id, HopDongDto dto);
     List<HopDongDto> listAll();
     HopDongDto getById(Long id);
+    List<HopDongDto> listByNguoiId(Long nguoiId);
 }
 

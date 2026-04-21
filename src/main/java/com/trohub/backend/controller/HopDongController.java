@@ -42,5 +42,10 @@ public class HopDongController {
     public ResponseEntity<HopDongDto> getById(@PathVariable Long id) {
         return ResponseEntity.ok(hopDongService.getById(id));
     }
+
+    @GetMapping("/tenant/{tenantId}")
+    public ResponseEntity<List<HopDongDto>> listByTenant(@PathVariable Long tenantId) {
+        return ResponseEntity.ok(hopDongService.listByNguoiId(tenantId));
+    }
 }
 
