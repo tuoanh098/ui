@@ -1,0 +1,320 @@
+{
+  "info": {
+        "name": "Trohub Backend - Postman Collection (Grouped)",
+        "_postman_id": "trohub-backend-postman",
+        "description": "Grouped Postman collection with folders per resource and basic assertions. Set the environment variable `baseUrl` (default http://localhost:8081).",
+        "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
+      },
+      "variable": [
+        { "key": "baseUrl", "value": "http://localhost:8081" },
+        { "key": "accessToken", "value": "" },
+        { "key": "incidentId", "value": "" },
+        { "key": "invoiceId", "value": "" },
+        { "key": "tenantId", "value": "" },
+        { "key": "phongId", "value": "" }
+      ],
+          "auth": {
+            "type": "bearer",
+            "bearer": [
+              {
+                "key": "token",
+                "value": "{{accessToken}}",
+                "type": "string"
+              }
+            ]
+          },
+      "item": [
+        {
+          "name": "Auth",
+          "item": [
+            {
+              "name": "Login",
+              "request": {
+                "method": "POST",
+                "header": [ { "key": "Content-Type", "value": "application/json" } ],
+                "body": { "mode": "raw", "raw": "{\n  \"username\": \"admin\",\n  \"password\": \"Admin@123\"\n}" },
+                "url": { "raw": "{{baseUrl}}/api/auth/login", "host": ["{{baseUrl}}"], "path": ["api","auth","login"] }
+              },
+              "event": [ { "listen": "test", "script": { "type": "text/javascript", "exec": [ "pm.test('Login returns 200', function () { pm.response.to.have.status(200); });", "try { var json = pm.response.json(); if (json && json.accessToken) { pm.environment.set('accessToken', json.accessToken); if (json.user && json.user.id) pm.environment.set('currentUserId', json.user.id); } } catch (e) {}" ] } } ]
+            },
+            {
+              "name": "Register",
+              "request": {
+                "method": "POST",
+                "header": [ { "key": "Content-Type", "value": "application/json" } ],
+                "body": { "mode": "raw", "raw": "{\n  \"username\": \"user1\",\n  \"password\": \"User@1234\",\n  \"email\": \"user1@example.com\"\n}" },
+                "url": { "raw": "{{baseUrl}}/api/auth/register", "host": ["{{baseUrl}}"], "path": ["api","auth","register"] }
+              },
+              "event": [ { "listen": "test", "script": { "type": "text/javascript", "exec": [ "pm.test('Register returns 200', function () { pm.response.to.have.status(200); });", "try { var json = pm.response.json(); if (json && json.id) pm.environment.set('currentUserId', json.id); } catch (e) {}" ] } } ]
+            }
+          ]
+        },
+        {
+          "name": "Phongs",
+          "item": [
+            {
+              "name": "List Phongs",
+              "request": { "method": "GET", "header": [ { "key": "Authorization", "value": "Bearer {{accessToken}}" } ], "url": { "raw": "{{baseUrl}}/api/phongs", "host": ["{{baseUrl}}"], "path": ["api","phongs"] } },
+              "event": [ { "listen": "test", "script": { "type": "text/javascript", "exec": [ "pm.test('GET Phongs returns 200', function () { pm.response.to.have.status(200); });" ] } } ]
+            },
+            {
+              "name": "Create Phong",
+              "request": {
+                "method": "POST",
+                "header": [ { "key": "Authorization", "value": "Bearer {{accessToken}}" }, { "key": "Content-Type", "value": "application/json" } ],
+                "body": { "mode": "raw", "raw": "{\n  \"soPhong\": \"P-101\",\n  \"moTa\": \"Phòng tầng 1\",\n  \"soLuong\": 1,\n  \"giaThue\": 1500000\n}" },
+                "url": { "raw": "{{baseUrl}}/api/phongs", "host": ["{{baseUrl}}"], "path": ["api","phongs"] }
+              },
+              "event": [ { "listen": "test", "script": { "type": "text/javascript", "exec": [ "pm.test('Create Phong returns 201', function () { pm.response.to.have.status(201); });", "try { var json = pm.response.json(); if (json && json.id) pm.environment.set('phongId', json.id); } catch (e) {}" ] } } ]
+            },
+            {
+              "name": "Update Phong",
+              "request": { "method": "PUT", "header": [ { "key": "Authorization", "value": "Bearer {{accessToken}}" }, { "key": "Content-Type", "value": "application/json" } ], "body": { "mode": "raw", "raw": "{\n  \"soPhong\": \"P-101\",\n  \"moTa\": \"Phòng cập nhật\",\n  \"soLuong\": 2,\n  \"giaThue\": 1600000\n}" }, "url": { "raw": "{{baseUrl}}/api/phongs/{{phongId}}", "host": ["{{baseUrl}}"], "path": ["api","phongs","{{phongId}}"] } },
+              "event": [ { "listen": "test", "script": { "type": "text/javascript", "exec": [ "pm.test('Update Phong returns 200', function () { pm.response.to.have.status(200); });" ] } } ]
+            },
+            {
+              "name": "Delete Phong",
+              "request": { "method": "DELETE", "header": [ { "key": "Authorization", "value": "Bearer {{accessToken}}" } ], "url": { "raw": "{{baseUrl}}/api/phongs/{{phongId}}", "host": ["{{baseUrl}}"], "path": ["api","phongs","{{phongId}}"] } },
+              "event": [ { "listen": "test", "script": { "type": "text/javascript", "exec": [ "pm.test('Delete Phong returns 204', function () { pm.response.to.have.status(204); });" ] } } ]
+            }
+          ]
+        },
+        {
+          "name": "Tenants",
+          "item": [
+            { "name": "List Tenants", "request": { "method": "GET", "header": [ { "key": "Authorization", "value": "Bearer {{accessToken}}" } ], "url": { "raw": "{{baseUrl}}/api/tenants", "host": ["{{baseUrl}}"], "path": ["api","tenants"] } }, "event": [ { "listen": "test", "script": { "type": "text/javascript", "exec": [ "pm.test('List tenants returns 200', function () { pm.response.to.have.status(200); });" ] } } ] },
+            { "name": "Create Tenant", "request": { "method": "POST", "header": [ { "key": "Authorization", "value": "Bearer {{accessToken}}" }, { "key": "Content-Type", "value": "application/json" } ], "body": { "mode": "raw", "raw": "{\n  \"hoTen\": \"Tran Van B\",\n  \"email\": \"tranb@example.com\",\n  \"sdt\": \"0987654321\",\n  \"phongId\": {{phongId}}\n}" }, "url": { "raw": "{{baseUrl}}/api/tenants", "host": ["{{baseUrl}}"], "path": ["api","tenants"] } }, "event": [ { "listen": "test", "script": { "type": "text/javascript", "exec": [ "pm.test('Create tenant returns 201', function () { pm.response.to.have.status(201); });", "try { var json = pm.response.json(); if (json && json.id) pm.environment.set('tenantId', json.id); } catch (e) {}" ] } } ] },
+            { "name": "Get Tenant", "request": { "method": "GET", "header": [ { "key": "Authorization", "value": "Bearer {{accessToken}}" } ], "url": { "raw": "{{baseUrl}}/api/tenants/{{tenantId}}", "host": ["{{baseUrl}}"], "path": ["api","tenants","{{tenantId}}"] } }, "event": [ { "listen": "test", "script": { "type": "text/javascript", "exec": [ "pm.test('Get tenant returns 200', function () { pm.response.to.have.status(200); });" ] } } ] },
+            { "name": "Update Tenant", "request": { "method": "PUT", "header": [ { "key": "Authorization", "value": "Bearer {{accessToken}}" }, { "key": "Content-Type", "value": "application/json" } ], "body": { "mode": "raw", "raw": "{\n  \"hoTen\": \"Tran Van B Updated\",\n  \"email\": \"tranb+u@example.com\",\n  \"sdt\": \"0987654321\"\n}" }, "url": { "raw": "{{baseUrl}}/api/tenants/{{tenantId}}", "host": ["{{baseUrl}}"], "path": ["api","tenants","{{tenantId}}"] } }, "event": [ { "listen": "test", "script": { "type": "text/javascript", "exec": [ "pm.test('Update tenant returns 200', function () { pm.response.to.have.status(200); });" ] } } ] },
+            { "name": "Delete Tenant", "request": { "method": "DELETE", "header": [ { "key": "Authorization", "value": "Bearer {{accessToken}}" } ], "url": { "raw": "{{baseUrl}}/api/tenants/{{tenantId}}", "host": ["{{baseUrl}}"], "path": ["api","tenants","{{tenantId}}"] } }, "event": [ { "listen": "test", "script": { "type": "text/javascript", "exec": [ "pm.test('Delete tenant returns 204', function () { pm.response.to.have.status(204); });" ] } } ] }
+          ]
+        },
+        {
+          "name": "Incidents",
+          "item": [
+            { "name": "Create Incident", "request": { "method": "POST", "header": [ { "key": "Authorization", "value": "Bearer {{accessToken}}" }, { "key": "Content-Type", "value": "application/json" } ], "body": { "mode": "raw", "raw": "{\n  \"tieuDe\": \"Rò nước phòng P-101\",\n  \"moTa\": \"Nước rỉ từ trần\",\n  \"ngayXayRa\": \"2026-04-20T10:00:00\",\n  \"phongId\": 1,\n  \"nguoiBao\": \"Le Thi A\",\n  \"trangThai\": \"OPEN\"\n}" }, "url": { "raw": "{{baseUrl}}/api/incidents", "host": ["{{baseUrl}}"], "path": ["api","incidents"] } }, "event": [ { "listen": "test", "script": { "type": "text/javascript", "exec": [ "pm.test('Create Incident returns 201', function () { pm.response.to.have.status(201); });", "try { var json = pm.response.json(); if (json && json.id) pm.environment.set('incidentId', json.id); } catch (e) {}" ] } } ] },
+            { "name": "Get Incident", "request": { "method": "GET", "header": [ { "key": "Authorization", "value": "Bearer {{accessToken}}" } ], "url": { "raw": "{{baseUrl}}/api/incidents/{{incidentId}}", "host": ["{{baseUrl}}"], "path": ["api","incidents","{{incidentId}}"] } }, "event": [ { "listen": "test", "script": { "type": "text/javascript", "exec": [ "pm.test('Get incident by id returns 200', function () { pm.response.to.have.status(200); });" ] } } ] },
+            { "name": "Upload Attachment", "request": { "method": "POST", "header": [ { "key": "Authorization", "value": "Bearer {{accessToken}}" } ], "body": { "mode": "formdata", "formdata": [ { "key": "file", "type": "file", "src": "", "description": "Allowed types: image/png,image/jpeg,image/jpg,image/gif,application/pdf (max 5 MB)" } ] }, "url": { "raw": "{{baseUrl}}/api/incidents/{{incidentId}}/attachments", "host": ["{{baseUrl}}"], "path": ["api","incidents","{{incidentId}}","attachments"] } }, "event": [ { "listen": "test", "script": { "type": "text/javascript", "exec": [ "pm.test('Upload returns 200 or 201', function () { pm.expect(pm.response.code).to.be.oneOf([200,201]); });" ] } } ] },
+            { "name": "Upload Oversize Test", "request": { "method": "POST", "header": [ { "key": "Authorization", "value": "Bearer {{accessToken}}" } ], "body": { "mode": "formdata", "formdata": [ { "key": "file", "type": "file", "src": "", "description": "Use a file >5MB to test oversize validation — expected response: 400" } ] }, "url": { "raw": "{{baseUrl}}/api/incidents/{{incidentId}}/attachments", "host": ["{{baseUrl}}"], "path": ["api","incidents","{{incidentId}}","attachments"] } }, "event": [ { "listen": "test", "script": { "type": "text/javascript", "exec": [ "pm.test('Oversize upload should return 400', function () { pm.response.to.have.status(400); });" ] } } ] },
+            { "name": "List Incidents", "request": { "method": "GET", "header": [ { "key": "Authorization", "value": "Bearer {{accessToken}}" } ], "url": { "raw": "{{baseUrl}}/api/incidents", "host": ["{{baseUrl}}"], "path": ["api","incidents"] } }, "event": [ { "listen": "test", "script": { "type": "text/javascript", "exec": [ "pm.test('List incidents returns 200', function () { pm.response.to.have.status(200); });" ] } } ] },
+            { "name": "Update Incident", "request": { "method": "PUT", "header": [ { "key": "Authorization", "value": "Bearer {{accessToken}}" }, { "key": "Content-Type", "value": "application/json" } ], "body": { "mode": "raw", "raw": "{\n  \"tieuDe\": \"Rò nước - cập nhật\",\n  \"moTa\": \"Đã sửa tạm\",\n  \"phongId\": 1,\n  \"trangThai\": \"RESOLVED\"\n}" }, "url": { "raw": "{{baseUrl}}/api/incidents/{{incidentId}}", "host": ["{{baseUrl}}"], "path": ["api","incidents","{{incidentId}}"] } }, "event": [ { "listen": "test", "script": { "type": "text/javascript", "exec": [ "pm.test('Update incident returns 200', function () { pm.response.to.have.status(200); });" ] } } ] },
+            { "name": "Delete Incident", "request": { "method": "DELETE", "header": [ { "key": "Authorization", "value": "Bearer {{accessToken}}" } ], "url": { "raw": "{{baseUrl}}/api/incidents/{{incidentId}}", "host": ["{{baseUrl}}"], "path": ["api","incidents","{{incidentId}}"] } }, "event": [ { "listen": "test", "script": { "type": "text/javascript", "exec": [ "pm.test('Delete incident returns 204', function () { pm.response.to.have.status(204); });" ] } } ] },
+            { "name": "Resolve Incident", "request": { "method": "POST", "header": [ { "key": "Authorization", "value": "Bearer {{accessToken}}" } ], "url": { "raw": "{{baseUrl}}/api/incidents/{{incidentId}}/resolve", "host": ["{{baseUrl}}"], "path": ["api","incidents","{{incidentId}}","resolve"] } }, "event": [ { "listen": "test", "script": { "type": "text/javascript", "exec": [ "pm.test('Resolve incident returns 200', function () { pm.response.to.have.status(200); });" ] } } ] }
+          ]
+        },
+        {
+          "name": "Guest Entries",
+          "item": [
+            {
+              "name": "Create Guest Entry",
+              "request": {
+                "method": "POST",
+                "header": [
+                  { "key": "Authorization", "value": "Bearer {{accessToken}}" },
+                  { "key": "Content-Type", "value": "application/json" }
+                ],
+                "body": {
+                  "mode": "raw",
+                  "raw": "{\n  \"ten\": \"Nguyen Van A\",\n  \"cmnd\": \"0123456789\",\n  \"sdt\": \"0987123456\",\n  \"phongId\": 1,\n  \"loai\": \"IN\",\n  \"ghiChu\": \"Khách thăm\"\n}"
+                },
+                "url": { "raw": "{{baseUrl}}/api/guest-entries", "host": ["{{baseUrl}}"], "path": ["api","guest-entries"] }
+              },
+              "event": [ { "listen": "test", "script": { "type": "text/javascript", "exec": [ "pm.test('Create guest entry returns 201', function () { pm.response.to.have.status(201); });" ] } } ]
+            },
+            {
+              "name": "List Guest Entries",
+              "request": { "method": "GET", "header": [ { "key": "Authorization", "value": "Bearer {{accessToken}}" } ], "url": { "raw": "{{baseUrl}}/api/guest-entries", "host": ["{{baseUrl}}"], "path": ["api","guest-entries"] } },
+              "event": [ { "listen": "test", "script": { "type": "text/javascript", "exec": [ "pm.test('List guest entries returns 200', function () { pm.response.to.have.status(200); });" ] } } ]
+            },
+            {
+              "name": "Get Guest Entry",
+              "request": { "method": "GET", "header": [ { "key": "Authorization", "value": "Bearer {{accessToken}}" } ], "url": { "raw": "{{baseUrl}}/api/guest-entries/{{incidentId}}", "host": ["{{baseUrl}}"], "path": ["api","guest-entries","{{incidentId}}"] } },
+              "event": [ { "listen": "test", "script": { "type": "text/javascript", "exec": [ "pm.test('Get guest entry returns 200', function () { pm.response.to.have.status(200); });" ] } } ]
+            },
+            {
+              "name": "Update Guest Entry",
+              "request": {
+                "method": "PUT",
+                "header": [ { "key": "Authorization", "value": "Bearer {{accessToken}}" }, { "key": "Content-Type", "value": "application/json" } ],
+                "body": { "mode": "raw", "raw": "{\n  \"ten\": \"Nguyen Van A Updated\",\n  \"cmnd\": \"12345678\",\n  \"sdt\": \"0987654321\",\n  \"phongId\": 1\n}" },
+                "url": { "raw": "{{baseUrl}}/api/guest-entries/{{incidentId}}", "host": ["{{baseUrl}}"], "path": ["api","guest-entries","{{incidentId}}"] }
+              },
+              "event": [ { "listen": "test", "script": { "type": "text/javascript", "exec": [ "pm.test('Update guest entry returns 200', function () { pm.response.to.have.status(200); });" ] } } ]
+            },
+            {
+              "name": "Delete Guest Entry",
+              "request": { "method": "DELETE", "header": [ { "key": "Authorization", "value": "Bearer {{accessToken}}" } ], "url": { "raw": "{{baseUrl}}/api/guest-entries/{{incidentId}}", "host": ["{{baseUrl}}"], "path": ["api","guest-entries","{{incidentId}}"] } },
+              "event": [ { "listen": "test", "script": { "type": "text/javascript", "exec": [ "pm.test('Delete guest entry returns 204', function () { pm.response.to.have.status(204); });" ] } } ]
+            },
+            {
+              "name": "Approve Guest Entry",
+              "request": { "method": "POST", "header": [ { "key": "Authorization", "value": "Bearer {{accessToken}}" } ], "url": { "raw": "{{baseUrl}}/api/guest-entries/{{incidentId}}/approve", "host": ["{{baseUrl}}"], "path": ["api","guest-entries","{{incidentId}}","approve"] } },
+              "event": [ { "listen": "test", "script": { "type": "text/javascript", "exec": [ "pm.test('Approve guest entry returns 200', function () { pm.response.to.have.status(200); });" ] } } ]
+            },
+            {
+              "name": "Reject Guest Entry",
+              "request": { "method": "POST", "header": [ { "key": "Authorization", "value": "Bearer {{accessToken}}" } ], "url": { "raw": "{{baseUrl}}/api/guest-entries/{{incidentId}}/reject", "host": ["{{baseUrl}}"], "path": ["api","guest-entries","{{incidentId}}","reject"] } },
+              "event": [ { "listen": "test", "script": { "type": "text/javascript", "exec": [ "pm.test('Reject guest entry returns 200', function () { pm.response.to.have.status(200); });" ] } } ]
+            }
+          ]
+        },
+        {
+          "name": "Billing",
+          "item": [
+            { "name": "List Invoices", "request": { "method": "GET", "header": [ { "key": "Authorization", "value": "Bearer {{accessToken}}" } ], "url": { "raw": "{{baseUrl}}/api/billing/invoices?nam=2026&thang=4", "host": ["{{baseUrl}}"], "path": ["api","billing","invoices"], "query": [ { "key": "nam", "value": "2026" }, { "key": "thang", "value": "4" } ] } }, "event": [ { "listen": "test", "script": { "type": "text/javascript", "exec": [ "pm.test('List invoices returns 200', function () { pm.response.to.have.status(200); });" ] } } ] },
+            { "name": "Get Invoice", "request": { "method": "GET", "header": [ { "key": "Authorization", "value": "Bearer {{accessToken}}" } ], "url": { "raw": "{{baseUrl}}/api/billing/invoices/{{invoiceId}}", "host": ["{{baseUrl}}"], "path": ["api","billing","invoices","{{invoiceId}}"] } }, "event": [ { "listen": "test", "script": { "type": "text/javascript", "exec": [ "pm.test('Get invoice returns 200', function () { pm.response.to.have.status(200); });" ] } } ] },
+            { "name": "Generate (sync)", "request": { "method": "POST", "header": [ { "key": "Authorization", "value": "Bearer {{accessToken}}" } ], "url": { "raw": "{{baseUrl}}/api/billing/generate?ky=2026-04", "host": ["{{baseUrl}}"], "path": ["api","billing","generate"], "query": [ { "key": "ky", "value": "2026-04" } ] } }, "event": [ { "listen": "test", "script": { "type": "text/javascript", "exec": [ "pm.test('Generate (sync) returns 200', function () { pm.response.to.have.status(200); });", "try { const arr = pm.response.json(); if (arr && arr.length>0) pm.environment.set('invoiceId', arr[0].id); } catch(e) {}" ] } } ] },
+            { "name": "Generate (async)", "request": { "method": "POST", "header": [ { "key": "Authorization", "value": "Bearer {{accessToken}}" } ], "url": { "raw": "{{baseUrl}}/api/billing/generate-async?ky=2026-04", "host": ["{{baseUrl}}"], "path": ["api","billing","generate-async"], "query": [ { "key": "ky", "value": "2026-04" } ] } }, "event": [ { "listen": "test", "script": { "type": "text/javascript", "exec": [ "pm.test('Generate (async) returns 202', function () { pm.response.to.have.status(202); });" ] } } ] },
+            { "name": "Draft", "request": { "method": "POST", "header": [ { "key": "Authorization", "value": "Bearer {{accessToken}}" }, { "key": "Content-Type", "value": "application/json" } ], "body": { "mode": "raw", "raw": "{\n  \"tenantId\": {{tenantId}},\n  \"thang\": 4,\n  \"nam\": 2026\n}" }, "url": { "raw": "{{baseUrl}}/api/billing/draft", "host": ["{{baseUrl}}"], "path": ["api","billing","draft"] } }, "event": [ { "listen": "test", "script": { "type": "text/javascript", "exec": [ "pm.test('Draft returns 200', function () { pm.response.to.have.status(200); });", "try { const j = pm.response.json(); if (j && j.id) pm.environment.set('invoiceId', j.id); } catch(e) {}" ] } } ] },
+            { "name": "Create QR", "request": { "method": "POST", "header": [ { "key": "Authorization", "value": "Bearer {{accessToken}}" }, { "key": "Content-Type", "value": "application/json" } ], "body": { "mode": "raw", "raw": "{\n  \"hoaDonId\": {{invoiceId}}\n}" }, "url": { "raw": "{{baseUrl}}/api/billing/qr/create", "host": ["{{baseUrl}}"], "path": ["api","billing","qr","create"] } }, "event": [ { "listen": "test", "script": { "type": "text/javascript", "exec": [ "pm.test('Create QR returns 200 and contains image and expected amount', function () {", "    pm.response.to.have.status(200);", "    var j = pm.response.json();", "    pm.expect(j).to.have.property('qrImageDataUrl');", "    pm.expect(j.qrImageDataUrl).to.be.a('string');", "    pm.expect(j.qrImageDataUrl).to.match(/^data:image\\//);", "    var invoiceTotal = pm.environment.get('invoiceTotal');", "    if (invoiceTotal) {", "        pm.expect(parseFloat(j.expectedAmount)).to.eql(parseFloat(invoiceTotal));", "    } else {", "        pm.expect(parseFloat(j.expectedAmount)).to.be.above(0);", "    }", "});", "try { var j = pm.response.json(); if (j && j.qrCode) pm.environment.set('qrCode', j.qrCode); if (j && j.id) pm.environment.set('qrLogId', j.id); } catch(e) {}" ] } } ] },
+            { "name": "Simulate QR Payment", "request": { "method": "POST", "header": [ { "key": "Authorization", "value": "Bearer {{accessToken}}" }, { "key": "Content-Type", "value": "application/json" } ], "body": { "mode": "raw", "raw": "{\n  \"qrCode\": \"{{qrCode}}\",\n  \"externalTxnId\": \"txn-12345\",\n  \"paidAmount\": 100000\n}" }, "url": { "raw": "{{baseUrl}}/api/billing/payments/qr/simulate", "host": ["{{baseUrl}}"], "path": ["api","billing","payments","qr","simulate"] } }, "event": [ { "listen": "test", "script": { "type": "text/javascript", "exec": [ "pm.test('Simulate QR Payment returns 200', function () { pm.response.to.have.status(200); });" ] } } ] },
+            { "name": "Get Invoice Payments", "request": { "method": "GET", "header": [ { "key": "Authorization", "value": "Bearer {{accessToken}}" } ], "url": { "raw": "{{baseUrl}}/api/billing/invoices/{{invoiceId}}/payments", "host": ["{{baseUrl}}"], "path": ["api","billing","invoices","{{invoiceId}}","payments"] } }, "event": [ { "listen": "test", "script": { "type": "text/javascript", "exec": [ "pm.test('Get invoice payments returns 200', function () { pm.response.to.have.status(200); });" ] } } ] },
+            { "name": "Create Manual Payment (admin)", "request": { "method": "POST", "header": [ { "key": "Authorization", "value": "Bearer {{accessToken}}" }, { "key": "Content-Type", "value": "application/json" } ], "body": { "mode": "raw", "raw": "{\n  \"amount\": 500000,\n  \"paymentMethod\": \"MANUAL\",\n  \"transactionId\": \"manual-txn-123\",\n  \"paymentDate\": \"2026-04-20T10:00:00\"\n}" }, "url": { "raw": "{{baseUrl}}/api/billing/invoices/{{invoiceId}}/payments/manual", "host": ["{{baseUrl}}"], "path": ["api","billing","invoices","{{invoiceId}}","payments","manual"] } }, "event": [ { "listen": "test", "script": { "type": "text/javascript", "exec": [ "pm.test('Manual payment returns 200', function () { pm.response.to.have.status(200); });" ] } } ] },
+            { "name": "Create Price (admin)", "request": { "method": "POST", "header": [ { "key": "Authorization", "value": "Bearer {{accessToken}}" }, { "key": "Content-Type", "value": "application/json" } ], "body": { "mode": "raw", "raw": "{\n  \"meterType\": \"ELECTRIC\",\n  \"pricePerUnit\": 4000,\n  \"effectiveFrom\": \"2026-01-01\",\n  \"effectiveTo\": \"2099-12-31\"\n}" }, "url": { "raw": "{{baseUrl}}/api/billing/admin/prices", "host": ["{{baseUrl}}"], "path": ["api","billing","admin","prices"] } }, "event": [ { "listen": "test", "script": { "type": "text/javascript", "exec": [ "pm.test('Create price returns 201', function () { pm.response.to.have.status(201); });", "try { const j = pm.response.json(); if (j && j.id) pm.environment.set('priceElectricId', j.id); } catch(e) {}" ] } } ] },
+            { "name": "Create Reading (prev)", "request": { "method": "POST", "header": [ { "key": "Authorization", "value": "Bearer {{accessToken}}" }, { "key": "Content-Type", "value": "application/json" } ], "body": { "mode": "raw", "raw": "{\n  \"meterType\": \"ELECTRIC\",\n  \"meterId\": \"m-001\",\n  \"tenantId\": 1,\n  \"readingValue\": 700,\n  \"periodYear\": 2026,\n  \"periodMonth\": 3,\n  \"recordedBy\": \"qa\"\n}" }, "url": { "raw": "{{baseUrl}}/api/billing/admin/readings", "host": ["{{baseUrl}}"], "path": ["api","billing","admin","readings"] } }, "event": [ { "listen": "test", "script": { "type": "text/javascript", "exec": [ "pm.test('Create reading prev returns 201', function () { pm.response.to.have.status(201); });" ] } } ] },
+            { "name": "Create Reading (current)", "request": { "method": "POST", "header": [ { "key": "Authorization", "value": "Bearer {{accessToken}}" }, { "key": "Content-Type", "value": "application/json" } ], "body": { "mode": "raw", "raw": "{\n  \"meterType\": \"ELECTRIC\",\n  \"meterId\": \"m-001\",\n  \"tenantId\": 1,\n  \"readingValue\": 1000,\n  \"periodYear\": 2026,\n  \"periodMonth\": 4,\n  \"recordedBy\": \"qa\"\n}" }, "url": { "raw": "{{baseUrl}}/api/billing/admin/readings", "host": ["{{baseUrl}}"], "path": ["api","billing","admin","readings"] } }, "event": [ { "listen": "test", "script": { "type": "text/javascript", "exec": [ "pm.test('Create reading current returns 201', function () { pm.response.to.have.status(201); });" ] } } ] },
+            { "name": "Apply Daily Fee (admin)", "request": { "method": "POST", "header": [ { "key": "Authorization", "value": "Bearer {{accessToken}}" }, { "key": "Content-Type", "value": "application/json" } ], "body": { "mode": "raw", "raw": "{\n  \"hoaDonId\": {{invoiceId}},\n  \"perDayAmount\": 100000\n}" }, "url": { "raw": "{{baseUrl}}/api/billing/admin/apply-daily-fee", "host": ["{{baseUrl}}"], "path": ["api","billing","admin","apply-daily-fee"] } }, "event": [ { "listen": "test", "script": { "type": "text/javascript", "exec": [ "pm.test('Apply daily fee returns 200', function () { pm.response.to.have.status(200); });" ] } } ] }
+            ,{ "name": "Delete Invoice (admin)", "request": { "method": "DELETE", "header": [ { "key": "Authorization", "value": "Bearer {{accessToken}}" } ], "url": { "raw": "{{baseUrl}}/api/billing/admin/invoices/{{invoiceId}}", "host": ["{{baseUrl}}"], "path": ["api","billing","admin","invoices","{{invoiceId}}"] } }, "event": [ { "listen": "test", "script": { "type": "text/javascript", "exec": [ "pm.test('Delete invoice returns 204', function () { pm.response.to.have.status(204); });" ] } } ] }
+            ,{ "name": "Cleanup Invoices (admin)", "request": { "method": "POST", "header": [ { "key": "Authorization", "value": "Bearer {{accessToken}}" }, { "key": "Content-Type", "value": "application/json" } ], "body": { "mode": "raw", "raw": "{\n  \"tenantId\": 1,\n  \"periodYear\": 2026,\n  \"periodMonth\": 4\n}" }, "url": { "raw": "{{baseUrl}}/api/billing/admin/invoices/cleanup", "host": ["{{baseUrl}}"], "path": ["api","billing","admin","invoices","cleanup"] } }, "event": [ { "listen": "test", "script": { "type": "text/javascript", "exec": [ "pm.test('Cleanup returns 200', function () { pm.response.to.have.status(200); });" ] } } ] }
+            ,{ "name": "Regenerate Invoice (admin)", "request": { "method": "POST", "header": [ { "key": "Authorization", "value": "Bearer {{accessToken}}" }, { "key": "Content-Type", "value": "application/json" } ], "body": { "mode": "raw", "raw": "{\n  \"tenantId\": 1,\n  \"periodYear\": 2026,\n  \"periodMonth\": 4\n}" }, "url": { "raw": "{{baseUrl}}/api/billing/admin/invoices/regenerate", "host": ["{{baseUrl}}"], "path": ["api","billing","admin","invoices","regenerate"] } }, "event": [ { "listen": "test", "script": { "type": "text/javascript", "exec": [ "pm.test('Regenerate returns 200', function () { pm.response.to.have.status(200); }); try { var j = pm.response.json(); if (j && j.id) pm.environment.set('invoiceId', j.id); } catch(e) {}" ] } } ] }
+          ]
+        },
+        {
+          "name": "Payments",
+          "item": [
+            { "name": "Create QR", "request": { "method": "POST", "header": [ { "key": "Authorization", "value": "Bearer {{accessToken}}" }, { "key": "Content-Type", "value": "application/json" } ], "body": { "mode": "raw", "raw": "{\n  \"hoaDonId\": {{invoiceId}}\n}" }, "url": { "raw": "{{baseUrl}}/api/billing/qr/create", "host": ["{{baseUrl}}"], "path": ["api","billing","qr","create"] } }, "event": [ { "listen": "test", "script": { "type": "text/javascript", "exec": [ "pm.test('Create QR returns 200 and contains image and expected amount', function () {", "    pm.response.to.have.status(200);", "    var j = pm.response.json();", "    pm.expect(j).to.have.property('qrImageDataUrl');", "    pm.expect(j.qrImageDataUrl).to.be.a('string');", "    pm.expect(j.qrImageDataUrl).to.match(/^data:image\\//);", "    var invoiceTotal = pm.environment.get('invoiceTotal');", "    if (invoiceTotal) {", "        pm.expect(parseFloat(j.expectedAmount)).to.eql(parseFloat(invoiceTotal));", "    } else {", "        pm.expect(parseFloat(j.expectedAmount)).to.be.above(0);", "    }", "});" ] } } ] },
+            { "name": "Simulate QR Payment", "request": { "method": "POST", "header": [ { "key": "Authorization", "value": "Bearer {{accessToken}}" }, { "key": "Content-Type", "value": "application/json" } ], "body": { "mode": "raw", "raw": "{\n  \"qrCode\": \"<paste-qrcode>\",\n  \"externalTxnId\": \"txn-12345\",\n  \"paidAmount\": 100000\n}" }, "url": { "raw": "{{baseUrl}}/api/billing/payments/qr/simulate", "host": ["{{baseUrl}}"], "path": ["api","billing","payments","qr","simulate"] } }, "event": [ { "listen": "test", "script": { "type": "text/javascript", "exec": [ "pm.test('Simulate QR Payment returns 200', function () { pm.response.to.have.status(200); });" ] } } ] }
+            ,
+            { "name": "Get Invoice Payments", "request": { "method": "GET", "header": [ { "key": "Authorization", "value": "Bearer {{accessToken}}" } ], "url": { "raw": "{{baseUrl}}/api/billing/invoices/{{invoiceId}}/payments", "host": ["{{baseUrl}}"], "path": ["api","billing","invoices","{{invoiceId}}","payments"] } }, "event": [ { "listen": "test", "script": { "type": "text/javascript", "exec": [ "pm.test('Get invoice payments returns 200', function () { pm.response.to.have.status(200); });" ] } } ] },
+            { "name": "Create Manual Payment (admin)", "request": { "method": "POST", "header": [ { "key": "Authorization", "value": "Bearer {{accessToken}}" }, { "key": "Content-Type", "value": "application/json" } ], "body": { "mode": "raw", "raw": "{\n  \"amount\": 500000,\n  \"paymentMethod\": \"MANUAL\",\n  \"transactionId\": \"manual-txn-123\",\n  \"paymentDate\": \"2026-04-20T10:00:00\"\n}" }, "url": { "raw": "{{baseUrl}}/api/billing/invoices/{{invoiceId}}/payments/manual", "host": ["{{baseUrl}}"], "path": ["api","billing","invoices","{{invoiceId}}","payments","manual"] } }, "event": [ { "listen": "test", "script": { "type": "text/javascript", "exec": [ "pm.test('Manual payment returns 200', function () { pm.response.to.have.status(200); });" ] } } ] }
+          ]
+        },
+        {
+          "name": "Reports",
+          "item": [
+            { "name": "Revenue Report", "request": { "method": "GET", "header": [ { "key": "Authorization", "value": "Bearer {{accessToken}}" } ], "url": { "raw": "{{baseUrl}}/api/reports/revenue?groupBy=day&from=2026-04-01&to=2026-04-30", "host": ["{{baseUrl}}"], "path": ["api","reports","revenue"], "query": [ { "key": "groupBy", "value": "day" }, { "key": "from", "value": "2026-04-01" }, { "key": "to", "value": "2026-04-30" } ] } }, "event": [ { "listen": "test", "script": { "type": "text/javascript", "exec": [ "pm.test('Revenue report returns 200', function () { pm.response.to.have.status(200); });" ] } } ] }
+          ]
+        },
+            {
+              "name": "Accounts",
+              "item": [
+                {
+                  "name": "Admin - Create Account (reuse register)",
+                  "request": {
+                    "method": "POST",
+                    "header": [ { "key": "Content-Type", "value": "application/json" }, { "key": "Authorization", "value": "Bearer {{accessToken}}" } ],
+                    "body": { "mode": "raw", "raw": "{\n  \"username\": \"tenantuser1\",\n  \"password\": \"Tenant@1234\",\n  \"email\": \"tenant1@example.com\",\n  \"fullName\": \"Tenant One\",\n  \"cccd\": \"0123456789\",\n  \"sdt\": \"0987000000\",\n  \"sophong\": 1\n}" },
+                    "url": { "raw": "{{baseUrl}}/api/auth/register", "host": ["{{baseUrl}}"], "path": ["api","auth","register"] }
+                  },
+                  "event": [ { "listen": "test", "script": { "type": "text/javascript", "exec": [ "pm.test('Admin create account returns 200 or 201', function () { pm.expect(pm.response.code).to.be.oneOf([200,201]); });", "try { var json = pm.response.json(); if (json && json.id) pm.environment.set('createdAccountId', json.id); } catch (e) {}" ] } } ]
+                },
+                {
+                  "name": "Admin - Set Password for Account (may not be implemented)",
+                  "request": {
+                    "method": "PUT",
+                    "header": [ { "key": "Content-Type", "value": "application/json" }, { "key": "Authorization", "value": "Bearer {{accessToken}}" } ],
+                    "body": { "mode": "raw", "raw": "{\n  \"password\": \"NewPassword@123\"\n}" },
+                    "url": { "raw": "{{baseUrl}}/api/accounts/{{createdAccountId}}/password", "host": ["{{baseUrl}}"], "path": ["api","accounts","{{createdAccountId}}","password"] }
+                  },
+                  "event": [ { "listen": "test", "script": { "type": "text/javascript", "exec": [ "// If endpoint not implemented server may return 404/405; test expects 200 if implemented", "pm.test('Set password returns 200 or 204 or 404', function () { pm.expect(pm.response.code).to.be.oneOf([200,204,404,405]); });" ] } } ]
+                },
+                {
+                  "name": "Admin - Trigger Reset Password (may not be implemented)",
+                  "request": {
+                    "method": "POST",
+                    "header": [ { "key": "Authorization", "value": "Bearer {{accessToken}}" } ],
+                    "url": { "raw": "{{baseUrl}}/api/accounts/{{createdAccountId}}/reset-password", "host": ["{{baseUrl}}"], "path": ["api","accounts","{{createdAccountId}}","reset-password"] }
+                  },
+                  "event": [ { "listen": "test", "script": { "type": "text/javascript", "exec": [ "pm.test('Trigger reset password returns 200 or 404', function () { pm.expect(pm.response.code).to.be.oneOf([200,404,405]); });" ] } } ]
+                },
+                {
+                  "name": "User - Change Password (self)",
+                  "request": {
+                    "method": "POST",
+                    "header": [ { "key": "Content-Type", "value": "application/json" }, { "key": "Authorization", "value": "Bearer {{accessToken}}" } ],
+                    "body": { "mode": "raw", "raw": "{\n  \"oldPassword\": \"OldPass@123\",\n  \"newPassword\": \"NewPass@123\"\n}" },
+                    "url": { "raw": "{{baseUrl}}/api/auth/change-password", "host": ["{{baseUrl}}"], "path": ["api","auth","change-password"] }
+                  },
+                  "event": [ { "listen": "test", "script": { "type": "text/javascript", "exec": [ "// If endpoint not implemented this may return 404; expect 200 if implemented", "pm.test('Change password returns 200 or 404', function () { pm.expect(pm.response.code).to.be.oneOf([200,404]); });" ] } } ]
+                }
+              ]
+            },
+        {
+          "name": "Contracts",
+          "item": [
+            { "name": "List Contracts", "request": { "method": "GET", "header": [ { "key": "Authorization", "value": "Bearer {{accessToken}}" } ], "url": { "raw": "{{baseUrl}}/api/contracts", "host": ["{{baseUrl}}"], "path": ["api","contracts"] } }, "event": [ { "listen": "test", "script": { "type": "text/javascript", "exec": [ "pm.test('List contracts returns 200', function () { pm.response.to.have.status(200); });" ] } } ] },
+            { "name": "Create Contract", "request": { "method": "POST", "header": [ { "key": "Authorization", "value": "Bearer {{accessToken}}" }, { "key": "Content-Type", "value": "application/json" } ], "body": { "mode": "raw", "raw": "{\n  \"tenantId\": {{tenantId}},\n  \"phongId\": {{phongId}},\n  \"ngayBatDau\": \"2026-04-01\",\n  \"ngayKetThuc\": \"2027-03-31\",\n  \"tienThue\": 1500000,\n  \"tienDienPerUnit\": 4000,\n  \"tienNuocFixed\": 100000\n}" }, "url": { "raw": "{{baseUrl}}/api/contracts", "host": ["{{baseUrl}}"], "path": ["api","contracts"] } }, "event": [ { "listen": "test", "script": { "type": "text/javascript", "exec": [ "pm.test('Create contract returns 201', function () { pm.response.to.have.status(201); });", "try { var json = pm.response.json(); if (json && json.id) pm.environment.set('contractId', json.id); } catch (e) {}" ] } } ] },
+            { "name": "Get Contract", "request": { "method": "GET", "header": [ { "key": "Authorization", "value": "Bearer {{accessToken}}" } ], "url": { "raw": "{{baseUrl}}/api/contracts/{{contractId}}", "host": ["{{baseUrl}}"], "path": ["api","contracts","{{contractId}}"] } }, "event": [ { "listen": "test", "script": { "type": "text/javascript", "exec": [ "pm.test('Get contract returns 200', function () { pm.response.to.have.status(200); });" ] } } ] },
+            { "name": "Update Contract (not implemented?)", "request": { "method": "PUT", "header": [ { "key": "Authorization", "value": "Bearer {{accessToken}}" }, { "key": "Content-Type", "value": "application/json" } ], "body": { "mode": "raw", "raw": "{\n  \"ngayKetThuc\": \"2028-03-31\"\n}" }, "url": { "raw": "{{baseUrl}}/api/contracts/{{contractId}}", "host": ["{{baseUrl}}"], "path": ["api","contracts","{{contractId}}"] } }, "event": [ { "listen": "test", "script": { "type": "text/javascript", "exec": [ "pm.test('Update contract (if implemented) returns 200', function () { pm.response.to.have.status(200); });" ] } } ] },
+            { "name": "Delete Contract (not implemented?)", "request": { "method": "DELETE", "header": [ { "key": "Authorization", "value": "Bearer {{accessToken}}" } ], "url": { "raw": "{{baseUrl}}/api/contracts/{{contractId}}", "host": ["{{baseUrl}}"], "path": ["api","contracts","{{contractId}}"] } }, "event": [ { "listen": "test", "script": { "type": "text/javascript", "exec": [ "pm.test('Delete contract (if implemented) returns 204', function () { pm.response.to.have.status(204); });" ] } } ] }
+          ]
+        },
+        {
+          "name": "Billing - QA Flow",
+          "item": [
+            {
+              "name": "Create Price (ELECTRIC)",
+              "request": { "method": "POST", "header": [ { "key": "Authorization", "value": "Bearer {{accessToken}}" }, { "key": "Content-Type", "value": "application/json" } ], "body": { "mode": "raw", "raw": "{\n  \"meterType\": \"ELECTRIC\",\n  \"pricePerUnit\": 4000,\n  \"effectiveFrom\": \"2026-01-01\",\n  \"effectiveTo\": \"2099-12-31\"\n}" }, "url": { "raw": "{{baseUrl}}/api/billing/admin/prices", "host": ["{{baseUrl}}"], "path": ["api","billing","admin","prices"] } },
+              "event": [ { "listen": "test", "script": { "type": "text/javascript", "exec": [ "pm.test('price created', () => pm.response.to.have.status(201)); try { const j = pm.response.json(); if (j && j.id) pm.environment.set('priceElectricId', j.id); } catch(e) {}" ] } } ]
+            },
+            {
+              "name": "Create Reading Prev (2026-03)",
+              "request": { "method": "POST", "header": [ { "key": "Authorization", "value": "Bearer {{accessToken}}" }, { "key": "Content-Type", "value": "application/json" } ], "body": { "mode": "raw", "raw": "{\n  \"meterType\": \"ELECTRIC\",\n  \"meterId\": \"m-001\",\n  \"tenantId\": 1,\n  \"readingValue\": 700,\n  \"periodYear\": 2026,\n  \"periodMonth\": 3,\n  \"recordedBy\": \"qa\"\n}" }, "url": { "raw": "{{baseUrl}}/api/billing/admin/readings", "host": ["{{baseUrl}}"], "path": ["api","billing","admin","readings"] } },
+              "event": [ { "listen": "test", "script": { "type": "text/javascript", "exec": [ "pm.test('reading prev created', () => pm.response.to.have.status(201));" ] } } ]
+            },
+            {
+              "name": "Create Reading Current (2026-04)",
+              "request": { "method": "POST", "header": [ { "key": "Authorization", "value": "Bearer {{accessToken}}" }, { "key": "Content-Type", "value": "application/json" } ], "body": { "mode": "raw", "raw": "{\n  \"meterType\": \"ELECTRIC\",\n  \"meterId\": \"m-001\",\n  \"tenantId\": 1,\n  \"readingValue\": 1000,\n  \"periodYear\": 2026,\n  \"periodMonth\": 4,\n  \"recordedBy\": \"qa\"\n}" }, "url": { "raw": "{{baseUrl}}/api/billing/admin/readings", "host": ["{{baseUrl}}"], "path": ["api","billing","admin","readings"] } },
+              "event": [ { "listen": "test", "script": { "type": "text/javascript", "exec": [ "pm.test('reading current created', () => pm.response.to.have.status(201));" ] } } ]
+            },
+            {
+              "name": "Generate Invoices (2026-04)",
+              "request": { "method": "POST", "header": [ { "key": "Authorization", "value": "Bearer {{accessToken}}" } ], "url": { "raw": "{{baseUrl}}/api/billing/generate?ky=2026-04", "host": ["{{baseUrl}}"], "path": ["api","billing","generate"], "query": [ { "key": "ky", "value": "2026-04" } ] } },
+              "event": [ { "listen": "test", "script": { "type": "text/javascript", "exec": [ "pm.test('generate ok', () => pm.response.to.have.status(200)); try { const arr = pm.response.json(); if (arr && arr.length>0) pm.environment.set('invoiceId', arr[0].id); } catch(e) {}" ] } } ]
+            },
+            {
+              "name": "Get Invoice Details",
+              "request": { "method": "GET", "header": [ { "key": "Authorization", "value": "Bearer {{accessToken}}" } ], "url": { "raw": "{{baseUrl}}/api/billing/invoices/{{invoiceId}}", "host": ["{{baseUrl}}"], "path": ["api","billing","invoices","{{invoiceId}}"] } },
+              "event": [ { "listen": "test", "script": { "type": "text/javascript", "exec": [ "pm.test('get invoice ok', () => pm.response.to.have.status(200)); try { const j = pm.response.json(); pm.environment.set('invoiceTotal', j.totalAmount); } catch(e) {}" ] } } ]
+            },
+            {
+              "name": "Create QR for Invoice",
+              "request": { "method": "POST", "header": [ { "key": "Authorization", "value": "Bearer {{accessToken}}" }, { "key": "Content-Type", "value": "application/json" } ], "body": { "mode": "raw", "raw": "{\n  \"hoaDonId\": {{invoiceId}}\n}" }, "url": { "raw": "{{baseUrl}}/api/billing/qr/create", "host": ["{{baseUrl}}"], "path": ["api","billing","qr","create"] } },
+              "event": [ { "listen": "test", "script": { "type": "text/javascript", "exec": [ "pm.test('Create QR returns 200 and contains image and expected amount', function () {", "    pm.response.to.have.status(200);", "    var j = pm.response.json();", "    pm.expect(j).to.have.property('qrImageDataUrl');", "    pm.expect(j.qrImageDataUrl).to.be.a('string');", "    pm.expect(j.qrImageDataUrl).to.match(/^data:image\\//);", "    var invoiceTotal = pm.environment.get('invoiceTotal');", "    if (invoiceTotal) {", "        pm.expect(parseFloat(j.expectedAmount)).to.eql(parseFloat(invoiceTotal));", "    } else {", "        pm.expect(parseFloat(j.expectedAmount)).to.be.above(0);", "    }", "});", "try { var j = pm.response.json(); if (j && j.qrCode) pm.environment.set('qrCode', j.qrCode); if (j && j.id) pm.environment.set('qrLogId', j.id); } catch(e) {}" ] } } ]
+            },
+            {
+              "name": "Simulate Invoice Paid (admin)",
+              "request": {
+                "method": "POST",
+                "header": [ { "key": "Authorization", "value": "Bearer {{accessToken}}" } ],
+                "url": { "raw": "{{baseUrl}}/api/billing/admin/invoices/{{invoiceId}}/simulate-paid", "host": ["{{baseUrl}}"], "path": ["api","billing","admin","invoices","{{invoiceId}}","simulate-paid"] }
+              },
+              "event": [ { "listen": "test", "script": { "type": "text/javascript", "exec": [ "pm.test('Simulate paid returns 200', () => pm.response.to.have.status(200));" ] } } ]
+            },
+            {
+              "name": "Get Invoice After Simulate",
+              "request": { "method": "GET", "header": [ { "key": "Authorization", "value": "Bearer {{accessToken}}" } ], "url": { "raw": "{{baseUrl}}/api/billing/invoices/{{invoiceId}}", "host": ["{{baseUrl}}"], "path": ["api","billing","invoices","{{invoiceId}}"] } },
+              "event": [ { "listen": "test", "script": { "type": "text/javascript", "exec": [ "pm.test('Invoice status is PAID', function () { pm.response.to.have.status(200); var j = pm.response.json(); pm.expect(j.status).to.eql('PAID'); });" ] } } ]
+            },
+            {
+              "name": "Simulate QR Payment",
+              "request": { "method": "POST", "header": [ { "key": "Authorization", "value": "Bearer {{accessToken}}" }, { "key": "Content-Type", "value": "application/json" } ], "body": { "mode": "raw", "raw": "{\n  \"qrCode\": \"{{qrCode}}\",\n  \"externalTxnId\": \"txn-qa-123\",\n  \"paidAmount\": 1200000\n}" }, "url": { "raw": "{{baseUrl}}/api/billing/payments/qr/simulate", "host": ["{{baseUrl}}"], "path": ["api","billing","payments","qr","simulate"] } },
+              "event": [ { "listen": "test", "script": { "type": "text/javascript", "exec": [ "pm.test('simulate ok', () => pm.response.to.have.status(200));" ] } } ]
+            },
+            {
+              "name": "Get Invoice Payments",
+              "request": { "method": "GET", "header": [ { "key": "Authorization", "value": "Bearer {{accessToken}}" } ], "url": { "raw": "{{baseUrl}}/api/billing/invoices/{{invoiceId}}/payments", "host": ["{{baseUrl}}"], "path": ["api","billing","invoices","{{invoiceId}}","payments"] } },
+              "event": [ { "listen": "test", "script": { "type": "text/javascript", "exec": [ "pm.test('payments ok', () => pm.response.to.have.status(200));" ] } } ]
+            }
+          ]
+        },
+        {
+          "name": "Billing - Bank",
+          "item": [
+            { "name": "Get Bank Info (admin)", "request": { "method": "GET", "header": [ { "key": "Authorization", "value": "Bearer {{accessToken}}" } ], "url": { "raw": "{{baseUrl}}/api/billing/admin/bank", "host": ["{{baseUrl}}"], "path": ["api","billing","admin","bank"] } }, "event": [ { "listen": "test", "script": { "type": "text/javascript", "exec": [ "pm.test('Get bank returns 200 or 404', () => pm.expect(pm.response.code).to.be.oneOf([200,404])); try { var j = pm.response.json(); if (j && j.id) pm.environment.set('bankInfoId', j.id); } catch(e) {}" ] } } ] },
+            { "name": "Upsert Bank Info (admin)", "request": { "method": "POST", "header": [ { "key": "Authorization", "value": "Bearer {{accessToken}}" }, { "key": "Content-Type", "value": "application/json" } ], "body": { "mode": "raw", "raw": "{\n  \"accountNumber\": \"5907205384680\",\n  \"ownerName\": \"VU TU OANH\",\n  \"bankName\": \"AGRIBANK\",\n  \"imageBase64\": null\n}" }, "url": { "raw": "{{baseUrl}}/api/billing/admin/bank", "host": ["{{baseUrl}}"], "path": ["api","billing","admin","bank"] } }, "event": [ { "listen": "test", "script": { "type": "text/javascript", "exec": [ "pm.test('Upsert bank returns 200', () => pm.response.to.have.status(200)); try { const j = pm.response.json(); if (j && j.id) pm.environment.set('bankInfoId', j.id); } catch(e) {}" ] } } ] },
+            { "name": "Upload Bank Image (admin)", "request": { "method": "POST", "header": [ { "key": "Authorization", "value": "Bearer {{accessToken}}" } ], "body": { "mode": "formdata", "formdata": [ { "key": "file", "type": "file", "src": "", "description": "Upload logo/image (png,jpg)." } ] }, "url": { "raw": "{{baseUrl}}/api/billing/admin/bank/upload", "host": ["{{baseUrl}}"], "path": ["api","billing","admin","bank","upload"] } }, "event": [ { "listen": "test", "script": { "type": "text/javascript", "exec": [ "pm.test('Upload bank image returns 200 and contains imageUrl', function () { pm.response.to.have.status(200); var j = pm.response.json(); pm.expect(j).to.have.property('imageUrl'); pm.environment.set('bankImageUrl', j.imageUrl); });" ] } } ] }
+          ]
+        }
+      ]
+    }

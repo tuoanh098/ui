@@ -1,0 +1,12 @@
+1. Chạy project backend bằng lệnh sau trong terminal:
+.\mvnw.cmd clean package -DskipTests
+or
+.\mvnw.cmd spring-boot:run
+2. Đăng nhập bằng tài khoản admin
+Username: admin
+Password: Admin@123
+
+$body = @{ username='admin'; password='Admin@123' } | ConvertTo-Json
+$resp = Invoke-RestMethod -Method Post -Uri 'http://localhost:8081/api/auth/login' -Body $body -ContentType 'application/json'
+$token = $resp.accessToken
+$hdr = @{ Authorization = "Bearer $token" }

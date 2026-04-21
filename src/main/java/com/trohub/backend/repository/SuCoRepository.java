@@ -1,0 +1,10 @@
+package com.trohub.backend.repository;
+
+import com.trohub.backend.modal.SuCo;
+import org.springframework.data.jpa.repository.JpaRepository;
+import org.springframework.stereotype.Repository;
+
+@Repository
+public interface SuCoRepository extends JpaRepository<SuCo, Long> {
+}
+
