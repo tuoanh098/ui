@@ -2,11 +2,11 @@
   "info": {
         "name": "Trohub Backend - Postman Collection (Grouped)",
         "_postman_id": "trohub-backend-postman",
-        "description": "Grouped Postman collection with folders per resource and basic assertions. Set the environment variable `baseUrl` (default http://localhost:8081).",
+        "description": "Grouped Postman collection with folders per resource and basic assertions. Set the environment variable `baseUrl` (default https://backend-ufb3.onrender.com).",
         "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
       },
       "variable": [
-        { "key": "baseUrl", "value": "http://localhost:8081" },
+        { "key": "baseUrl", "value": "https://backend-ufb3.onrender.com" },
         { "key": "accessToken", "value": "" },
         { "key": "incidentId", "value": "" },
         { "key": "invoiceId", "value": "" },

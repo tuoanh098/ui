@@ -7,6 +7,6 @@ Username: admin
 Password: Admin@123
 
 $body = @{ username='admin'; password='Admin@123' } | ConvertTo-Json
-$resp = Invoke-RestMethod -Method Post -Uri 'http://localhost:8081/api/auth/login' -Body $body -ContentType 'application/json'
+$resp = Invoke-RestMethod -Method Post -Uri 'https://backend-ufb3.onrender.com/api/auth/login' -Body $body -ContentType 'application/json'
 $token = $resp.accessToken
 $hdr = @{ Authorization = "Bearer $token" }

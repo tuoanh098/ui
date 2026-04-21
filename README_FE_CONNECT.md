@@ -4,8 +4,8 @@ Mục đích
 - Hướng dẫn nhanh cho Frontend (Android native / other clients) để kết nối tới backend Spring Boot, lấy token JWT và gọi các API chính.
 
 Yêu cầu trước khi bắt đầu
-- Backend đang chạy (dev local): http://localhost:8081
-  - Khởi động bằng: `.\mvnw.cmd spring-boot:run` hoặc `java -jar target/backend-0.0.1-SNAPSHOT.jar`
+- Backend (dev local) chạy ở http://localhost:8081; deployed backend (QA) tại: https://backend-ufb3.onrender.com
+  - Khởi động local: `./mvnw.cmd spring-boot:run` hoặc `java -jar target/backend-0.0.1-SNAPSHOT.jar`
 - Có tài khoản test (DataInitializer tạo tự động khi backend khởi động):
   - admin / Admin@123  (ROLE_ADMIN, ROLE_USER)
   - billing / Billing@123 (ROLE_BILLING_STAFF, ROLE_USER)
@@ -122,7 +122,7 @@ Ví dụ request (có thể dùng Postman / Retrofit)
   }
 
 - Upload attachment (multipart form):
-  curl -X POST "http://localhost:8081/api/incidents/123/attachments" \
+  curl -X POST "https://backend-ufb3.onrender.com/api/incidents/123/attachments" \
     -H "Authorization: Bearer <accessToken>" \
     -F "file=@/path/to/image.jpg"
 
