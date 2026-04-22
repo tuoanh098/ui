@@ -1,6 +1,8 @@
 package com.trohub.ui.rooms;
 
 import android.os.Bundle;
+import android.text.Editable;
+import android.text.TextWatcher;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.widget.AutoCompleteTextView;
@@ -43,6 +45,8 @@ public class RoomsActivity extends AppCompatActivity implements RoomsAdapter.Roo
     private TextView tvEmpty;
     private SwipeRefreshLayout swipeRefresh;
     private Button btnAddRoom;
+    private EditText etSearchRoom;
+    private final List<Phong> visibleRooms = new ArrayList<>();
 
     private SessionManager sessionManager;
     private ApiService apiService;
@@ -63,6 +67,7 @@ public class RoomsActivity extends AppCompatActivity implements RoomsAdapter.Roo
         tvEmpty = findViewById(R.id.tvEmpty);
         swipeRefresh = findViewById(R.id.swipeRefresh);
         btnAddRoom = findViewById(R.id.btnAddRoom);
+        etSearchRoom = findViewById(R.id.etSearchRoom);
 
         rvRooms.setLayoutManager(new LinearLayoutManager(this));
         sessionManager = new SessionManager(this);
@@ -92,6 +97,12 @@ public class RoomsActivity extends AppCompatActivity implements RoomsAdapter.Roo
         });
 
         swipeRefresh.setOnRefreshListener(() -> loadRooms(false));
+        etSearchRoom.addTextChangedListener(new SimpleWatcher() {
+            @Override
+            public void afterTextChanged(Editable s) {
+                renderRooms();
+            }
+        });
         loadRooms(true);
     }
 
@@ -190,12 +201,41 @@ public class RoomsActivity extends AppCompatActivity implements RoomsAdapter.Roo
     }
 
     private void applyRooms(List<Phong> rooms) {
-        adapter.setRooms(rooms);
-        boolean isEmpty = rooms == null || rooms.isEmpty();
+        visibleRooms.clear();
+        if (rooms != null) visibleRooms.addAll(rooms);
+        renderRooms();
+    }
+
+    private void renderRooms() {
+        String q = etSearchRoom == null ? "" : etSearchRoom.getText().toString().trim().toLowerCase();
+        List<Phong> filtered = new ArrayList<>();
+        for (Phong room : visibleRooms) {
+            if (matchesRoom(room, q)) filtered.add(room);
+        }
+        adapter.setRooms(filtered);
+        boolean isEmpty = filtered.isEmpty();
         tvEmpty.setVisibility(isEmpty ? View.VISIBLE : View.GONE);
         if (isEmpty) {
-            tvEmpty.setText("Không có phòng phù hợp quyền truy cập");
+            tvEmpty.setText(q.isEmpty() ? "Không có phòng phù hợp quyền truy cập" : "Không tìm thấy phòng phù hợp");
         }
+    }
+
+    private boolean matchesRoom(Phong room, String q) {
+        if (q == null || q.isEmpty()) return true;
+        return contains(room.getMaPhong(), q)
+                || contains(room.getTrangThai(), q)
+                || contains(room.getMoTa(), q)
+                || contains(String.valueOf(room.getId()), q)
+                || contains(String.valueOf(room.getToaNhaId()), q);
+    }
+
+    private boolean contains(String value, String q) {
+        return value != null && value.toLowerCase().contains(q);
+    }
+
+    private abstract static class SimpleWatcher implements TextWatcher {
+        @Override public void beforeTextChanged(CharSequence s, int start, int count, int after) {}
+        @Override public void onTextChanged(CharSequence s, int start, int before, int count) {}
     }
 
     @Override

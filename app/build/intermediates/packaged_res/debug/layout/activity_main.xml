@@ -428,6 +428,15 @@
                 android:layout_marginTop="8dp"
                 android:nestedScrollingEnabled="false" />
 
+            <Button
+                android:id="@+id/btnShowMoreRecent"
+                style="@style/Widget.TroHub.Button.Secondary"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="8dp"
+                android:text="Hiển thị thêm"
+                android:visibility="gone" />
+
             <TextView
                 android:id="@+id/tvRecentEmpty"
                 android:layout_width="match_parent"

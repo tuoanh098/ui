@@ -70,6 +70,9 @@ public class MainActivity extends AppCompatActivity {
 
     private RecentActivityAdapter recentActivityAdapter;
     private final List<String> overdueRoomLines = new ArrayList<>();
+    private final List<RecentActivityItem> allRecentActivityItems = new ArrayList<>();
+    private int recentVisibleLimit = 5;
+    private Button btnShowMoreRecent;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -109,6 +112,7 @@ public class MainActivity extends AppCompatActivity {
         TextView tvRecentEmpty = findViewById(R.id.tvRecentEmpty);
         RecyclerView rvRecent = findViewById(R.id.rvRecentActivities);
         LinearLayout alertOverdue = findViewById(R.id.alertOverdue);
+        btnShowMoreRecent = findViewById(R.id.btnShowMoreRecent);
 
         Button btnProfile = findViewById(R.id.btnProfile);
         Button btnRooms = findViewById(R.id.btnRooms);
@@ -136,6 +140,10 @@ public class MainActivity extends AppCompatActivity {
         rvRecent.setLayoutManager(new LinearLayoutManager(this));
         recentActivityAdapter = new RecentActivityAdapter();
         rvRecent.setAdapter(recentActivityAdapter);
+        btnShowMoreRecent.setOnClickListener(v -> {
+            recentVisibleLimit += 5;
+            applyRecentActivityLimit();
+        });
 
         tvUser.setText("Chào, " + sessionManager.getUsername());
         List<String> roles = sessionManager.getRoles();
@@ -248,20 +256,6 @@ public class MainActivity extends AppCompatActivity {
     }
 
     private void showFunctionMenu(boolean canCreateTenantAccount) {
-        List<MenuItem> items = new ArrayList<>();
-        items.add(new MenuItem("P", "Hồ sơ cá nhân", "Thông tin tài khoản, ngân hàng, đăng xuất", ProfileActivity.class));
-        items.add(new MenuItem("B", "Quản lý tòa nhà", "Danh sách, chi tiết và CRUD tòa nhà", BuildingsActivity.class));
-        items.add(new MenuItem("R", "Quản lý phòng", "Phòng, trạng thái và khách trong phòng", RoomsActivity.class));
-        items.add(new MenuItem("T", "Quản lý khách thuê", "Hồ sơ khách thuê và liên kết phòng", TenantsActivity.class));
-        items.add(new MenuItem("C", "Hợp đồng", "Hợp đồng thuê, tiền phòng và dịch vụ", ContractsActivity.class));
-        items.add(new MenuItem("H", "Hóa đơn / thanh toán", "Tạo kỳ, QR, phí trễ hạn", BillingActivity.class));
-        items.add(new MenuItem("S", "Thống kê & báo cáo", "Doanh thu, lọc theo phòng/tòa/trạng thái", ReportsActivity.class));
-        items.add(new MenuItem("I", "Quản lý sự cố", "Theo dõi, xử lý và xem ảnh sự cố", IncidentsActivity.class));
-        items.add(new MenuItem("G", "Duyệt khách ra/vào", "Duyệt, yêu cầu bổ sung hoặc từ chối", LandlordGuestReviewActivity.class));
-        if (canCreateTenantAccount) {
-            items.add(new MenuItem("+", "Tạo tài khoản khách thuê", "Cấp tài khoản đăng nhập cho tenant", CreateTenantAccountActivity.class));
-        }
-
         BottomSheetDialog dialog = new BottomSheetDialog(this);
         LinearLayout root = new LinearLayout(this);
         root.setOrientation(LinearLayout.VERTICAL);
@@ -293,20 +287,64 @@ public class MainActivity extends AppCompatActivity {
         subtitle.setPadding(dp(18), dp(3), dp(18), dp(10));
         root.addView(subtitle);
 
-        RecyclerView recyclerView = new RecyclerView(this);
-        recyclerView.setNestedScrollingEnabled(false);
-        recyclerView.setLayoutManager(new LinearLayoutManager(this));
-        recyclerView.setAdapter(new FunctionMenuAdapter(items, item -> {
-            dialog.dismiss();
-            startActivity(new Intent(MainActivity.this, item.activityClass));
-        }));
-        root.addView(recyclerView, new LinearLayout.LayoutParams(
+        android.widget.ScrollView scrollView = new android.widget.ScrollView(this);
+        LinearLayout content = new LinearLayout(this);
+        content.setOrientation(LinearLayout.VERTICAL);
+        content.setPadding(0, 0, 0, dp(8));
+
+        addMenuSection(content, "Hồ sơ cá nhân");
+        addMenuRow(content, dialog, new MenuItem("P", "Hồ sơ cá nhân", "Thông tin tài khoản, ngân hàng, đăng xuất", ProfileActivity.class));
+
+        addMenuSection(content, "Quản lý");
+        addMenuRow(content, dialog, new MenuItem("B", "Quản lý tòa nhà", "Danh sách, chi tiết và CRUD tòa nhà", BuildingsActivity.class));
+        addMenuRow(content, dialog, new MenuItem("R", "Quản lý phòng", "Phòng, trạng thái và khách trong phòng", RoomsActivity.class));
+        addMenuRow(content, dialog, new MenuItem("T", "Quản lý khách thuê", "Hồ sơ khách thuê và liên kết phòng", TenantsActivity.class));
+        addMenuRow(content, dialog, new MenuItem("C", "Hợp đồng", "Hợp đồng thuê, tiền phòng và dịch vụ", ContractsActivity.class));
+
+        addMenuSection(content, "Thanh toán");
+        addMenuRow(content, dialog, new MenuItem("H", "Hóa đơn / thanh toán", "Tạo kỳ, QR, phí trễ hạn", BillingActivity.class));
+        addMenuRow(content, dialog, new MenuItem("S", "Thống kê & báo cáo", "Doanh thu, lọc theo phòng/tòa/trạng thái", ReportsActivity.class));
+
+        addMenuSection(content, "Chức năng khác");
+        addMenuRow(content, dialog, new MenuItem("I", "Quản lý sự cố", "Theo dõi, xử lý và xem ảnh sự cố", IncidentsActivity.class));
+        addMenuRow(content, dialog, new MenuItem("G", "Duyệt khách ra/vào", "Duyệt, yêu cầu bổ sung hoặc từ chối", LandlordGuestReviewActivity.class));
+        if (canCreateTenantAccount) {
+            addMenuRow(content, dialog, new MenuItem("+", "Tạo tài khoản khách thuê", "Cấp tài khoản đăng nhập cho tenant", CreateTenantAccountActivity.class));
+        }
+
+        scrollView.addView(content);
+        root.addView(scrollView, new LinearLayout.LayoutParams(
                 LinearLayout.LayoutParams.MATCH_PARENT,
-                LinearLayout.LayoutParams.WRAP_CONTENT
+                dp(520)
         ));
 
         dialog.setContentView(root);
         dialog.show();
+    }
+
+    private void addMenuSection(LinearLayout parent, String titleText) {
+        TextView title = new TextView(this);
+        title.setText(titleText);
+        title.setTextColor(0xFF0B4F4A);
+        title.setTextSize(13);
+        title.setTypeface(null, android.graphics.Typeface.BOLD);
+        title.setPadding(dp(18), dp(14), dp(18), dp(6));
+        parent.addView(title);
+    }
+
+    private void addMenuRow(LinearLayout parent, BottomSheetDialog dialog, MenuItem item) {
+        View view = LayoutInflater.from(this).inflate(R.layout.item_function_menu, parent, false);
+        TextView icon = view.findViewById(R.id.tvMenuIcon);
+        TextView title = view.findViewById(R.id.tvMenuTitle);
+        TextView subtitle = view.findViewById(R.id.tvMenuSubtitle);
+        icon.setText(item.icon);
+        title.setText(item.title);
+        subtitle.setText(item.subtitle);
+        view.setOnClickListener(v -> {
+            dialog.dismiss();
+            startActivity(new Intent(MainActivity.this, item.activityClass));
+        });
+        parent.addView(view);
     }
 
     private void loadLandlordOverview(
@@ -669,14 +707,24 @@ public class MainActivity extends AppCompatActivity {
 
     private void publishRecentActivities(List<ActivitySeed> seeds, TextView tvRecentEmpty) {
         Collections.sort(seeds, (a, b) -> Long.compare(b.epochMs, a.epochMs));
-        List<RecentActivityItem> items = new ArrayList<>();
-        int limit = Math.min(10, seeds.size());
+        allRecentActivityItems.clear();
+        int limit = Math.min(30, seeds.size());
         for (int i = 0; i < limit; i++) {
             ActivitySeed seed = seeds.get(i);
-            items.add(new RecentActivityItem(seed.title, seed.subtitle, toRelativeLabel(seed.epochMs)));
+            allRecentActivityItems.add(new RecentActivityItem(seed.title, seed.subtitle, toRelativeLabel(seed.epochMs)));
         }
-        recentActivityAdapter.setItems(items);
-        tvRecentEmpty.setVisibility(items.isEmpty() ? View.VISIBLE : View.GONE);
+        recentVisibleLimit = Math.min(recentVisibleLimit, Math.max(5, allRecentActivityItems.size()));
+        applyRecentActivityLimit();
+        tvRecentEmpty.setVisibility(allRecentActivityItems.isEmpty() ? View.VISIBLE : View.GONE);
+    }
+
+    private void applyRecentActivityLimit() {
+        int limit = Math.min(recentVisibleLimit, allRecentActivityItems.size());
+        recentActivityAdapter.setItems(new ArrayList<>(allRecentActivityItems.subList(0, limit)));
+        if (btnShowMoreRecent != null) {
+            btnShowMoreRecent.setVisibility(limit < allRecentActivityItems.size() ? View.VISIBLE : View.GONE);
+            btnShowMoreRecent.setText("Hiển thị thêm (" + (allRecentActivityItems.size() - limit) + ")");
+        }
     }
 
     private String toRelativeLabel(long epochMs) {

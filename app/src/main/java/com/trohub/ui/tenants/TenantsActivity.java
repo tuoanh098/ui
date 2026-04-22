@@ -2,6 +2,8 @@ package com.trohub.ui.tenants;
 
 import android.app.AlertDialog;
 import android.os.Bundle;
+import android.text.Editable;
+import android.text.TextWatcher;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.widget.AutoCompleteTextView;
@@ -42,6 +44,8 @@ public class TenantsActivity extends AppCompatActivity implements TenantsAdapter
     private TextView tvEmpty;
     private SwipeRefreshLayout swipeRefresh;
     private Button btnAddTenant;
+    private EditText etSearchTenant;
+    private final List<Tenant> visibleTenants = new ArrayList<>();
 
     private ApiService apiService;
     private boolean canManageTenants;
@@ -56,6 +60,7 @@ public class TenantsActivity extends AppCompatActivity implements TenantsAdapter
         tvEmpty = findViewById(R.id.tvEmpty);
         swipeRefresh = findViewById(R.id.swipeRefresh);
         btnAddTenant = findViewById(R.id.btnAddTenant);
+        etSearchTenant = findViewById(R.id.etSearchTenant);
         rvTenants.setLayoutManager(new LinearLayoutManager(this));
 
         SessionManager sessionManager = new SessionManager(this);
@@ -70,6 +75,12 @@ public class TenantsActivity extends AppCompatActivity implements TenantsAdapter
         btnAddTenant.setOnClickListener(v -> showCreateOrEditDialog(null));
 
         swipeRefresh.setOnRefreshListener(() -> loadTenants(false));
+        etSearchTenant.addTextChangedListener(new SimpleWatcher() {
+            @Override
+            public void afterTextChanged(Editable s) {
+                renderTenants();
+            }
+        });
         loadTenants(true);
     }
 
@@ -85,9 +96,7 @@ public class TenantsActivity extends AppCompatActivity implements TenantsAdapter
                 progressBar.setVisibility(View.GONE);
                 swipeRefresh.setRefreshing(false);
                 if (response.isSuccessful() && response.body() != null) {
-                    adapter.setTenants(response.body());
-                    boolean isEmpty = response.body().isEmpty();
-                    tvEmpty.setVisibility(isEmpty ? View.VISIBLE : View.GONE);
+                    applyTenants(response.body());
                 } else {
                     tvEmpty.setVisibility(View.VISIBLE);
                     tvEmpty.setText("Không tải được danh sách người thuê");
@@ -104,6 +113,45 @@ public class TenantsActivity extends AppCompatActivity implements TenantsAdapter
                 Toast.makeText(TenantsActivity.this, "Lỗi kết nối: " + t.getMessage(), Toast.LENGTH_SHORT).show();
             }
         });
+    }
+
+    private void applyTenants(List<Tenant> tenants) {
+        visibleTenants.clear();
+        if (tenants != null) visibleTenants.addAll(tenants);
+        renderTenants();
+    }
+
+    private void renderTenants() {
+        String q = etSearchTenant == null ? "" : etSearchTenant.getText().toString().trim().toLowerCase();
+        List<Tenant> filtered = new ArrayList<>();
+        for (Tenant tenant : visibleTenants) {
+            if (matchesTenant(tenant, q)) filtered.add(tenant);
+        }
+        adapter.setTenants(filtered);
+        boolean isEmpty = filtered.isEmpty();
+        tvEmpty.setVisibility(isEmpty ? View.VISIBLE : View.GONE);
+        if (isEmpty) {
+            tvEmpty.setText(q.isEmpty() ? "Không có người thuê" : "Không tìm thấy người thuê phù hợp");
+        }
+    }
+
+    private boolean matchesTenant(Tenant tenant, String q) {
+        if (q == null || q.isEmpty()) return true;
+        return contains(tenant.getHoTen(), q)
+                || contains(tenant.getSdt(), q)
+                || contains(tenant.getCccd(), q)
+                || contains(tenant.getDiaChi(), q)
+                || contains(String.valueOf(tenant.getId()), q)
+                || contains(String.valueOf(tenant.getSophong()), q);
+    }
+
+    private boolean contains(String value, String q) {
+        return value != null && value.toLowerCase().contains(q);
+    }
+
+    private abstract static class SimpleWatcher implements TextWatcher {
+        @Override public void beforeTextChanged(CharSequence s, int start, int count, int after) {}
+        @Override public void onTextChanged(CharSequence s, int start, int before, int count) {}
     }
 
     @Override

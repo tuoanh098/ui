@@ -4,12 +4,12 @@
         "source": "C:\\Users\\tuoan\\.gradle\\daemon\\8.5\\com.trohub.ui.app-main-35:\\layout\\activity_buildings.xml"
     },
     {
-        "merged": "C:\\Users\\tuoan\\.gradle\\daemon\\8.5\\com.trohub.ui.app-merged_res-33:\\layout_activity_create_tenant_account.xml.flat",
-        "source": "C:\\Users\\tuoan\\.gradle\\daemon\\8.5\\com.trohub.ui.app-main-35:\\layout\\activity_create_tenant_account.xml"
-    },
-    {
         "merged": "C:\\Users\\tuoan\\.gradle\\daemon\\8.5\\com.trohub.ui.app-merged_res-33:\\layout_item_guest_review.xml.flat",
         "source": "C:\\Users\\tuoan\\.gradle\\daemon\\8.5\\com.trohub.ui.app-main-35:\\layout\\item_guest_review.xml"
+    },
+    {
+        "merged": "C:\\Users\\tuoan\\.gradle\\daemon\\8.5\\com.trohub.ui.app-merged_res-33:\\layout_activity_create_tenant_account.xml.flat",
+        "source": "C:\\Users\\tuoan\\.gradle\\daemon\\8.5\\com.trohub.ui.app-main-35:\\layout\\activity_create_tenant_account.xml"
     },
     {
         "merged": "C:\\Users\\tuoan\\.gradle\\daemon\\8.5\\com.trohub.ui.app-merged_res-33:\\drawable_bg_dashboard_card.xml.flat",
@@ -36,16 +36,8 @@
         "source": "C:\\Users\\tuoan\\.gradle\\daemon\\8.5\\com.trohub.ui.app-main-35:\\drawable\\bg_button_primary.xml"
     },
     {
-        "merged": "com.trohub.ui.app-merged_res-33:/layout_activity_tenant_detail.xml.flat",
-        "source": "com.trohub.ui.app-main-35:/layout/activity_tenant_detail.xml"
-    },
-    {
         "merged": "C:\\Users\\tuoan\\.gradle\\daemon\\8.5\\com.trohub.ui.app-merged_res-33:\\layout_item_tenant.xml.flat",
         "source": "C:\\Users\\tuoan\\.gradle\\daemon\\8.5\\com.trohub.ui.app-main-35:\\layout\\item_tenant.xml"
-    },
-    {
-        "merged": "com.trohub.ui.app-merged_res-33:/layout_activity_building_detail.xml.flat",
-        "source": "com.trohub.ui.app-main-35:/layout/activity_building_detail.xml"
     },
     {
         "merged": "C:\\Users\\tuoan\\.gradle\\daemon\\8.5\\com.trohub.ui.app-merged_res-33:\\layout_dialog_building_form.xml.flat",
@@ -56,16 +48,8 @@
         "source": "C:\\Users\\tuoan\\.gradle\\daemon\\8.5\\com.trohub.ui.app-main-35:\\layout\\activity_tenants.xml"
     },
     {
-        "merged": "com.trohub.ui.app-merged_res-33:/layout_activity_profile.xml.flat",
-        "source": "com.trohub.ui.app-main-35:/layout/activity_profile.xml"
-    },
-    {
         "merged": "C:\\Users\\tuoan\\.gradle\\daemon\\8.5\\com.trohub.ui.app-merged_res-33:\\drawable_bg_menu_icon.xml.flat",
         "source": "C:\\Users\\tuoan\\.gradle\\daemon\\8.5\\com.trohub.ui.app-main-35:\\drawable\\bg_menu_icon.xml"
-    },
-    {
-        "merged": "com.trohub.ui.app-merged_res-33:/layout_activity_create_tenant_account.xml.flat",
-        "source": "com.trohub.ui.app-main-35:/layout/activity_create_tenant_account.xml"
     },
     {
         "merged": "C:\\Users\\tuoan\\.gradle\\daemon\\8.5\\com.trohub.ui.app-merged_res-33:\\layout_activity_login.xml.flat",
@@ -100,24 +84,16 @@
         "source": "C:\\Users\\tuoan\\.gradle\\daemon\\8.5\\com.trohub.ui.app-main-35:\\layout\\activity_incidents.xml"
     },
     {
-        "merged": "com.trohub.ui.app-merged_res-33:/layout_activity_incidents.xml.flat",
-        "source": "com.trohub.ui.app-main-35:/layout/activity_incidents.xml"
-    },
-    {
-        "merged": "com.trohub.ui.app-merged_res-33:/layout_activity_guest_entries.xml.flat",
-        "source": "com.trohub.ui.app-main-35:/layout/activity_guest_entries.xml"
-    },
-    {
         "merged": "C:\\Users\\tuoan\\.gradle\\daemon\\8.5\\com.trohub.ui.app-merged_res-33:\\layout_item_room_revenue.xml.flat",
         "source": "C:\\Users\\tuoan\\.gradle\\daemon\\8.5\\com.trohub.ui.app-main-35:\\layout\\item_room_revenue.xml"
     },
     {
-        "merged": "C:\\Users\\tuoan\\.gradle\\daemon\\8.5\\com.trohub.ui.app-merged_res-33:\\drawable_bg_menu_sheet.xml.flat",
-        "source": "C:\\Users\\tuoan\\.gradle\\daemon\\8.5\\com.trohub.ui.app-main-35:\\drawable\\bg_menu_sheet.xml"
-    },
-    {
         "merged": "C:\\Users\\tuoan\\.gradle\\daemon\\8.5\\com.trohub.ui.app-merged_res-33:\\layout_dialog_guest_entry_form.xml.flat",
         "source": "C:\\Users\\tuoan\\.gradle\\daemon\\8.5\\com.trohub.ui.app-main-35:\\layout\\dialog_guest_entry_form.xml"
+    },
+    {
+        "merged": "C:\\Users\\tuoan\\.gradle\\daemon\\8.5\\com.trohub.ui.app-merged_res-33:\\drawable_bg_menu_sheet.xml.flat",
+        "source": "C:\\Users\\tuoan\\.gradle\\daemon\\8.5\\com.trohub.ui.app-main-35:\\drawable\\bg_menu_sheet.xml"
     },
     {
         "merged": "C:\\Users\\tuoan\\.gradle\\daemon\\8.5\\com.trohub.ui.app-merged_res-33:\\drawable_bg_button_danger.xml.flat",
@@ -142,10 +118,6 @@
     {
         "merged": "C:\\Users\\tuoan\\.gradle\\daemon\\8.5\\com.trohub.ui.app-merged_res-33:\\drawable_bg_dashboard_alert.xml.flat",
         "source": "C:\\Users\\tuoan\\.gradle\\daemon\\8.5\\com.trohub.ui.app-main-35:\\drawable\\bg_dashboard_alert.xml"
-    },
-    {
-        "merged": "com.trohub.ui.app-merged_res-33:/layout_activity_room_detail.xml.flat",
-        "source": "com.trohub.ui.app-main-35:/layout/activity_room_detail.xml"
     },
     {
         "merged": "C:\\Users\\tuoan\\.gradle\\daemon\\8.5\\com.trohub.ui.app-merged_res-33:\\layout_item_function_menu.xml.flat",
@@ -174,14 +146,6 @@
     {
         "merged": "C:\\Users\\tuoan\\.gradle\\daemon\\8.5\\com.trohub.ui.app-merged_res-33:\\drawable_bg_button_secondary.xml.flat",
         "source": "C:\\Users\\tuoan\\.gradle\\daemon\\8.5\\com.trohub.ui.app-main-35:\\drawable\\bg_button_secondary.xml"
-    },
-    {
-        "merged": "com.trohub.ui.app-merged_res-33:/layout_activity_login.xml.flat",
-        "source": "com.trohub.ui.app-main-35:/layout/activity_login.xml"
-    },
-    {
-        "merged": "com.trohub.ui.app-merged_res-33:/layout_activity_create_incident.xml.flat",
-        "source": "com.trohub.ui.app-main-35:/layout/activity_create_incident.xml"
     },
     {
         "merged": "C:\\Users\\tuoan\\.gradle\\daemon\\8.5\\com.trohub.ui.app-merged_res-33:\\drawable_bg_button_warning.xml.flat",
@@ -244,6 +208,10 @@
         "source": "C:\\Users\\tuoan\\.gradle\\daemon\\8.5\\com.trohub.ui.app-main-35:\\layout\\item_incident.xml"
     },
     {
+        "merged": "com.trohub.ui.app-merged_res-33:/layout_activity_main.xml.flat",
+        "source": "com.trohub.ui.app-main-35:/layout/activity_main.xml"
+    },
+    {
         "merged": "com.trohub.ui.app-merged_res-33:/layout_activity_tenants.xml.flat",
         "source": "com.trohub.ui.app-main-35:/layout/activity_tenants.xml"
     },
@@ -258,10 +226,6 @@
     {
         "merged": "C:\\Users\\tuoan\\.gradle\\daemon\\8.5\\com.trohub.ui.app-merged_res-33:\\drawable_bg_dashboard_header.xml.flat",
         "source": "C:\\Users\\tuoan\\.gradle\\daemon\\8.5\\com.trohub.ui.app-main-35:\\drawable\\bg_dashboard_header.xml"
-    },
-    {
-        "merged": "com.trohub.ui.app-merged_res-33:/layout_activity_landlord_guest_review.xml.flat",
-        "source": "com.trohub.ui.app-main-35:/layout/activity_landlord_guest_review.xml"
     },
     {
         "merged": "C:\\Users\\tuoan\\.gradle\\daemon\\8.5\\com.trohub.ui.app-merged_res-33:\\layout_item_building.xml.flat",

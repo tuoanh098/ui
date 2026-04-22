@@ -94,6 +94,7 @@ id btnRooms
 id btnSaveBank
 id btnSaveTenant
 id btnSelectImage
+id btnShowMoreRecent
 id btnSimulatePaid
 id btnSubmit
 id btnTenantBilling
@@ -154,7 +155,11 @@ id etRoomDesc
 id etRoomId
 id etRoomKeyword
 id etRoomStatus
+id etSearchBuilding
+id etSearchContract
+id etSearchInvoice
 id etSearchRoom
+id etSearchTenant
 id etTenantAccountId
 id etTenantAddress
 id etTenantBirth
@@ -363,6 +368,7 @@ style Text.TroHub.Body
 style Text.TroHub.Section
 style Text.TroHub.Title
 style Theme.TroHub
+style Theme.TroHub.AlertDialog
 style Widget.TroHub.ActionBar
 style Widget.TroHub.Button
 style Widget.TroHub.Button.Danger
@@ -370,5 +376,6 @@ style Widget.TroHub.Button.Secondary
 style Widget.TroHub.Button.SmallDanger
 style Widget.TroHub.Button.SmallSecondary
 style Widget.TroHub.Button.Warning
+style Widget.TroHub.DialogButton
 style Widget.TroHub.EditText
 style Widget.TroHub.Spinner

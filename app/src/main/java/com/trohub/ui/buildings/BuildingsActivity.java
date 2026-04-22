@@ -2,6 +2,8 @@ package com.trohub.ui.buildings;
 
 import android.app.AlertDialog;
 import android.os.Bundle;
+import android.text.Editable;
+import android.text.TextWatcher;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.widget.AutoCompleteTextView;
@@ -40,6 +42,8 @@ public class BuildingsActivity extends AppCompatActivity implements BuildingsAda
     private TextView tvEmpty;
     private SwipeRefreshLayout swipeRefresh;
     private Button btnAddBuilding;
+    private EditText etSearchBuilding;
+    private final List<ToaNha> visibleBuildings = new ArrayList<>();
 
     private SessionManager sessionManager;
     private ApiService apiService;
@@ -55,6 +59,7 @@ public class BuildingsActivity extends AppCompatActivity implements BuildingsAda
         tvEmpty = findViewById(R.id.tvEmpty);
         swipeRefresh = findViewById(R.id.swipeRefresh);
         btnAddBuilding = findViewById(R.id.btnAddBuilding);
+        etSearchBuilding = findViewById(R.id.etSearchBuilding);
 
         rvBuildings.setLayoutManager(new LinearLayoutManager(this));
 
@@ -69,6 +74,12 @@ public class BuildingsActivity extends AppCompatActivity implements BuildingsAda
         btnAddBuilding.setOnClickListener(v -> showCreateOrEditDialog(null));
 
         swipeRefresh.setOnRefreshListener(() -> loadBuildings(false));
+        etSearchBuilding.addTextChangedListener(new SimpleWatcher() {
+            @Override
+            public void afterTextChanged(Editable s) {
+                renderBuildings();
+            }
+        });
         loadBuildings(true);
     }
 
@@ -104,12 +115,40 @@ public class BuildingsActivity extends AppCompatActivity implements BuildingsAda
     }
 
     private void applyBuildings(List<ToaNha> buildings) {
-        adapter.setBuildings(buildings);
-        boolean isEmpty = buildings == null || buildings.isEmpty();
+        visibleBuildings.clear();
+        if (buildings != null) visibleBuildings.addAll(buildings);
+        renderBuildings();
+    }
+
+    private void renderBuildings() {
+        String q = etSearchBuilding == null ? "" : etSearchBuilding.getText().toString().trim().toLowerCase();
+        List<ToaNha> filtered = new ArrayList<>();
+        for (ToaNha building : visibleBuildings) {
+            if (matchesBuilding(building, q)) filtered.add(building);
+        }
+        adapter.setBuildings(filtered);
+        boolean isEmpty = filtered.isEmpty();
         tvEmpty.setVisibility(isEmpty ? View.VISIBLE : View.GONE);
         if (isEmpty) {
-            tvEmpty.setText("Không có tòa nhà phù hợp quyền truy cập");
+            tvEmpty.setText(q.isEmpty() ? "Không có tòa nhà phù hợp quyền truy cập" : "Không tìm thấy tòa nhà phù hợp");
         }
+    }
+
+    private boolean matchesBuilding(ToaNha building, String q) {
+        if (q == null || q.isEmpty()) return true;
+        return contains(building.getTen(), q)
+                || contains(building.getDiaChi(), q)
+                || contains(String.valueOf(building.getId()), q)
+                || contains(String.valueOf(building.getChuTroId()), q);
+    }
+
+    private boolean contains(String value, String q) {
+        return value != null && value.toLowerCase().contains(q);
+    }
+
+    private abstract static class SimpleWatcher implements TextWatcher {
+        @Override public void beforeTextChanged(CharSequence s, int start, int count, int after) {}
+        @Override public void onTextChanged(CharSequence s, int start, int before, int count) {}
     }
 
     @Override

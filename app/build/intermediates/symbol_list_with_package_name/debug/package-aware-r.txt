@@ -3230,6 +3230,7 @@ id btnRooms
 id btnSaveBank
 id btnSaveTenant
 id btnSelectImage
+id btnShowMoreRecent
 id btnSimulatePaid
 id btnSubmit
 id btnTenantBilling
@@ -3370,7 +3371,11 @@ id etRoomDesc
 id etRoomId
 id etRoomKeyword
 id etRoomStatus
+id etSearchBuilding
+id etSearchContract
+id etSearchInvoice
 id etSearchRoom
+id etSearchTenant
 id etTenantAccountId
 id etTenantAddress
 id etTenantBirth
@@ -4873,6 +4878,7 @@ style Theme_MaterialComponents_Light_NoActionBar_Bridge
 style Theme_MaterialComponents_NoActionBar
 style Theme_MaterialComponents_NoActionBar_Bridge
 style Theme_TroHub
+style Theme_TroHub_AlertDialog
 style ThemeOverlay_AppCompat
 style ThemeOverlay_AppCompat_ActionBar
 style ThemeOverlay_AppCompat_Dark
@@ -5370,6 +5376,7 @@ style Widget_TroHub_Button_Secondary
 style Widget_TroHub_Button_SmallDanger
 style Widget_TroHub_Button_SmallSecondary
 style Widget_TroHub_Button_Warning
+style Widget_TroHub_DialogButton
 style Widget_TroHub_EditText
 style Widget_TroHub_Spinner
 styleable ActionBar background backgroundSplit backgroundStacked contentInsetEnd contentInsetEndWithActions contentInsetLeft contentInsetRight contentInsetStart contentInsetStartWithNavigation customNavigationLayout displayOptions divider elevation height hideOnContentScroll homeAsUpIndicator homeLayout icon indeterminateProgressStyle itemPadding logo navigationMode popupTheme progressBarPadding progressBarStyle subtitle subtitleTextStyle title titleTextStyle

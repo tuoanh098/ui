@@ -2,6 +2,8 @@ package com.trohub.ui.contracts;
 
 import android.app.AlertDialog;
 import android.os.Bundle;
+import android.text.Editable;
+import android.text.TextWatcher;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.widget.AutoCompleteTextView;
@@ -42,6 +44,8 @@ public class ContractsActivity extends AppCompatActivity implements ContractsAda
     private TextView tvSummary;
     private SwipeRefreshLayout swipeRefresh;
     private Button btnAddContract;
+    private EditText etSearchContract;
+    private final List<Contract> visibleContracts = new ArrayList<>();
 
     private SessionManager sessionManager;
     private ApiService apiService;
@@ -60,6 +64,7 @@ public class ContractsActivity extends AppCompatActivity implements ContractsAda
         tvSummary = findViewById(R.id.tvSummary);
         swipeRefresh = findViewById(R.id.swipeRefresh);
         btnAddContract = findViewById(R.id.btnAddContract);
+        etSearchContract = findViewById(R.id.etSearchContract);
 
         rvContracts.setLayoutManager(new LinearLayoutManager(this));
         sessionManager = new SessionManager(this);
@@ -76,6 +81,12 @@ public class ContractsActivity extends AppCompatActivity implements ContractsAda
         btnAddContract.setOnClickListener(v -> showCreateOrEditDialog(null));
 
         swipeRefresh.setOnRefreshListener(() -> loadContracts(false));
+        etSearchContract.addTextChangedListener(new SimpleWatcher() {
+            @Override
+            public void afterTextChanged(Editable s) {
+                renderContracts();
+            }
+        });
         loadContracts(true);
     }
 
@@ -150,13 +161,44 @@ public class ContractsActivity extends AppCompatActivity implements ContractsAda
     }
 
     private void applyContracts(List<Contract> contracts) {
-        adapter.setContracts(contracts);
-        int total = contracts == null ? 0 : contracts.size();
+        visibleContracts.clear();
+        if (contracts != null) visibleContracts.addAll(contracts);
+        renderContracts();
+    }
+
+    private void renderContracts() {
+        String q = etSearchContract == null ? "" : etSearchContract.getText().toString().trim().toLowerCase();
+        List<Contract> filtered = new ArrayList<>();
+        for (Contract contract : visibleContracts) {
+            if (matchesContract(contract, q)) filtered.add(contract);
+        }
+        adapter.setContracts(filtered);
+        int total = filtered.size();
         tvSummary.setText(total + " hợp đồng");
         tvEmpty.setVisibility(total == 0 ? View.VISIBLE : View.GONE);
         if (total == 0) {
-            tvEmpty.setText("Không có hợp đồng phù hợp quyền truy cập");
+            tvEmpty.setText(q.isEmpty() ? "Không có hợp đồng phù hợp quyền truy cập" : "Không tìm thấy hợp đồng phù hợp");
         }
+    }
+
+    private boolean matchesContract(Contract contract, String q) {
+        if (q == null || q.isEmpty()) return true;
+        return contains(contract.getMaHopDong(), q)
+                || contains(contract.getTrangThai(), q)
+                || contains(contract.getNgayBatDau(), q)
+                || contains(contract.getNgayKetThuc(), q)
+                || contains(String.valueOf(contract.getId()), q)
+                || contains(String.valueOf(contract.getPhongId()), q)
+                || contains(String.valueOf(contract.getNguoiId()), q);
+    }
+
+    private boolean contains(String value, String q) {
+        return value != null && value.toLowerCase().contains(q);
+    }
+
+    private abstract static class SimpleWatcher implements TextWatcher {
+        @Override public void beforeTextChanged(CharSequence s, int start, int count, int after) {}
+        @Override public void onTextChanged(CharSequence s, int start, int before, int count) {}
     }
 
     @Override

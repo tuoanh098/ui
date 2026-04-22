@@ -117,6 +117,14 @@
         android:text="Danh Sách Hóa Đơn"
         android:layout_marginBottom="16dp" />
 
+    <EditText
+        android:id="@+id/etSearchInvoice"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginBottom="8dp"
+        android:hint="🔍 Tìm theo người trả, phòng, tòa, mã hóa đơn, trạng thái"
+        android:inputType="text" />
+
     <TextView
         android:id="@+id/tvEmpty"
         android:layout_width="match_parent"

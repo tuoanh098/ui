@@ -5,7 +5,9 @@ import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 import android.os.Build;
 import android.os.Bundle;
+import android.text.Editable;
 import android.text.TextUtils;
+import android.text.TextWatcher;
 import android.util.Base64;
 import android.view.View;
 import android.widget.Button;
@@ -35,6 +37,7 @@ import com.trohub.ui.auth.SessionManager;
 import java.time.LocalDate;
 import java.time.YearMonth;
 import java.time.format.DateTimeFormatter;
+import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.List;
 import java.util.Locale;
@@ -47,6 +50,7 @@ public class BillingActivity extends AppCompatActivity implements InvoiceAdapter
 
     private EditText etYear;
     private EditText etMonth;
+    private EditText etSearchInvoice;
     private EditText etLateFeePerDay;
     private TextView tvBillingHint;
     private TextView tvEmpty;
@@ -62,6 +66,7 @@ public class BillingActivity extends AppCompatActivity implements InvoiceAdapter
     private ApiService apiService;
     private SessionManager sessionManager;
     private InvoiceAdapter adapter;
+    private final List<Invoice> visibleInvoices = new ArrayList<>();
 
     private boolean adminOrStaff;
 
@@ -97,6 +102,7 @@ public class BillingActivity extends AppCompatActivity implements InvoiceAdapter
         tvBillingHint = findViewById(R.id.tvBillingHint);
         etYear = findViewById(R.id.etYear);
         etMonth = findViewById(R.id.etMonth);
+        etSearchInvoice = findViewById(R.id.etSearchInvoice);
         etLateFeePerDay = findViewById(R.id.etLateFeePerDay);
         tvEmpty = findViewById(R.id.tvEmpty);
         btnCheck = findViewById(R.id.btnCheck);
@@ -136,6 +142,12 @@ public class BillingActivity extends AppCompatActivity implements InvoiceAdapter
             qaContainer.setVisibility(show ? View.VISIBLE : View.GONE);
         });
         btnCreatePrice.setOnClickListener(v -> createPriceQA());
+        etSearchInvoice.addTextChangedListener(new SimpleWatcher() {
+            @Override
+            public void afterTextChanged(Editable s) {
+                renderInvoices();
+            }
+        });
     }
 
     private void loadInvoices() {
@@ -150,8 +162,7 @@ public class BillingActivity extends AppCompatActivity implements InvoiceAdapter
             @Override
             public void onResponse(Call<List<Invoice>> call, Response<List<Invoice>> response) {
                 if (response.isSuccessful() && response.body() != null) {
-                    adapter.setInvoices(response.body());
-                    tvEmpty.setVisibility(response.body().isEmpty() ? View.VISIBLE : View.GONE);
+                    applyInvoices(response.body());
                 } else {
                     tvEmpty.setVisibility(View.VISIBLE);
                     Toast.makeText(BillingActivity.this, "Không tải được danh sách hóa đơn", Toast.LENGTH_SHORT).show();
@@ -164,6 +175,43 @@ public class BillingActivity extends AppCompatActivity implements InvoiceAdapter
                 Toast.makeText(BillingActivity.this, "Lỗi kết nối: " + t.getMessage(), Toast.LENGTH_SHORT).show();
             }
         });
+    }
+
+    private void applyInvoices(List<Invoice> invoices) {
+        visibleInvoices.clear();
+        if (invoices != null) visibleInvoices.addAll(invoices);
+        renderInvoices();
+    }
+
+    private void renderInvoices() {
+        String q = etSearchInvoice == null ? "" : etSearchInvoice.getText().toString().trim().toLowerCase();
+        List<Invoice> filtered = new ArrayList<>();
+        for (Invoice invoice : visibleInvoices) {
+            if (matchesInvoice(invoice, q)) filtered.add(invoice);
+        }
+        adapter.setInvoices(filtered);
+        tvEmpty.setVisibility(filtered.isEmpty() ? View.VISIBLE : View.GONE);
+        if (filtered.isEmpty()) {
+            tvEmpty.setText(q.isEmpty() ? "Không có hóa đơn" : "Không tìm thấy hóa đơn phù hợp");
+        }
+    }
+
+    private boolean matchesInvoice(Invoice invoice, String q) {
+        if (q == null || q.isEmpty()) return true;
+        return contains(invoice.getInvoiceNumber(), q)
+                || contains(invoice.getTenantName(), q)
+                || contains(invoice.getTenantPhone(), q)
+                || contains(invoice.getRoomCode(), q)
+                || contains(invoice.getBuildingName(), q)
+                || contains(invoice.getLandlordName(), q)
+                || contains(invoice.getStatus(), q)
+                || contains(String.valueOf(invoice.getId()), q)
+                || contains(String.valueOf(invoice.getTenantId()), q)
+                || contains(String.valueOf(invoice.getRoomId()), q);
+    }
+
+    private boolean contains(String value, String q) {
+        return value != null && value.toLowerCase().contains(q);
     }
 
     private void regenerateAndLoad(boolean showSuccessToast) {
@@ -460,5 +508,10 @@ public class BillingActivity extends AppCompatActivity implements InvoiceAdapter
         if (invoice == null) return "N/A";
         if (!TextUtils.isEmpty(invoice.getInvoiceNumber())) return invoice.getInvoiceNumber();
         return "ID " + invoice.getId();
+    }
+
+    private abstract static class SimpleWatcher implements TextWatcher {
+        @Override public void beforeTextChanged(CharSequence s, int start, int count, int after) {}
+        @Override public void onTextChanged(CharSequence s, int start, int before, int count) {}
     }
 }

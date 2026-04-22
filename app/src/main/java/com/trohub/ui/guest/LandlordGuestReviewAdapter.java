@@ -61,13 +61,20 @@ public class LandlordGuestReviewAdapter extends RecyclerView.Adapter<LandlordGue
 
         String status = safe(item.getApprovalStatus()).toUpperCase();
         boolean isClosed = "APPROVED".equals(status) || "REJECTED".equals(status);
-        holder.btnApprove.setEnabled(!isClosed);
-        holder.btnNeedInfo.setEnabled(!isClosed);
-        holder.btnReject.setEnabled(!isClosed);
+        int actionVisibility = isClosed ? View.GONE : View.VISIBLE;
+        holder.btnApprove.setVisibility(actionVisibility);
+        holder.btnNeedInfo.setVisibility(actionVisibility);
+        holder.btnReject.setVisibility(actionVisibility);
 
-        holder.btnApprove.setOnClickListener(v -> listener.onApprove(item));
-        holder.btnNeedInfo.setOnClickListener(v -> listener.onRequestInfo(item));
-        holder.btnReject.setOnClickListener(v -> listener.onReject(item));
+        if (isClosed) {
+            holder.btnApprove.setOnClickListener(null);
+            holder.btnNeedInfo.setOnClickListener(null);
+            holder.btnReject.setOnClickListener(null);
+        } else {
+            holder.btnApprove.setOnClickListener(v -> listener.onApprove(item));
+            holder.btnNeedInfo.setOnClickListener(v -> listener.onRequestInfo(item));
+            holder.btnReject.setOnClickListener(v -> listener.onReject(item));
+        }
     }
 
     @Override
