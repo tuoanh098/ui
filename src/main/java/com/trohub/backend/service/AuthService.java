@@ -18,6 +18,8 @@ import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
+import java.util.List;
+import java.util.Locale;
 import java.util.stream.Collectors;
 import com.trohub.backend.exception.BadRequestException;
 import com.trohub.backend.util.ServiceUtils;
@@ -128,6 +130,37 @@ public class AuthService {
                 .active(saved.getActive())
                 .roles(saved.getRoles().stream().map(r -> r.getName()).collect(Collectors.toSet()))
                 .build();
+    }
+
+    public List<TaiKhoanDto> listUsers(String q, String role) {
+        String keyword = q == null ? "" : q.trim().toLowerCase(Locale.ROOT);
+        String roleKeyword = role == null ? "" : role.trim().toUpperCase(Locale.ROOT);
+
+        return taiKhoanRepository.findAll().stream()
+                .filter(tk -> keyword.isEmpty()
+                        || contains(tk.getUsername(), keyword)
+                        || contains(tk.getFullName(), keyword)
+                        || contains(tk.getEmail(), keyword)
+                        || contains(String.valueOf(tk.getId()), keyword))
+                .filter(tk -> roleKeyword.isEmpty()
+                        || tk.getRoles().stream().anyMatch(r -> roleKeyword.equalsIgnoreCase(r.getName())))
+                .map(this::toDto)
+                .collect(Collectors.toList());
+    }
+
+    private TaiKhoanDto toDto(TaiKhoan tk) {
+        return TaiKhoanDto.builder()
+                .id(tk.getId())
+                .username(tk.getUsername())
+                .email(tk.getEmail())
+                .fullName(tk.getFullName())
+                .active(tk.getActive())
+                .roles(tk.getRoles().stream().map(r -> r.getName()).collect(Collectors.toSet()))
+                .build();
+    }
+
+    private boolean contains(String value, String keyword) {
+        return value != null && value.toLowerCase(Locale.ROOT).contains(keyword);
     }
 }
 

@@ -19,14 +19,14 @@ public class HopDongController {
         this.hopDongService = hopDongService;
     }
 
-    @PreAuthorize("hasAuthority('ROLE_ADMIN')")
+    @PreAuthorize("hasAnyAuthority('ROLE_ADMIN','ROLE_LANDLORD')")
     @PostMapping
     public ResponseEntity<HopDongDto> create(@jakarta.validation.Valid @RequestBody HopDongDto dto) {
         HopDongDto created = hopDongService.create(dto);
         return ResponseEntity.created(URI.create("/api/contracts/" + created.getId())).body(created);
     }
 
-    @PreAuthorize("hasAuthority('ROLE_ADMIN')")
+    @PreAuthorize("hasAnyAuthority('ROLE_ADMIN','ROLE_LANDLORD')")
     @PutMapping("/{id}")
     public ResponseEntity<HopDongDto> update(@PathVariable Long id, @jakarta.validation.Valid @RequestBody HopDongDto dto) {
         HopDongDto updated = hopDongService.update(id, dto);

@@ -2,9 +2,11 @@ package com.trohub.backend.controller;
 
 import com.trohub.backend.modal.billing.ChiSoDienNuoc;
 import com.trohub.backend.modal.BankInfo;
+import com.trohub.backend.dto.billing.InvoiceDto;
 import com.trohub.backend.repository.BankInfoRepository;
 import com.trohub.backend.modal.billing.MeterType;
 import com.trohub.backend.repository.ChiSoRepository;
+import com.trohub.backend.repository.HopDongRepository;
 import com.trohub.backend.service.BillingService;
 import org.springframework.http.ResponseEntity;
 import org.springframework.http.MediaType;
@@ -13,6 +15,12 @@ import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 
 import java.net.URI;
+import java.time.LocalDate;
+import java.time.YearMonth;
+import java.util.ArrayList;
+import java.util.LinkedHashSet;
+import java.util.List;
+import java.util.Set;
 
 /**
  * Temporary admin endpoints to help QA / Postman testing:
@@ -29,17 +37,19 @@ public class BillingAdminController {
     private final com.trohub.backend.repository.HoaDonRepository hoaDonRepository;
     private final BankInfoRepository bankInfoRepository;
     private final com.trohub.backend.repository.PhieuThuRepository phieuThuRepository;
+    private final HopDongRepository hopDongRepository;
 
-    public BillingAdminController(ChiSoRepository chiSoRepository, BillingService billingService, com.trohub.backend.repository.DonGiaRepository donGiaRepository, com.trohub.backend.repository.HoaDonRepository hoaDonRepository, BankInfoRepository bankInfoRepository, com.trohub.backend.repository.PhieuThuRepository phieuThuRepository) {
+    public BillingAdminController(ChiSoRepository chiSoRepository, BillingService billingService, com.trohub.backend.repository.DonGiaRepository donGiaRepository, com.trohub.backend.repository.HoaDonRepository hoaDonRepository, BankInfoRepository bankInfoRepository, com.trohub.backend.repository.PhieuThuRepository phieuThuRepository, HopDongRepository hopDongRepository) {
         this.chiSoRepository = chiSoRepository;
         this.billingService = billingService;
         this.donGiaRepository = donGiaRepository;
         this.hoaDonRepository = hoaDonRepository;
         this.bankInfoRepository = bankInfoRepository;
         this.phieuThuRepository = phieuThuRepository;
+        this.hopDongRepository = hopDongRepository;
     }
 
-    @PreAuthorize("hasAuthority('ROLE_ADMIN')")
+    @PreAuthorize("hasAnyAuthority('ROLE_ADMIN','ROLE_LANDLORD')")
     @PostMapping("/readings")
     public ResponseEntity<ChiSoDienNuoc> createReading(@RequestBody CreateReadingRequest req) {
         ChiSoDienNuoc r = ChiSoDienNuoc.builder()
@@ -56,21 +66,21 @@ public class BillingAdminController {
         return ResponseEntity.created(URI.create("/api/billing/admin/readings/" + saved.getId())).body(saved);
     }
 
-    @PreAuthorize("hasAuthority('ROLE_ADMIN')")
+    @PreAuthorize("hasAnyAuthority('ROLE_ADMIN','ROLE_LANDLORD')")
     @PostMapping("/apply-daily-fee")
     public ResponseEntity<?> applyDailyFee(@RequestBody ApplyFeeRequest req) {
         billingService.applyDailyLateFee(req.getHoaDonId(), req.getPerDayAmount());
         return ResponseEntity.ok(java.util.Map.of("message", "applied"));
     }
 
-    @PreAuthorize("hasAuthority('ROLE_ADMIN')")
+    @PreAuthorize("hasAnyAuthority('ROLE_ADMIN','ROLE_LANDLORD')")
     @DeleteMapping("/invoices/{id}")
     public ResponseEntity<?> deleteInvoice(@PathVariable Long id) {
         hoaDonRepository.deleteById(id);
         return ResponseEntity.noContent().build();
     }
 
-    @PreAuthorize("hasAuthority('ROLE_ADMIN')")
+    @PreAuthorize("hasAnyAuthority('ROLE_ADMIN','ROLE_LANDLORD')")
     @PostMapping("/invoices/cleanup")
     public ResponseEntity<?> cleanupInvoices(@RequestBody CleanupRequest req) {
         if (req.getTenantId() == null || req.getPeriodYear() == null || req.getPeriodMonth() == null) {
@@ -81,21 +91,44 @@ public class BillingAdminController {
         return ResponseEntity.ok(java.util.Map.of("deleted", list.size()));
     }
 
-    @PreAuthorize("hasAuthority('ROLE_ADMIN')")
+    @PreAuthorize("hasAnyAuthority('ROLE_ADMIN','ROLE_LANDLORD')")
     @PostMapping("/invoices/regenerate")
     public ResponseEntity<?> regenerateInvoice(@RequestBody CleanupRequest req) {
-        if (req.getTenantId() == null || req.getPeriodYear() == null || req.getPeriodMonth() == null) {
-            return ResponseEntity.badRequest().body(java.util.Map.of("error", "tenantId, periodYear and periodMonth are required"));
+        if (req.getPeriodYear() == null || req.getPeriodMonth() == null) {
+            return ResponseEntity.badRequest().body(java.util.Map.of("error", "periodYear and periodMonth are required"));
         }
-        // delete existing invoices for tenant+period
-        var list = hoaDonRepository.findByTenantIdAndPeriodYearAndPeriodMonth(req.getTenantId(), req.getPeriodYear(), req.getPeriodMonth());
-        hoaDonRepository.deleteAll(list);
-        // recreate by calling billing service
-        com.trohub.backend.dto.billing.InvoiceDto dto = billingService.combineSubInvoices(req.getTenantId(), req.getPeriodYear(), req.getPeriodMonth());
-        return ResponseEntity.ok(dto);
+
+        int year = req.getPeriodYear();
+        int month = req.getPeriodMonth();
+
+        if (req.getTenantId() != null) {
+            var list = hoaDonRepository.findByTenantIdAndPeriodYearAndPeriodMonth(req.getTenantId(), year, month);
+            hoaDonRepository.deleteAll(list);
+            InvoiceDto dto = billingService.combineSubInvoices(req.getTenantId(), year, month);
+            return ResponseEntity.ok(java.util.List.of(dto));
+        }
+
+        LocalDate start = YearMonth.of(year, month).atDay(1);
+        LocalDate end = YearMonth.of(year, month).atEndOfMonth();
+
+        Set<Long> tenantIds = new LinkedHashSet<>();
+        hopDongRepository.findAll().stream()
+                .filter(h -> h.getNguoiId() != null)
+                .filter(h -> h.getNgayBatDau() == null || !h.getNgayBatDau().isAfter(end))
+                .filter(h -> h.getNgayKetThuc() == null || !h.getNgayKetThuc().isBefore(start))
+                .filter(h -> h.getTrangThai() == null || !"CANCELLED".equalsIgnoreCase(h.getTrangThai()))
+                .forEach(h -> tenantIds.add(h.getNguoiId()));
+
+        List<InvoiceDto> regenerated = new ArrayList<>();
+        for (Long tenantId : tenantIds) {
+            var exists = hoaDonRepository.findByTenantIdAndPeriodYearAndPeriodMonth(tenantId, year, month);
+            hoaDonRepository.deleteAll(exists);
+            regenerated.add(billingService.combineSubInvoices(tenantId, year, month));
+        }
+        return ResponseEntity.ok(regenerated);
     }
 
-    @PreAuthorize("hasAuthority('ROLE_ADMIN')")
+    @PreAuthorize("hasAnyAuthority('ROLE_ADMIN','ROLE_LANDLORD')")
     @PostMapping("/invoices/{id}/simulate-paid")
     public ResponseEntity<?> simulateInvoicePaid(@PathVariable Long id) {
         var hoaDon = hoaDonRepository.findById(id).orElse(null);
@@ -120,7 +153,7 @@ public class BillingAdminController {
         }
     }
 
-    @PreAuthorize("hasAuthority('ROLE_ADMIN')")
+    @PreAuthorize("hasAnyAuthority('ROLE_ADMIN','ROLE_LANDLORD')")
     @PostMapping("/prices")
     public ResponseEntity<?> createPrice(@RequestBody CreatePriceRequest req) {
         com.trohub.backend.modal.billing.DonGia d = com.trohub.backend.modal.billing.DonGia.builder()
@@ -133,13 +166,13 @@ public class BillingAdminController {
         return ResponseEntity.created(URI.create("/api/billing/admin/prices/" + saved.getId())).body(saved);
     }
 
-    @PreAuthorize("hasAuthority('ROLE_ADMIN')")
+    @PreAuthorize("hasAnyAuthority('ROLE_ADMIN','ROLE_LANDLORD')")
     @GetMapping("/bank")
     public ResponseEntity<BankInfo> getBankInfo() {
         return bankInfoRepository.findTopByOrderByIdAsc().map(ResponseEntity::ok).orElse(ResponseEntity.notFound().build());
     }
 
-    @PreAuthorize("hasAuthority('ROLE_ADMIN')")
+    @PreAuthorize("hasAnyAuthority('ROLE_ADMIN','ROLE_LANDLORD')")
     @PostMapping("/bank")
     public ResponseEntity<BankInfo> upsertBankInfo(@RequestBody BankInfoRequest req) {
         BankInfo b = bankInfoRepository.findTopByOrderByIdAsc().orElse(BankInfo.builder().build());
@@ -151,7 +184,7 @@ public class BillingAdminController {
         return ResponseEntity.ok(saved);
     }
 
-    @PreAuthorize("hasAuthority('ROLE_ADMIN')")
+    @PreAuthorize("hasAnyAuthority('ROLE_ADMIN','ROLE_LANDLORD')")
     @PostMapping(value = "/bank/upload", consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
     public ResponseEntity<?> uploadBankImage(@RequestParam("file") MultipartFile file) {
         // validate

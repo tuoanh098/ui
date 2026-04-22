@@ -12,5 +12,6 @@ public interface KhachVaoRaService {
     List<KhachVaoRaDto> listAll();
     KhachVaoRaDto approve(Long id);
     KhachVaoRaDto reject(Long id);
+    KhachVaoRaDto requestInfo(Long id, String note);
 }
 

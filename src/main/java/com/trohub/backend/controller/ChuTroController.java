@@ -16,6 +16,8 @@ import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
+import java.util.Locale;
+import java.util.stream.Collectors;
 
 @RestController
 @RequestMapping("/api/landlords")
@@ -34,8 +36,19 @@ public class ChuTroController {
     }
 
     @GetMapping
-    public ResponseEntity<List<ChuTroDto>> listAll() {
-        return ResponseEntity.ok(chuTroService.listAll());
+    public ResponseEntity<List<ChuTroDto>> listAll(@RequestParam(value = "q", required = false) String q) {
+        List<ChuTroDto> all = chuTroService.listAll();
+        if (q == null || q.trim().isEmpty()) {
+            return ResponseEntity.ok(all);
+        }
+        String keyword = q.trim().toLowerCase(Locale.ROOT);
+        List<ChuTroDto> filtered = all.stream()
+                .filter(item -> contains(item.getTen(), keyword)
+                        || contains(item.getEmail(), keyword)
+                        || contains(item.getSdt(), keyword)
+                        || contains(String.valueOf(item.getId()), keyword))
+                .collect(Collectors.toList());
+        return ResponseEntity.ok(filtered);
     }
 
     @GetMapping("/{id}")
@@ -44,19 +57,19 @@ public class ChuTroController {
     }
 
     @PostMapping
-    @PreAuthorize("hasAuthority('ROLE_ADMIN')")
+    @PreAuthorize("hasAnyAuthority('ROLE_ADMIN','ROLE_LANDLORD')")
     public ResponseEntity<ChuTroDto> create(@RequestBody ChuTroDto dto) {
         return ResponseEntity.ok(chuTroService.create(dto));
     }
 
     @PutMapping("/{id}")
-    @PreAuthorize("hasAuthority('ROLE_ADMIN')")
+    @PreAuthorize("hasAnyAuthority('ROLE_ADMIN','ROLE_LANDLORD')")
     public ResponseEntity<ChuTroDto> update(@PathVariable Long id, @RequestBody ChuTroDto dto) {
         return ResponseEntity.ok(chuTroService.update(id, dto));
     }
 
     @DeleteMapping("/{id}")
-    @PreAuthorize("hasAuthority('ROLE_ADMIN')")
+    @PreAuthorize("hasAnyAuthority('ROLE_ADMIN','ROLE_LANDLORD')")
     public ResponseEntity<Void> delete(@PathVariable Long id) {
         chuTroService.delete(id);
         return ResponseEntity.noContent().build();
@@ -77,6 +90,10 @@ public class ChuTroController {
         var tk = taiKhoanRepository.findByUsername(username).orElseThrow(() -> new ResponseStatusException(HttpStatus.FORBIDDEN));
         var landlord = chuTroRepository.findByTaiKhoanId(tk.getId()).orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND));
         return ResponseEntity.ok(reportService.landlordSummary(landlord.getId(), from, to));
+    }
+
+    private boolean contains(String value, String keyword) {
+        return value != null && value.toLowerCase(Locale.ROOT).contains(keyword);
     }
 }
 

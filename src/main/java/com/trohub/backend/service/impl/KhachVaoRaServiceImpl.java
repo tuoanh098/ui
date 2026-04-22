@@ -28,6 +28,9 @@ public class KhachVaoRaServiceImpl implements KhachVaoRaService {
 
     private KhachVaoRaDto doCreate(KhachVaoRaDto dto) {
         KhachVaoRa e = KhachVaoRaMapper.toEntity(dto);
+        if (e.getApprovalStatus() == null || e.getApprovalStatus().isBlank()) {
+            e.setApprovalStatus("PENDING");
+        }
         KhachVaoRa saved = khachVaoRaRepository.save(e);
         return KhachVaoRaMapper.toDto(saved);
     }
@@ -84,6 +87,24 @@ public class KhachVaoRaServiceImpl implements KhachVaoRaService {
     private KhachVaoRaDto doReject(Long id) {
         KhachVaoRa exist = khachVaoRaRepository.findById(id).orElseThrow(() -> new ResourceNotFoundException("KhachVaoRa not found"));
         exist.setApprovalStatus("REJECTED");
+        KhachVaoRa saved = khachVaoRaRepository.save(exist);
+        return KhachVaoRaMapper.toDto(saved);
+    }
+
+    @Override
+    public KhachVaoRaDto requestInfo(Long id, String note) {
+        return ServiceUtils.exec(() -> doRequestInfo(id, note), "request info KhachVaoRa id=" + id);
+    }
+
+    private KhachVaoRaDto doRequestInfo(Long id, String note) {
+        KhachVaoRa exist = khachVaoRaRepository.findById(id).orElseThrow(() -> new ResourceNotFoundException("KhachVaoRa not found"));
+        exist.setApprovalStatus("NEED_INFO");
+        String trimmed = note == null ? "" : note.trim();
+        if (!trimmed.isEmpty()) {
+            String old = exist.getGhiChu() == null ? "" : exist.getGhiChu().trim();
+            String prefix = "Yêu cầu bổ sung: " + trimmed;
+            exist.setGhiChu(old.isEmpty() ? prefix : old + "\n" + prefix);
+        }
         KhachVaoRa saved = khachVaoRaRepository.save(exist);
         return KhachVaoRaMapper.toDto(saved);
     }

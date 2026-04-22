@@ -12,6 +12,7 @@ public interface BillingService {
     InvoiceDto combineSubInvoices(Long tenantId, int year, int month);
 
     List<InvoiceDto> listInvoicesForTenant(Long tenantId, int year, int month);
+    List<InvoiceDto> listInvoicesForPeriod(int year, int month);
     InvoiceDto taoDraftHoaDon(Long tenantId, int year, int month);
 
     BigDecimal calculatePenalty(Long hoaDonId);

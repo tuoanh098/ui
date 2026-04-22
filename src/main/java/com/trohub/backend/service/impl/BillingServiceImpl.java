@@ -26,16 +26,14 @@ public class BillingServiceImpl implements BillingService {
     private final HoaDonRepository hoaDonRepository;
     private final PhieuThuRepository phieuThuRepository;
     private final com.trohub.backend.service.BillingService billingServiceProxy;
-    private final com.trohub.backend.repository.TaiKhoanRepository taiKhoanRepository;
     private final com.trohub.backend.repository.HopDongRepository hopDongRepository;
 
-    public BillingServiceImpl(ChiSoRepository chiSoRepository, DonGiaRepository donGiaRepository, HoaDonRepository hoaDonRepository, PhieuThuRepository phieuThuRepository, @Lazy com.trohub.backend.service.BillingService billingServiceProxy, com.trohub.backend.repository.TaiKhoanRepository taiKhoanRepository, com.trohub.backend.repository.HopDongRepository hopDongRepository) {
+    public BillingServiceImpl(ChiSoRepository chiSoRepository, DonGiaRepository donGiaRepository, HoaDonRepository hoaDonRepository, PhieuThuRepository phieuThuRepository, @Lazy com.trohub.backend.service.BillingService billingServiceProxy, com.trohub.backend.repository.HopDongRepository hopDongRepository) {
         this.chiSoRepository = chiSoRepository;
         this.donGiaRepository = donGiaRepository;
         this.hoaDonRepository = hoaDonRepository;
         this.phieuThuRepository = phieuThuRepository;
         this.billingServiceProxy = billingServiceProxy;
-        this.taiKhoanRepository = taiKhoanRepository;
         this.hopDongRepository = hopDongRepository;
     }
 
@@ -61,16 +59,21 @@ public class BillingServiceImpl implements BillingService {
     private List<InvoiceDto> doGenerateMonthlyBills(int year, int month) {
         List<Long> tenants = chiSoRepository.findDistinctTenantIdsForPeriod(year, month);
         List<InvoiceDto> results = new ArrayList<>();
-        // If no readings found for the period, optionally create DRAFT invoices for all tenants (manual review)
+        // If no readings found for the period, fall back to tenants from active contracts.
         if (tenants == null || tenants.isEmpty()) {
-            // get all users who are tenants (here we consider all tai_khoan with ROLE_USER)
-            this.taiKhoanRepository.findAll().stream()
-                    .filter(tk -> tk.getRoles().stream().anyMatch(r -> r.getName().equals("ROLE_USER")))
-                    .forEach(tk -> {
-                        // create draft if not exists
-                        InvoiceDto created = taoDraftHoaDon(tk.getId(), year, month);
-                        results.add(created);
-                    });
+            java.time.LocalDate start = java.time.YearMonth.of(year, month).atDay(1);
+            java.time.LocalDate end = java.time.YearMonth.of(year, month).atEndOfMonth();
+            tenants = hopDongRepository.findAll().stream()
+                    .filter(h -> h.getNguoiId() != null)
+                    .filter(h -> h.getNgayBatDau() == null || !h.getNgayBatDau().isAfter(end))
+                    .filter(h -> h.getNgayKetThuc() == null || !h.getNgayKetThuc().isBefore(start))
+                    .filter(h -> h.getTrangThai() == null || !"CANCELLED".equalsIgnoreCase(h.getTrangThai()))
+                    .map(com.trohub.backend.modal.HopDong::getNguoiId)
+                    .distinct()
+                    .collect(java.util.stream.Collectors.toList());
+        }
+
+        if (tenants == null || tenants.isEmpty()) {
             return results;
         }
 
@@ -311,6 +314,17 @@ public class BillingServiceImpl implements BillingService {
     @Override
     public List<InvoiceDto> listInvoicesForTenant(Long tenantId, int year, int month) {
         return ServiceUtils.exec(() -> hoaDonRepository.findByTenantIdAndPeriodYearAndPeriodMonth(tenantId, year, month).stream().map(BillingMapper::toDto).collect(java.util.stream.Collectors.toList()), "list invoices for tenant " + tenantId);
+    }
+
+    @Override
+    public List<InvoiceDto> listInvoicesForPeriod(int year, int month) {
+        return ServiceUtils.exec(
+                () -> hoaDonRepository.findByPeriodYearAndPeriodMonth(year, month)
+                        .stream()
+                        .map(BillingMapper::toDto)
+                        .collect(java.util.stream.Collectors.toList()),
+                "list invoices for period " + year + "-" + month
+        );
     }
 }
 

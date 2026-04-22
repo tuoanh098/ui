@@ -12,6 +12,7 @@ import java.util.List;
 public interface HoaDonRepository extends JpaRepository<HoaDon, Long> {
 
     List<HoaDon> findByTenantIdAndPeriodYearAndPeriodMonth(Long tenantId, Integer year, Integer month);
+    List<HoaDon> findByPeriodYearAndPeriodMonth(Integer year, Integer month);
 
     List<HoaDon> findByStatusInAndDueDateBefore(List<InvoiceStatus> statuses, LocalDate date);
 

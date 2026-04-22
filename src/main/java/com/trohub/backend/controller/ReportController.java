@@ -26,7 +26,7 @@ public class ReportController {
         this.reportService = reportService;
     }
 
-    @PreAuthorize("hasAnyAuthority('ROLE_BILLING_STAFF','ROLE_ADMIN')")
+    @PreAuthorize("hasAnyAuthority('ROLE_BILLING_STAFF','ROLE_ADMIN','ROLE_LANDLORD')")
     @GetMapping("/revenue")
     public ResponseEntity<List<RevenueReportDto>> revenue(
             @RequestParam @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate from,
@@ -35,7 +35,7 @@ public class ReportController {
         return ResponseEntity.ok(reportService.revenueByPeriod(from, to, groupBy));
     }
 
-    @PreAuthorize("hasAnyAuthority('ROLE_BILLING_STAFF','ROLE_ADMIN')")
+    @PreAuthorize("hasAnyAuthority('ROLE_BILLING_STAFF','ROLE_ADMIN','ROLE_LANDLORD')")
     @GetMapping("/top-tenants")
     public ResponseEntity<List<TopTenantDto>> topTenants(
             @RequestParam @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate from,
@@ -44,14 +44,14 @@ public class ReportController {
         return ResponseEntity.ok(reportService.topTenants(from, to, limit));
     }
 
-    @PreAuthorize("hasAnyAuthority('ROLE_BILLING_STAFF','ROLE_ADMIN')")
+    @PreAuthorize("hasAnyAuthority('ROLE_BILLING_STAFF','ROLE_ADMIN','ROLE_LANDLORD')")
     @GetMapping("/overdue")
     public ResponseEntity<OverdueCountDto> overdue(
             @RequestParam @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate asOf) {
         return ResponseEntity.ok(reportService.overdueCount(asOf));
     }
 
-    @PreAuthorize("hasAnyAuthority('ROLE_BILLING_STAFF','ROLE_ADMIN')")
+    @PreAuthorize("hasAnyAuthority('ROLE_BILLING_STAFF','ROLE_ADMIN','ROLE_LANDLORD')")
     @GetMapping("/electricity")
     public ResponseEntity<com.trohub.backend.dto.report.ElectricitySummaryDto> electricity(
             @RequestParam Integer year,
@@ -60,7 +60,7 @@ public class ReportController {
         return ResponseEntity.ok(reportService.totalElectricity(year, month, toaNhaId));
     }
 
-    @PreAuthorize("hasAnyAuthority('ROLE_BILLING_STAFF','ROLE_ADMIN')")
+    @PreAuthorize("hasAnyAuthority('ROLE_BILLING_STAFF','ROLE_ADMIN','ROLE_LANDLORD')")
     @GetMapping("/revenue/buildings")
     public ResponseEntity<java.util.List<com.trohub.backend.dto.report.BuildingRevenueDto>> revenueByBuilding(
             @RequestParam @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate from,
@@ -68,7 +68,7 @@ public class ReportController {
         return ResponseEntity.ok(reportService.revenueByBuilding(from, to));
     }
 
-    @PreAuthorize("hasAnyAuthority('ROLE_BILLING_STAFF','ROLE_ADMIN')")
+    @PreAuthorize("hasAnyAuthority('ROLE_BILLING_STAFF','ROLE_ADMIN','ROLE_LANDLORD')")
     @GetMapping("/revenue/rooms")
     public ResponseEntity<java.util.List<com.trohub.backend.dto.report.RoomRevenueDto>> revenueByRoom(
             @RequestParam @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate from,
