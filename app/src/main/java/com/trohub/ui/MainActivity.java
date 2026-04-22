@@ -2,12 +2,16 @@ package com.trohub.ui;
 
 import android.content.Intent;
 import android.os.Bundle;
+import android.app.AlertDialog;
 import android.text.TextUtils;
+import android.view.LayoutInflater;
 import android.view.View;
+import android.view.ViewGroup;
 import android.widget.Button;
 import android.widget.LinearLayout;
 import android.widget.TextView;
 
+import androidx.annotation.NonNull;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
@@ -37,6 +41,7 @@ import com.trohub.ui.profile.ProfileActivity;
 import com.trohub.ui.reports.ReportsActivity;
 import com.trohub.ui.rooms.RoomsActivity;
 import com.trohub.ui.tenants.TenantsActivity;
+import com.google.android.material.bottomsheet.BottomSheetDialog;
 
 import java.time.LocalDate;
 import java.time.LocalDateTime;
@@ -64,6 +69,7 @@ public class MainActivity extends AppCompatActivity {
     private boolean navigationTriggered = false;
 
     private RecentActivityAdapter recentActivityAdapter;
+    private final List<String> overdueRoomLines = new ArrayList<>();
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -76,13 +82,14 @@ public class MainActivity extends AppCompatActivity {
         NetworkClient.setAuthToken(sessionManager.getToken());
         apiService = NetworkClient.getRetrofitClient().create(ApiService.class);
         accountId = sessionManager.getUserIdFromToken();
-        isTenantOnly = sessionManager.hasAnyRole("ROLE_USER")
-                && !sessionManager.hasAnyRole("ROLE_ADMIN", "ROLE_BILLING_STAFF", "ROLE_LANDLORD");
+        boolean canUseLandlordDashboard = sessionManager.hasAnyRole("ROLE_ADMIN", "ROLE_LANDLORD", "ROLE_BILLING_STAFF");
+        isTenantOnly = !canUseLandlordDashboard;
 
         setContentView(R.layout.activity_main);
 
         TextView tvUser = findViewById(R.id.tvUser);
         TextView tvRole = findViewById(R.id.tvRole);
+        TextView tvCurrentMonth = findViewById(R.id.tvCurrentMonth);
         LinearLayout tenantSummarySection = findViewById(R.id.tenantSummarySection);
         LinearLayout landlordOverviewSection = findViewById(R.id.landlordOverviewSection);
 
@@ -92,11 +99,16 @@ public class MainActivity extends AppCompatActivity {
         TextView tvBuildingInfo = findViewById(R.id.tvBuildingInfo);
 
         TextView tvOverviewRevenue = findViewById(R.id.tvOverviewRevenue);
+        TextView tvOverviewBuildings = findViewById(R.id.tvOverviewBuildings);
         TextView tvOverviewRooms = findViewById(R.id.tvOverviewRooms);
+        TextView tvOverviewTenants = findViewById(R.id.tvOverviewTenants);
         TextView tvOverviewPaid = findViewById(R.id.tvOverviewPaid);
         TextView tvOverviewOverdue = findViewById(R.id.tvOverviewOverdue);
+        TextView tvOverviewIncidents = findViewById(R.id.tvOverviewIncidents);
+        TextView tvOverviewGuestRequests = findViewById(R.id.tvOverviewGuestRequests);
         TextView tvRecentEmpty = findViewById(R.id.tvRecentEmpty);
         RecyclerView rvRecent = findViewById(R.id.rvRecentActivities);
+        LinearLayout alertOverdue = findViewById(R.id.alertOverdue);
 
         Button btnProfile = findViewById(R.id.btnProfile);
         Button btnRooms = findViewById(R.id.btnRooms);
@@ -108,21 +120,33 @@ public class MainActivity extends AppCompatActivity {
         Button btnReports = findViewById(R.id.btnReports);
         Button btnOverviewReports = findViewById(R.id.btnOverviewReports);
         Button btnGuestEntries = findViewById(R.id.btnGuestEntries);
+        Button btnFunctionMenu = findViewById(R.id.btnFunctionMenu);
         LinearLayout layoutOtherFunctions = findViewById(R.id.layoutOtherFunctions);
         Button btnCreateTenantAccount = findViewById(R.id.btnCreateTenantAccount);
         Button btnLogout = findViewById(R.id.btnLogout);
+        Button btnLogoutVisible = findViewById(R.id.btnLogoutVisible);
+        Button btnTenantProfile = findViewById(R.id.btnTenantProfile);
+        Button btnTenantRoom = findViewById(R.id.btnTenantRoom);
+        Button btnTenantContract = findViewById(R.id.btnTenantContract);
+        Button btnTenantBilling = findViewById(R.id.btnTenantBilling);
+        Button btnTenantIncident = findViewById(R.id.btnTenantIncident);
+        Button btnTenantGuest = findViewById(R.id.btnTenantGuest);
         boolean canCreateTenantAccount = sessionManager.isAdminOrLandlord();
 
         rvRecent.setLayoutManager(new LinearLayoutManager(this));
         recentActivityAdapter = new RecentActivityAdapter();
         rvRecent.setAdapter(recentActivityAdapter);
 
-        tvUser.setText("Tài khoản: " + sessionManager.getUsername());
+        tvUser.setText("Chào, " + sessionManager.getUsername());
         List<String> roles = sessionManager.getRoles();
         String roleLabel = roles.isEmpty() ? "ROLE_USER" : TextUtils.join(", ", roles);
         tvRole.setText("Vai trò: " + roleLabel);
+        tvRole.setVisibility(View.GONE);
+        LocalDate currentDate = LocalDate.now();
+        tvCurrentMonth.setText("Tháng " + currentDate.getMonthValue() + ", " + currentDate.getYear());
 
         if (isTenantOnly) {
+            btnFunctionMenu.setVisibility(View.GONE);
             landlordOverviewSection.setVisibility(View.GONE);
             tenantSummarySection.setVisibility(View.VISIBLE);
             btnReports.setVisibility(View.GONE);
@@ -140,6 +164,7 @@ public class MainActivity extends AppCompatActivity {
 
             loadTenantSummary(tvLandlordInfo, tvContractInfo, tvRoomInfo, tvBuildingInfo);
         } else {
+            btnFunctionMenu.setVisibility(View.VISIBLE);
             tenantSummarySection.setVisibility(View.GONE);
             landlordOverviewSection.setVisibility(View.VISIBLE);
             btnReports.setVisibility(View.VISIBLE);
@@ -147,7 +172,17 @@ public class MainActivity extends AppCompatActivity {
             btnGuestEntries.setText("Duyệt khách ra/vào");
             layoutOtherFunctions.setVisibility(canCreateTenantAccount ? View.VISIBLE : View.GONE);
 
-            loadLandlordOverview(tvOverviewRevenue, tvOverviewRooms, tvOverviewPaid, tvOverviewOverdue, tvRecentEmpty);
+            loadLandlordOverview(
+                    tvOverviewRevenue,
+                    tvOverviewBuildings,
+                    tvOverviewRooms,
+                    tvOverviewTenants,
+                    tvOverviewPaid,
+                    tvOverviewOverdue,
+                    tvOverviewIncidents,
+                    tvOverviewGuestRequests,
+                    tvRecentEmpty
+            );
         }
 
         btnProfile.setOnClickListener(v -> startActivity(new Intent(MainActivity.this, ProfileActivity.class)));
@@ -165,12 +200,29 @@ public class MainActivity extends AppCompatActivity {
             }
         });
         btnCreateTenantAccount.setOnClickListener(v -> startActivity(new Intent(MainActivity.this, CreateTenantAccountActivity.class)));
+        btnFunctionMenu.setOnClickListener(v -> {
+            if (!isTenantOnly) {
+                showFunctionMenu(canCreateTenantAccount);
+            }
+        });
+        btnTenantProfile.setOnClickListener(v -> startActivity(new Intent(MainActivity.this, ProfileActivity.class)));
+        btnTenantRoom.setOnClickListener(v -> startActivity(new Intent(MainActivity.this, RoomsActivity.class)));
+        btnTenantContract.setOnClickListener(v -> startActivity(new Intent(MainActivity.this, ContractsActivity.class)));
+        btnTenantBilling.setOnClickListener(v -> startActivity(new Intent(MainActivity.this, BillingActivity.class)));
+        btnTenantIncident.setOnClickListener(v -> startActivity(new Intent(MainActivity.this, IncidentsActivity.class)));
+        btnTenantGuest.setOnClickListener(v -> startActivity(new Intent(MainActivity.this, GuestEntriesActivity.class)));
+        alertOverdue.setOnClickListener(v -> showOverdueRoomsDialog());
 
         View.OnClickListener reportClick = v -> startActivity(new Intent(MainActivity.this, ReportsActivity.class));
         btnReports.setOnClickListener(reportClick);
         btnOverviewReports.setOnClickListener(reportClick);
 
         btnLogout.setOnClickListener(v -> {
+            NetworkClient.setAuthToken(null);
+            sessionManager.clear();
+            goLogin();
+        });
+        btnLogoutVisible.setOnClickListener(v -> {
             NetworkClient.setAuthToken(null);
             sessionManager.clear();
             goLogin();
@@ -195,21 +247,91 @@ public class MainActivity extends AppCompatActivity {
         }
     }
 
+    private void showFunctionMenu(boolean canCreateTenantAccount) {
+        List<MenuItem> items = new ArrayList<>();
+        items.add(new MenuItem("P", "Hồ sơ cá nhân", "Thông tin tài khoản, ngân hàng, đăng xuất", ProfileActivity.class));
+        items.add(new MenuItem("B", "Quản lý tòa nhà", "Danh sách, chi tiết và CRUD tòa nhà", BuildingsActivity.class));
+        items.add(new MenuItem("R", "Quản lý phòng", "Phòng, trạng thái và khách trong phòng", RoomsActivity.class));
+        items.add(new MenuItem("T", "Quản lý khách thuê", "Hồ sơ khách thuê và liên kết phòng", TenantsActivity.class));
+        items.add(new MenuItem("C", "Hợp đồng", "Hợp đồng thuê, tiền phòng và dịch vụ", ContractsActivity.class));
+        items.add(new MenuItem("H", "Hóa đơn / thanh toán", "Tạo kỳ, QR, phí trễ hạn", BillingActivity.class));
+        items.add(new MenuItem("S", "Thống kê & báo cáo", "Doanh thu, lọc theo phòng/tòa/trạng thái", ReportsActivity.class));
+        items.add(new MenuItem("I", "Quản lý sự cố", "Theo dõi, xử lý và xem ảnh sự cố", IncidentsActivity.class));
+        items.add(new MenuItem("G", "Duyệt khách ra/vào", "Duyệt, yêu cầu bổ sung hoặc từ chối", LandlordGuestReviewActivity.class));
+        if (canCreateTenantAccount) {
+            items.add(new MenuItem("+", "Tạo tài khoản khách thuê", "Cấp tài khoản đăng nhập cho tenant", CreateTenantAccountActivity.class));
+        }
+
+        BottomSheetDialog dialog = new BottomSheetDialog(this);
+        LinearLayout root = new LinearLayout(this);
+        root.setOrientation(LinearLayout.VERTICAL);
+        root.setBackgroundResource(R.drawable.bg_menu_sheet);
+        root.setPadding(0, dp(14), 0, dp(10));
+
+        TextView handle = new TextView(this);
+        handle.setText("—");
+        handle.setGravity(android.view.Gravity.CENTER);
+        handle.setTextColor(0xFF98A2B3);
+        handle.setTextSize(24);
+        root.addView(handle, new LinearLayout.LayoutParams(
+                LinearLayout.LayoutParams.MATCH_PARENT,
+                dp(20)
+        ));
+
+        TextView title = new TextView(this);
+        title.setText("Danh mục chức năng");
+        title.setTextColor(0xFF1F2933);
+        title.setTextSize(20);
+        title.setTypeface(null, android.graphics.Typeface.BOLD);
+        title.setPadding(dp(18), dp(4), dp(18), 0);
+        root.addView(title);
+
+        TextView subtitle = new TextView(this);
+        subtitle.setText("Chọn nhanh màn hình cần thao tác");
+        subtitle.setTextColor(0xFF667085);
+        subtitle.setTextSize(13);
+        subtitle.setPadding(dp(18), dp(3), dp(18), dp(10));
+        root.addView(subtitle);
+
+        RecyclerView recyclerView = new RecyclerView(this);
+        recyclerView.setNestedScrollingEnabled(false);
+        recyclerView.setLayoutManager(new LinearLayoutManager(this));
+        recyclerView.setAdapter(new FunctionMenuAdapter(items, item -> {
+            dialog.dismiss();
+            startActivity(new Intent(MainActivity.this, item.activityClass));
+        }));
+        root.addView(recyclerView, new LinearLayout.LayoutParams(
+                LinearLayout.LayoutParams.MATCH_PARENT,
+                LinearLayout.LayoutParams.WRAP_CONTENT
+        ));
+
+        dialog.setContentView(root);
+        dialog.show();
+    }
+
     private void loadLandlordOverview(
             TextView tvOverviewRevenue,
+            TextView tvOverviewBuildings,
             TextView tvOverviewRooms,
+            TextView tvOverviewTenants,
             TextView tvOverviewPaid,
             TextView tvOverviewOverdue,
+            TextView tvOverviewIncidents,
+            TextView tvOverviewGuestRequests,
             TextView tvRecentEmpty
     ) {
         LocalDate now = LocalDate.now();
         int year = now.getYear();
         int month = now.getMonthValue();
 
-        tvOverviewRevenue.setText("Doanh thu tháng " + month + "/" + year + ": đang tải...");
-        tvOverviewRooms.setText("Phòng: ...");
-        tvOverviewPaid.setText("Đã thanh toán: ...");
-        tvOverviewOverdue.setText("Trễ hạn: ...");
+        tvOverviewRevenue.setText("Đang tải...");
+        tvOverviewBuildings.setText("...");
+        tvOverviewRooms.setText("...");
+        tvOverviewTenants.setText("...");
+        tvOverviewPaid.setText("...");
+        tvOverviewOverdue.setText("Đang tải phòng chưa thanh toán...");
+        tvOverviewIncidents.setText("...");
+        tvOverviewGuestRequests.setText("...");
         tvRecentEmpty.setVisibility(View.GONE);
 
         apiService.getBuildings().enqueue(new Callback<List<ToaNha>>() {
@@ -217,16 +339,31 @@ public class MainActivity extends AppCompatActivity {
             public void onResponse(Call<List<ToaNha>> call, Response<List<ToaNha>> response) {
                 List<ToaNha> allBuildings = response.isSuccessful() && response.body() != null ? response.body() : new ArrayList<>();
                 applyBuildingScope(allBuildings, scopedBuildings -> continueLandlordOverview(
-                        scopedBuildings, year, month, tvOverviewRevenue, tvOverviewRooms, tvOverviewPaid, tvOverviewOverdue, tvRecentEmpty
+                        scopedBuildings,
+                        year,
+                        month,
+                        tvOverviewRevenue,
+                        tvOverviewBuildings,
+                        tvOverviewRooms,
+                        tvOverviewTenants,
+                        tvOverviewPaid,
+                        tvOverviewOverdue,
+                        tvOverviewIncidents,
+                        tvOverviewGuestRequests,
+                        tvRecentEmpty
                 ));
             }
 
             @Override
             public void onFailure(Call<List<ToaNha>> call, Throwable t) {
-                tvOverviewRevenue.setText("Doanh thu tháng " + month + "/" + year + ": không tải được");
-                tvOverviewRooms.setText("Phòng: N/A");
-                tvOverviewPaid.setText("Đã thanh toán: N/A");
-                tvOverviewOverdue.setText("Trễ hạn: N/A");
+                tvOverviewRevenue.setText("Không tải được");
+                tvOverviewBuildings.setText("N/A");
+                tvOverviewRooms.setText("N/A");
+                tvOverviewTenants.setText("N/A");
+                tvOverviewPaid.setText("N/A");
+                tvOverviewOverdue.setText("Không tải được dữ liệu trễ hạn");
+                tvOverviewIncidents.setText("N/A");
+                tvOverviewGuestRequests.setText("N/A");
                 tvRecentEmpty.setVisibility(View.VISIBLE);
                 tvRecentEmpty.setText("Không tải được tổng quan chủ trọ");
             }
@@ -238,11 +375,16 @@ public class MainActivity extends AppCompatActivity {
             int year,
             int month,
             TextView tvOverviewRevenue,
+            TextView tvOverviewBuildings,
             TextView tvOverviewRooms,
+            TextView tvOverviewTenants,
             TextView tvOverviewPaid,
             TextView tvOverviewOverdue,
+            TextView tvOverviewIncidents,
+            TextView tvOverviewGuestRequests,
             TextView tvRecentEmpty
     ) {
+        tvOverviewBuildings.setText(String.valueOf(scopedBuildings.size()));
         Set<Long> buildingIds = new HashSet<>();
         for (ToaNha b : scopedBuildings) {
             if (b.getId() != null) buildingIds.add(b.getId());
@@ -263,7 +405,7 @@ public class MainActivity extends AppCompatActivity {
                     }
                 }
 
-                tvOverviewRooms.setText("Phòng: " + scopedRooms.size());
+                tvOverviewRooms.setText(String.valueOf(scopedRooms.size()));
                 Set<Long> scopedRoomIds = new HashSet<>();
                 for (Phong room : scopedRooms) {
                     if (room.getId() != null) scopedRoomIds.add(room.getId());
@@ -277,7 +419,12 @@ public class MainActivity extends AppCompatActivity {
                             @Override
                             public void onResponse(Call<List<Contract>> call, Response<List<Contract>> contractResp) {
                                 List<Contract> contracts = contractResp.isSuccessful() && contractResp.body() != null ? contractResp.body() : new ArrayList<>();
-                                Map<Long, Long> roomByAccountId = mapAccountToRoom(tenants, contracts, roomById);
+                                Map<Long, Long> roomByTenantId = mapTenantToRoom(tenants, contracts, roomById);
+                                int tenantCount = 0;
+                                for (Long roomId : roomByTenantId.values()) {
+                                    if (roomId != null && scopedRoomIds.contains(roomId)) tenantCount++;
+                                }
+                                tvOverviewTenants.setText(String.valueOf(tenantCount));
 
                                 apiService.getInvoices(year, month).enqueue(new Callback<List<Invoice>>() {
                                     @Override
@@ -285,11 +432,14 @@ public class MainActivity extends AppCompatActivity {
                                         List<Invoice> invoices = invoiceResp.isSuccessful() && invoiceResp.body() != null ? invoiceResp.body() : new ArrayList<>();
                                         double revenue = 0;
                                         int paidCount = 0;
-                                        int overdueCount = 0;
+                                        java.util.LinkedHashMap<Long, String> unpaidRooms = new java.util.LinkedHashMap<>();
+                                        overdueRoomLines.clear();
 
                                         for (Invoice invoice : invoices) {
-                                            if (invoice.getTenantId() == null) continue;
-                                            Long roomId = roomByAccountId.get(invoice.getTenantId());
+                                            Long roomId = invoice.getRoomId();
+                                            if (roomId == null && invoice.getTenantId() != null) {
+                                                roomId = roomByTenantId.get(invoice.getTenantId());
+                                            }
                                             if (roomId == null || !scopedRoomIds.contains(roomId)) continue;
 
                                             String status = normalizeStatus(invoice.getStatus());
@@ -297,23 +447,41 @@ public class MainActivity extends AppCompatActivity {
                                                 revenue += safeAmount(invoice.getTotalAmount());
                                                 paidCount++;
                                             }
-                                            if ("OVERDUE".equals(status)) {
-                                                overdueCount++;
+                                            if (isUnpaidLike(status)) {
+                                                Phong room = roomById.get(roomId);
+                                                String roomCode = room == null ? safe(invoice.getRoomCode()) : safe(room.getMaPhong());
+                                                String line = "Phòng " + roomCode
+                                                        + " | " + safe(invoice.getTenantName())
+                                                        + " | " + safe(invoice.getInvoiceNumber())
+                                                        + " | " + statusLabel(status)
+                                                        + " | " + formatMoney(safeAmount(invoice.getTotalAmount())) + " VND";
+                                                unpaidRooms.put(roomId, "Phòng " + roomCode);
+                                                overdueRoomLines.add(line);
                                             }
                                         }
 
-                                        tvOverviewRevenue.setText("Doanh thu tháng " + month + "/" + year + ": " + formatMoney(revenue) + " VND");
-                                        tvOverviewPaid.setText("Đã thanh toán: " + paidCount);
-                                        tvOverviewOverdue.setText("Trễ hạn: " + overdueCount);
+                                        tvOverviewRevenue.setText(formatMoney(revenue) + " VND");
+                                        tvOverviewPaid.setText(String.valueOf(paidCount));
+                                        tvOverviewOverdue.setText(unpaidRooms.size() + " phòng chưa thanh toán trong tháng " + month + "/" + year);
 
-                                        loadRecentActivities(invoices, roomById, roomByAccountId, scopedRoomIds, tvRecentEmpty, month, year);
+                                        loadRecentActivities(
+                                                invoices,
+                                                roomById,
+                                                roomByTenantId,
+                                                scopedRoomIds,
+                                                tvRecentEmpty,
+                                                tvOverviewIncidents,
+                                                tvOverviewGuestRequests,
+                                                month,
+                                                year
+                                        );
                                     }
 
                                     @Override
                                     public void onFailure(Call<List<Invoice>> call, Throwable t) {
-                                        tvOverviewRevenue.setText("Doanh thu tháng " + month + "/" + year + ": không tải được");
-                                        tvOverviewPaid.setText("Đã thanh toán: N/A");
-                                        tvOverviewOverdue.setText("Trễ hạn: N/A");
+                                        tvOverviewRevenue.setText("Không tải được");
+                                        tvOverviewPaid.setText("N/A");
+                                        tvOverviewOverdue.setText("Không tải được dữ liệu trễ hạn");
                                         tvRecentEmpty.setVisibility(View.VISIBLE);
                                         tvRecentEmpty.setText("Không tải được hoạt động gần đây");
                                     }
@@ -322,28 +490,31 @@ public class MainActivity extends AppCompatActivity {
 
                             @Override
                             public void onFailure(Call<List<Contract>> call, Throwable t) {
-                                tvOverviewRevenue.setText("Doanh thu tháng " + month + "/" + year + ": không tải được");
-                                tvOverviewPaid.setText("Đã thanh toán: N/A");
-                                tvOverviewOverdue.setText("Trễ hạn: N/A");
+                                tvOverviewRevenue.setText("Không tải được");
+                                tvOverviewTenants.setText("N/A");
+                                tvOverviewPaid.setText("N/A");
+                                tvOverviewOverdue.setText("Không tải được dữ liệu trễ hạn");
                             }
                         });
                     }
 
                     @Override
                     public void onFailure(Call<List<Tenant>> call, Throwable t) {
-                        tvOverviewRevenue.setText("Doanh thu tháng " + month + "/" + year + ": không tải được");
-                        tvOverviewPaid.setText("Đã thanh toán: N/A");
-                        tvOverviewOverdue.setText("Trễ hạn: N/A");
+                        tvOverviewRevenue.setText("Không tải được");
+                        tvOverviewTenants.setText("N/A");
+                        tvOverviewPaid.setText("N/A");
+                        tvOverviewOverdue.setText("Không tải được dữ liệu trễ hạn");
                     }
                 });
             }
 
             @Override
             public void onFailure(Call<List<Phong>> call, Throwable t) {
-                tvOverviewRooms.setText("Phòng: N/A");
-                tvOverviewRevenue.setText("Doanh thu tháng " + month + "/" + year + ": không tải được");
-                tvOverviewPaid.setText("Đã thanh toán: N/A");
-                tvOverviewOverdue.setText("Trễ hạn: N/A");
+                tvOverviewRooms.setText("N/A");
+                tvOverviewRevenue.setText("Không tải được");
+                tvOverviewTenants.setText("N/A");
+                tvOverviewPaid.setText("N/A");
+                tvOverviewOverdue.setText("Không tải được dữ liệu trễ hạn");
             }
         });
     }
@@ -352,13 +523,13 @@ public class MainActivity extends AppCompatActivity {
         callback.onReady(allBuildings);
     }
 
-    private Map<Long, Long> mapAccountToRoom(List<Tenant> tenants, List<Contract> contracts, Map<Long, Phong> roomById) {
+    private Map<Long, Long> mapTenantToRoom(List<Tenant> tenants, List<Contract> contracts, Map<Long, Phong> roomById) {
         Map<Long, Long> result = new HashMap<>();
         for (Tenant tenant : tenants) {
-            if (tenant.getTaiKhoanId() == null) continue;
+            if (tenant.getId() == null) continue;
             Long roomId = findRoomForTenant(tenant, contracts);
             if (roomId != null && roomById.containsKey(roomId)) {
-                result.put(tenant.getTaiKhoanId(), roomId);
+                result.put(tenant.getId(), roomId);
             }
         }
         return result;
@@ -387,20 +558,25 @@ public class MainActivity extends AppCompatActivity {
     private void loadRecentActivities(
             List<Invoice> invoices,
             Map<Long, Phong> roomById,
-            Map<Long, Long> roomByAccountId,
+            Map<Long, Long> roomByTenantId,
             Set<Long> scopedRoomIds,
             TextView tvRecentEmpty,
+            TextView tvOverviewIncidents,
+            TextView tvOverviewGuestRequests,
             int month,
             int year
     ) {
         List<ActivitySeed> seeds = new ArrayList<>();
 
         for (Invoice invoice : invoices) {
-            Long roomId = invoice.getTenantId() == null ? null : roomByAccountId.get(invoice.getTenantId());
+            Long roomId = invoice.getRoomId();
+            if (roomId == null && invoice.getTenantId() != null) {
+                roomId = roomByTenantId.get(invoice.getTenantId());
+            }
             if (roomId == null) continue;
             if (!scopedRoomIds.contains(roomId)) continue;
             Phong room = roomById.get(roomId);
-            String roomCode = room == null ? "N/A" : safe(room.getMaPhong());
+            String roomCode = room == null ? safe(invoice.getRoomCode()) : safe(room.getMaPhong());
             String status = normalizeStatus(invoice.getStatus());
 
             if (isPaidLike(status)) {
@@ -421,9 +597,14 @@ public class MainActivity extends AppCompatActivity {
         apiService.getIncidents().enqueue(new Callback<List<Incident>>() {
             @Override
             public void onResponse(Call<List<Incident>> call, Response<List<Incident>> response) {
+                int openIncidentCount = 0;
                 if (response.isSuccessful() && response.body() != null) {
                     for (Incident incident : response.body()) {
                         if (incident.getPhongId() != null && scopedRoomIds.contains(incident.getPhongId())) {
+                            if (!"RESOLVED".equalsIgnoreCase(safe(incident.getStatus()))
+                                    && !"DONE".equalsIgnoreCase(safe(incident.getStatus()))) {
+                                openIncidentCount++;
+                            }
                             Phong room = roomById.get(incident.getPhongId());
                             String roomCode = room == null ? "N/A" : safe(room.getMaPhong());
                             seeds.add(new ActivitySeed(
@@ -434,12 +615,14 @@ public class MainActivity extends AppCompatActivity {
                         }
                     }
                 }
-                loadGuestActivities(seeds, roomById, scopedRoomIds, tvRecentEmpty);
+                tvOverviewIncidents.setText(String.valueOf(openIncidentCount));
+                loadGuestActivities(seeds, roomById, scopedRoomIds, tvRecentEmpty, tvOverviewGuestRequests);
             }
 
             @Override
             public void onFailure(Call<List<Incident>> call, Throwable t) {
-                loadGuestActivities(seeds, roomById, scopedRoomIds, tvRecentEmpty);
+                tvOverviewIncidents.setText("N/A");
+                loadGuestActivities(seeds, roomById, scopedRoomIds, tvRecentEmpty, tvOverviewGuestRequests);
             }
         });
     }
@@ -448,14 +631,20 @@ public class MainActivity extends AppCompatActivity {
             List<ActivitySeed> seeds,
             Map<Long, Phong> roomById,
             Set<Long> scopedRoomIds,
-            TextView tvRecentEmpty
+            TextView tvRecentEmpty,
+            TextView tvOverviewGuestRequests
     ) {
         apiService.getGuestEntries().enqueue(new Callback<List<GuestEntry>>() {
             @Override
             public void onResponse(Call<List<GuestEntry>> call, Response<List<GuestEntry>> response) {
+                int pendingGuests = 0;
                 if (response.isSuccessful() && response.body() != null) {
                     for (GuestEntry entry : response.body()) {
                         if (entry.getPhongId() != null && scopedRoomIds.contains(entry.getPhongId())) {
+                            String approvalStatus = safe(entry.getApprovalStatus());
+                            if ("PENDING".equalsIgnoreCase(approvalStatus) || "NEED_INFO".equalsIgnoreCase(approvalStatus)) {
+                                pendingGuests++;
+                            }
                             Phong room = roomById.get(entry.getPhongId());
                             String roomCode = room == null ? "N/A" : safe(room.getMaPhong());
                             seeds.add(new ActivitySeed(
@@ -466,11 +655,13 @@ public class MainActivity extends AppCompatActivity {
                         }
                     }
                 }
+                tvOverviewGuestRequests.setText(String.valueOf(pendingGuests));
                 publishRecentActivities(seeds, tvRecentEmpty);
             }
 
             @Override
             public void onFailure(Call<List<GuestEntry>> call, Throwable t) {
+                tvOverviewGuestRequests.setText("N/A");
                 publishRecentActivities(seeds, tvRecentEmpty);
             }
         });
@@ -747,10 +938,47 @@ public class MainActivity extends AppCompatActivity {
         return "PAID".equals(status) || "PARTIALLY_PAID".equals(status);
     }
 
+    private boolean isUnpaidLike(String status) {
+        return "UNPAID".equals(status)
+                || "OVERDUE".equals(status)
+                || "DRAFT".equals(status)
+                || "PENDING".equals(status)
+                || "PARTIALLY_PAID".equals(status);
+    }
+
     private String normalizeStatus(String status) {
         if (status == null) return "";
         if ("PENDING".equalsIgnoreCase(status)) return "UNPAID";
         return status.toUpperCase(Locale.US);
+    }
+
+    private String statusLabel(String status) {
+        if ("DRAFT".equals(status)) return "nháp";
+        if ("UNPAID".equals(status)) return "chưa thanh toán";
+        if ("PARTIALLY_PAID".equals(status)) return "thanh toán một phần";
+        if ("OVERDUE".equals(status)) return "trễ hạn";
+        return status;
+    }
+
+    private void showOverdueRoomsDialog() {
+        if (overdueRoomLines.isEmpty()) {
+            new AlertDialog.Builder(this)
+                    .setTitle("Phòng chưa thanh toán")
+                    .setMessage("Không có phòng chưa thanh toán trong kỳ hiện tại.")
+                    .setPositiveButton("Đóng", null)
+                    .show();
+            return;
+        }
+        StringBuilder sb = new StringBuilder();
+        for (String line : overdueRoomLines) {
+            sb.append("- ").append(line).append("\n");
+        }
+        new AlertDialog.Builder(this)
+                .setTitle("Phòng chưa thanh toán")
+                .setMessage(sb.toString().trim())
+                .setPositiveButton("Đóng", null)
+                .setNegativeButton("Mở hóa đơn", (dialog, which) -> startActivity(new Intent(MainActivity.this, BillingActivity.class)))
+                .show();
     }
 
     private double safeAmount(Double value) {
@@ -770,8 +998,74 @@ public class MainActivity extends AppCompatActivity {
         return value == null || value.trim().isEmpty() ? "N/A" : value;
     }
 
+    private int dp(int value) {
+        return (int) (value * getResources().getDisplayMetrics().density + 0.5f);
+    }
+
     private interface BuildingScopeCallback {
         void onReady(List<ToaNha> buildings);
+    }
+
+    private interface MenuClickListener {
+        void onClick(MenuItem item);
+    }
+
+    private static class MenuItem {
+        final String icon;
+        final String title;
+        final String subtitle;
+        final Class<?> activityClass;
+
+        MenuItem(String icon, String title, String subtitle, Class<?> activityClass) {
+            this.icon = icon;
+            this.title = title;
+            this.subtitle = subtitle;
+            this.activityClass = activityClass;
+        }
+    }
+
+    private class FunctionMenuAdapter extends RecyclerView.Adapter<FunctionMenuAdapter.MenuViewHolder> {
+        private final List<MenuItem> items;
+        private final MenuClickListener listener;
+
+        FunctionMenuAdapter(List<MenuItem> items, MenuClickListener listener) {
+            this.items = items;
+            this.listener = listener;
+        }
+
+        @NonNull
+        @Override
+        public MenuViewHolder onCreateViewHolder(@NonNull ViewGroup parent, int viewType) {
+            View view = LayoutInflater.from(parent.getContext()).inflate(R.layout.item_function_menu, parent, false);
+            return new MenuViewHolder(view);
+        }
+
+        @Override
+        public void onBindViewHolder(@NonNull MenuViewHolder holder, int position) {
+            MenuItem item = items.get(position);
+            holder.icon.setText(item.icon);
+            holder.title.setText(item.title);
+            holder.subtitle.setText(item.subtitle);
+            holder.itemView.setOnClickListener(v -> listener.onClick(item));
+        }
+
+        @Override
+        public int getItemCount() {
+            return items.size();
+        }
+
+        class MenuViewHolder extends RecyclerView.ViewHolder {
+            final TextView icon;
+            final TextView title;
+            final TextView subtitle;
+
+            MenuViewHolder(@NonNull View itemView) {
+                super(itemView);
+                icon = itemView.findViewById(R.id.tvMenuIcon);
+                title = itemView.findViewById(R.id.tvMenuTitle);
+                subtitle = itemView.findViewById(R.id.tvMenuSubtitle);
+            }
+        }
     }
 
     private static class ActivitySeed {

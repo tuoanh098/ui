@@ -7,11 +7,10 @@
 
     <TextView
         android:id="@+id/tvTitle"
+        style="@style/Text.TroHub.Title"
         android:layout_width="0dp"
         android:layout_height="wrap_content"
         android:text="Chi tiết khách thuê"
-        android:textSize="20sp"
-        android:textStyle="bold"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toTopOf="parent" />
@@ -43,7 +42,7 @@
                     <LinearLayout
                         android:layout_width="match_parent"
                         android:layout_height="wrap_content"
-                        android:background="#F7F7F7"
+        android:background="@drawable/bg_panel"
                         android:orientation="vertical"
                         android:padding="10dp">
 
@@ -83,7 +82,7 @@
                             android:clickable="true"
                             android:focusable="true"
                             android:text="Phòng"
-                            android:textColor="#0D47A1"
+        android:textColor="@color/app_accent"
                             android:textStyle="bold" />
                     </LinearLayout>
 

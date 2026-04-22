@@ -1,4 +1,4 @@
-<?xml version="1.0" encoding="utf-8"?>
+﻿<?xml version="1.0" encoding="utf-8"?>
 <androidx.cardview.widget.CardView xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
     android:layout_width="match_parent"
@@ -6,6 +6,8 @@
     android:layout_marginBottom="8dp"
     app:cardCornerRadius="8dp"
     app:cardElevation="2dp"
+    app:cardBackgroundColor="@color/app_surface"
+    app:cardUseCompatPadding="true"
     app:contentPadding="12dp">
 
     <LinearLayout
@@ -33,7 +35,7 @@
             android:layout_height="wrap_content"
             android:layout_marginTop="3dp"
             android:text="Doanh thu"
-            android:textColor="#2E7D32"
+            android:textColor="@color/app_success"
             android:textStyle="bold" />
 
         <TextView
@@ -44,3 +46,5 @@
             android:text="Trạng thái" />
     </LinearLayout>
 </androidx.cardview.widget.CardView>
+
+

@@ -10,8 +10,10 @@
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:layout_marginBottom="12dp"
+        android:background="@drawable/bg_panel_tint"
+        android:padding="12dp"
         android:text="Luồng billing: tạo kỳ theo tháng -> thanh toán QR -> sau ngày 8 có thể áp phí trễ hạn."
-        android:textColor="#555555" />
+        android:textColor="@color/app_text_muted" />
 
     <LinearLayout
         android:layout_width="match_parent"
@@ -51,20 +53,20 @@
 
         <Button
             android:id="@+id/btnGenerateSync"
+            style="@style/Widget.TroHub.Button.Warning"
             android:layout_width="0dp"
             android:layout_weight="1"
             android:layout_height="wrap_content"
-            android:text="Generate Sync"
-            android:backgroundTint="#FF9800" />
+            android:text="Generate Sync" />
 
         <Button
             android:id="@+id/btnGenerateAsync"
+            style="@style/Widget.TroHub.Button.Warning"
             android:layout_width="0dp"
             android:layout_height="wrap_content"
             android:layout_marginStart="8dp"
             android:layout_weight="1"
-            android:text="Generate Async"
-            android:backgroundTint="#FF9800" />
+            android:text="Generate Async" />
     </LinearLayout>
 
     <Button
@@ -78,8 +80,10 @@
         android:id="@+id/qaContainer"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
+        android:background="@drawable/bg_panel"
         android:orientation="vertical"
         android:layout_marginBottom="12dp"
+        android:padding="12dp"
         android:visibility="gone">
 
         <EditText
@@ -102,16 +106,15 @@
             android:layout_height="wrap_content"
             android:layout_marginTop="8dp"
             android:text="Đã bỏ 2 nút test reading cũ theo yêu cầu production."
-            android:textColor="#777777" />
+            android:textColor="@color/app_text_muted" />
     </LinearLayout>
 
     <TextView
         android:id="@+id/tvTitle"
+        style="@style/Text.TroHub.Title"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:text="Danh Sách Hóa Đơn"
-        android:textSize="20sp"
-        android:textStyle="bold"
         android:layout_marginBottom="16dp" />
 
     <TextView
@@ -120,7 +123,7 @@
         android:layout_height="wrap_content"
         android:layout_marginBottom="8dp"
         android:text="Không có hóa đơn"
-        android:textColor="#777777"
+        android:textColor="@color/app_text_muted"
         android:visibility="gone" />
 
     <androidx.recyclerview.widget.RecyclerView

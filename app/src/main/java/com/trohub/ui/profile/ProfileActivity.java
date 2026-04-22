@@ -1,5 +1,6 @@
 package com.trohub.ui.profile;
 
+import android.content.Intent;
 import android.os.Bundle;
 import android.view.View;
 import android.widget.Button;
@@ -17,6 +18,7 @@ import com.trohub.ui.api.models.BankInfo;
 import com.trohub.ui.api.models.BankInfoRequest;
 import com.trohub.ui.api.models.Landlord;
 import com.trohub.ui.api.models.Tenant;
+import com.trohub.ui.auth.LoginActivity;
 import com.trohub.ui.auth.SessionManager;
 
 import java.util.List;
@@ -57,6 +59,7 @@ public class ProfileActivity extends AppCompatActivity {
     private EditText etTenantJob;
     private EditText etTenantContact;
     private Button btnSaveTenant;
+    private Button btnLogoutProfile;
 
     private Landlord currentLandlord;
     private Tenant currentTenant;
@@ -67,8 +70,8 @@ public class ProfileActivity extends AppCompatActivity {
         setContentView(R.layout.activity_profile);
 
         sessionManager = new SessionManager(this);
-        apiService = NetworkClient.getRetrofitClient().create(ApiService.class);
         NetworkClient.setAuthToken(sessionManager.getToken());
+        apiService = NetworkClient.getRetrofitClient().create(ApiService.class);
         accountId = sessionManager.getUserIdFromToken();
         canManageBank = sessionManager.isAdminOrLandlord();
 
@@ -77,6 +80,14 @@ public class ProfileActivity extends AppCompatActivity {
 
         btnSaveTenant.setOnClickListener(v -> saveTenantProfile());
         btnSaveBank.setOnClickListener(v -> saveBankInfo());
+        btnLogoutProfile.setOnClickListener(v -> {
+            NetworkClient.setAuthToken(null);
+            sessionManager.clear();
+            Intent intent = new Intent(ProfileActivity.this, LoginActivity.class);
+            intent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK | Intent.FLAG_ACTIVITY_CLEAR_TASK);
+            startActivity(intent);
+            finish();
+        });
 
         loadProfile();
     }
@@ -107,6 +118,7 @@ public class ProfileActivity extends AppCompatActivity {
         etTenantJob = findViewById(R.id.etTenantJob);
         etTenantContact = findViewById(R.id.etTenantContact);
         btnSaveTenant = findViewById(R.id.btnSaveTenant);
+        btnLogoutProfile = findViewById(R.id.btnLogoutProfile);
     }
 
     private void loadProfile() {

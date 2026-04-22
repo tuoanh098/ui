@@ -7,11 +7,10 @@
 
     <TextView
         android:id="@+id/tvTitle"
+        style="@style/Text.TroHub.Title"
         android:layout_width="0dp"
         android:layout_height="wrap_content"
         android:text="Danh Sách Tòa Nhà"
-        android:textSize="20sp"
-        android:textStyle="bold"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toTopOf="parent" />
@@ -22,13 +21,14 @@
         android:layout_height="wrap_content"
         android:layout_marginTop="6dp"
         android:text="Nhấn vào tòa nhà để xem danh sách phòng"
-        android:textColor="#666666"
+        android:textColor="@color/app_text_muted"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toBottomOf="@id/tvTitle" />
 
     <Button
         android:id="@+id/btnAddBuilding"
+        style="@style/Widget.TroHub.Button"
         android:layout_width="0dp"
         android:layout_height="wrap_content"
         android:layout_marginTop="10dp"

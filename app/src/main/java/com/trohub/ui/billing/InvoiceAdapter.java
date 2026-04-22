@@ -53,9 +53,19 @@ public class InvoiceAdapter extends RecyclerView.Adapter<InvoiceAdapter.InvoiceV
         String period = String.format(Locale.US, "%02d/%04d", safeInt(invoice.getPeriodMonth()), safeInt(invoice.getPeriodYear()));
         holder.tvInvoiceNumber.setText("Mã hóa đơn: " + invoiceNo + " (ID " + invoice.getId() + ")");
         holder.tvInvoicePeriod.setText("Kỳ hóa đơn: " + period);
+        holder.tvInvoiceTenant.setText("Người trả: " + safe(invoice.getTenantName())
+                + " | SĐT: " + safe(invoice.getTenantPhone())
+                + " | Tenant ID: " + (invoice.getTenantId() == null ? "N/A" : invoice.getTenantId()));
+        holder.tvInvoiceRoomBuilding.setText("Phòng: " + safe(invoice.getRoomCode())
+                + " (ID " + (invoice.getRoomId() == null ? "N/A" : invoice.getRoomId()) + ")"
+                + " | Tòa: " + safe(invoice.getBuildingName())
+                + " | Chủ: " + safe(invoice.getLandlordName()));
         holder.tvInvoiceDates.setText("Ngày phát hành: " + safe(invoice.getIssueDate()) + " | Hạn: " + safe(invoice.getDueDate()));
         holder.tvInvoiceTotal.setText("Tổng tiền: " + formatAmount(invoice.getTotalAmount()) + " VND");
         holder.tvInvoicePenalty.setText("Phí trễ hạn: " + formatAmount(invoice.getPenaltyAmount()) + " VND");
+        int shareCount = invoice.getRoomShareCount() == null || invoice.getRoomShareCount() < 1 ? 1 : invoice.getRoomShareCount();
+        holder.tvInvoiceShare.setText("Tổng phòng: " + formatAmount(invoice.getRoomTotalAmount())
+                + " VND | Chia " + shareCount + " người | Phần phải trả: " + formatAmount(invoice.getTotalAmount()) + " VND");
 
         String status = normalizeStatus(invoice.getStatus());
         holder.tvInvoiceStatus.setText("Trạng thái: " + statusLabel(status));
@@ -119,9 +129,12 @@ public class InvoiceAdapter extends RecyclerView.Adapter<InvoiceAdapter.InvoiceV
     static class InvoiceViewHolder extends RecyclerView.ViewHolder {
         TextView tvInvoiceNumber;
         TextView tvInvoicePeriod;
+        TextView tvInvoiceTenant;
+        TextView tvInvoiceRoomBuilding;
         TextView tvInvoiceDates;
         TextView tvInvoiceTotal;
         TextView tvInvoicePenalty;
+        TextView tvInvoiceShare;
         TextView tvInvoiceStatus;
         Button btnPayQr;
         Button btnViewPayments;
@@ -132,9 +145,12 @@ public class InvoiceAdapter extends RecyclerView.Adapter<InvoiceAdapter.InvoiceV
             super(itemView);
             tvInvoiceNumber = itemView.findViewById(R.id.tvInvoiceNumber);
             tvInvoicePeriod = itemView.findViewById(R.id.tvInvoicePeriod);
+            tvInvoiceTenant = itemView.findViewById(R.id.tvInvoiceTenant);
+            tvInvoiceRoomBuilding = itemView.findViewById(R.id.tvInvoiceRoomBuilding);
             tvInvoiceDates = itemView.findViewById(R.id.tvInvoiceDates);
             tvInvoiceTotal = itemView.findViewById(R.id.tvInvoiceTotal);
             tvInvoicePenalty = itemView.findViewById(R.id.tvInvoicePenalty);
+            tvInvoiceShare = itemView.findViewById(R.id.tvInvoiceShare);
             tvInvoiceStatus = itemView.findViewById(R.id.tvInvoiceStatus);
             btnPayQr = itemView.findViewById(R.id.btnPayQr);
             btnViewPayments = itemView.findViewById(R.id.btnViewPayments);

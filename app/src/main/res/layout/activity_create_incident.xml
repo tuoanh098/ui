@@ -77,7 +77,7 @@
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:text="Gửi Báo Cáo"
-            android:backgroundTint="#388E3C"/>
+            style="@style/Widget.TroHub.Button" />
 
     </LinearLayout>
 </ScrollView>

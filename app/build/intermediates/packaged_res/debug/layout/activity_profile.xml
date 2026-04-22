@@ -19,11 +19,10 @@
 
         <TextView
             android:id="@+id/tvHeader"
+            style="@style/Text.TroHub.Title"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:text="Tài khoản:"
-            android:textSize="20sp"
-            android:textStyle="bold" />
+            android:text="Tài khoản:" />
 
         <TextView
             android:id="@+id/tvMode"
@@ -39,14 +38,16 @@
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:layout_marginTop="6dp"
-            android:textColor="#666666" />
+            android:textColor="@color/app_text_muted" />
 
         <LinearLayout
             android:id="@+id/landlordSection"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:layout_marginTop="16dp"
+            android:background="@drawable/bg_panel"
             android:orientation="vertical"
+            android:padding="12dp"
             android:visibility="gone">
 
             <TextView
@@ -118,7 +119,9 @@
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:layout_marginTop="16dp"
+            android:background="@drawable/bg_panel"
             android:orientation="vertical"
+            android:padding="12dp"
             android:visibility="gone">
 
             <TextView
@@ -184,6 +187,18 @@
                 android:layout_marginTop="12dp"
                 android:text="Cập nhật profile" />
         </LinearLayout>
+
+        <Button
+            android:id="@+id/btnLogoutProfile"
+            style="@style/Widget.TroHub.Button.Danger"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_gravity="center_horizontal"
+            android:layout_marginTop="24dp"
+            android:layout_marginBottom="12dp"
+            android:minWidth="120dp"
+            android:text="Đăng xuất"
+            android:textSize="12sp" />
 
     </LinearLayout>
 </ScrollView>

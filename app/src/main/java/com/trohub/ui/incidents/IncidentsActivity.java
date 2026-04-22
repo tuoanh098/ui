@@ -2,13 +2,20 @@ package com.trohub.ui.incidents;
 
 import android.app.AlertDialog;
 import android.content.Intent;
+import android.graphics.Bitmap;
+import android.graphics.BitmapFactory;
 import android.os.Bundle;
+import android.os.Handler;
+import android.os.Looper;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.widget.AutoCompleteTextView;
 import android.widget.Button;
 import android.widget.EditText;
+import android.widget.ImageView;
+import android.widget.LinearLayout;
 import android.widget.ProgressBar;
+import android.widget.ScrollView;
 import android.widget.TextView;
 import android.widget.Toast;
 
@@ -30,6 +37,7 @@ import com.trohub.ui.common.SelectionHelper;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.net.URL;
 
 import retrofit2.Call;
 import retrofit2.Callback;
@@ -46,6 +54,7 @@ public class IncidentsActivity extends AppCompatActivity implements IncidentsAda
 
     private ApiService apiService;
     private boolean canManageIncidents;
+    private boolean canEditOwnIncidents;
     private boolean canCreateIncident;
 
     @Override
@@ -61,11 +70,12 @@ public class IncidentsActivity extends AppCompatActivity implements IncidentsAda
 
         SessionManager sessionManager = new SessionManager(this);
         canManageIncidents = sessionManager.hasAnyRole("ROLE_ADMIN", "ROLE_LANDLORD", "ROLE_BILLING_STAFF");
+        canEditOwnIncidents = sessionManager.hasAnyRole("ROLE_USER") || canManageIncidents;
         canCreateIncident = sessionManager.hasAnyRole("ROLE_USER", "ROLE_ADMIN", "ROLE_LANDLORD", "ROLE_BILLING_STAFF");
         apiService = NetworkClient.getRetrofitClient().create(ApiService.class);
 
         rvIncidents.setLayoutManager(new LinearLayoutManager(this));
-        adapter = new IncidentsAdapter(this, canManageIncidents);
+        adapter = new IncidentsAdapter(this, canEditOwnIncidents, canManageIncidents);
         rvIncidents.setAdapter(adapter);
         swipeRefresh.setOnRefreshListener(() -> loadIncidents(false));
 
@@ -74,6 +84,90 @@ public class IncidentsActivity extends AppCompatActivity implements IncidentsAda
             Intent intent = new Intent(IncidentsActivity.this, CreateIncidentActivity.class);
             startActivity(intent);
         });
+    }
+
+    @Override
+    public void onViewIncident(Incident incident) {
+        if (incident == null) return;
+        ScrollView scrollView = new ScrollView(this);
+        LinearLayout content = new LinearLayout(this);
+        content.setOrientation(LinearLayout.VERTICAL);
+        int pad = dp(16);
+        content.setPadding(pad, pad, pad, pad);
+        scrollView.addView(content);
+
+        StringBuilder sb = new StringBuilder();
+        sb.append("Loại: ").append(safe(incident.getLoai())).append("\n");
+        sb.append("Trạng thái: ").append(safe(incident.getStatus())).append("\n");
+        sb.append("Phòng ID: ").append(incident.getPhongId() != null ? incident.getPhongId() : "N/A").append("\n");
+        sb.append("Người báo ID: ").append(incident.getReportedBy() != null ? incident.getReportedBy() : "N/A").append("\n");
+        sb.append("Thời gian báo: ").append(safe(incident.getReportedAt())).append("\n");
+        if (incident.getResolvedAt() != null) {
+            sb.append("Đã xử lý: ").append(incident.getResolvedAt()).append("\n");
+        }
+        sb.append("\nMô tả:\n").append(safe(incident.getMoTa()));
+
+        TextView info = new TextView(this);
+        info.setText(sb.toString());
+        info.setTextSize(15);
+        content.addView(info);
+
+        if (incident.getImagePaths() != null && !incident.getImagePaths().isEmpty()) {
+            TextView imageTitle = new TextView(this);
+            imageTitle.setText("\nẢnh đính kèm:");
+            imageTitle.setTypeface(null, android.graphics.Typeface.BOLD);
+            content.addView(imageTitle);
+            for (String path : incident.getImagePaths()) {
+                addIncidentImage(content, path);
+            }
+        }
+
+        new AlertDialog.Builder(this)
+                .setTitle("Chi tiết sự cố #" + (incident.getId() != null ? incident.getId() : ""))
+                .setView(scrollView)
+                .setPositiveButton("Đóng", null)
+                .show();
+    }
+
+    private void addIncidentImage(LinearLayout content, String rawPath) {
+        String url = buildUploadUrl(rawPath);
+        TextView label = new TextView(this);
+        label.setText(url);
+        label.setTextSize(12);
+        label.setPadding(0, dp(8), 0, dp(4));
+        content.addView(label);
+
+        ImageView imageView = new ImageView(this);
+        imageView.setAdjustViewBounds(true);
+        imageView.setScaleType(ImageView.ScaleType.CENTER_CROP);
+        LinearLayout.LayoutParams params = new LinearLayout.LayoutParams(
+                LinearLayout.LayoutParams.MATCH_PARENT,
+                dp(180)
+        );
+        imageView.setLayoutParams(params);
+        content.addView(imageView);
+
+        new Thread(() -> {
+            try {
+                Bitmap bitmap = BitmapFactory.decodeStream(new URL(url).openStream());
+                new Handler(Looper.getMainLooper()).post(() -> imageView.setImageBitmap(bitmap));
+            } catch (Exception e) {
+                new Handler(Looper.getMainLooper()).post(() -> label.setText(url + "\nKhông tải được ảnh"));
+            }
+        }).start();
+    }
+
+    private String buildUploadUrl(String rawPath) {
+        if (rawPath == null || rawPath.trim().isEmpty()) return "";
+        String path = rawPath.trim();
+        if (path.startsWith("http://") || path.startsWith("https://")) return path;
+        String base = NetworkClient.getBaseUrl();
+        if (path.startsWith("/")) path = path.substring(1);
+        return base + path;
+    }
+
+    private int dp(int value) {
+        return (int) (value * getResources().getDisplayMetrics().density + 0.5f);
     }
 
     @Override
@@ -146,6 +240,27 @@ public class IncidentsActivity extends AppCompatActivity implements IncidentsAda
                 })
                 .setNegativeButton("Hủy", null)
                 .show();
+    }
+
+    @Override
+    public void onResolveIncident(Incident incident) {
+        if (!canManageIncidents || incident == null || incident.getId() == null) return;
+        apiService.resolveIncident(incident.getId()).enqueue(new Callback<Incident>() {
+            @Override
+            public void onResponse(Call<Incident> call, Response<Incident> response) {
+                if (response.isSuccessful()) {
+                    Toast.makeText(IncidentsActivity.this, "Đã xác nhận xử lý sự cố", Toast.LENGTH_SHORT).show();
+                    loadIncidents(false);
+                } else {
+                    Toast.makeText(IncidentsActivity.this, "Xác nhận thất bại: " + response.code(), Toast.LENGTH_SHORT).show();
+                }
+            }
+
+            @Override
+            public void onFailure(Call<Incident> call, Throwable t) {
+                Toast.makeText(IncidentsActivity.this, "Lỗi kết nối: " + t.getMessage(), Toast.LENGTH_SHORT).show();
+            }
+        });
     }
 
     private void showEditDialog(Incident incident) {

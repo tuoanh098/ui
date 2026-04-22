@@ -1,4 +1,4 @@
-<?xml version="1.0" encoding="utf-8"?>
+﻿<?xml version="1.0" encoding="utf-8"?>
 <androidx.cardview.widget.CardView xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
     android:layout_width="match_parent"
@@ -6,6 +6,8 @@
     android:layout_marginBottom="8dp"
     app:cardCornerRadius="8dp"
     app:cardElevation="2dp"
+    app:cardBackgroundColor="@color/app_surface"
+    app:cardUseCompatPadding="true"
     app:contentPadding="12dp">
 
     <LinearLayout
@@ -26,7 +28,7 @@
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:text="Trạng thái: "
-            android:textColor="#D32F2F"
+            android:textColor="@color/app_danger"
             android:layout_marginTop="4dp" />
 
         <TextView
@@ -43,6 +45,15 @@
             android:text="Người báo ID: "
             android:layout_marginTop="4dp" />
 
+        <TextView
+            android:id="@+id/tvIncidentDescription"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="4dp"
+            android:maxLines="2"
+            android:ellipsize="end"
+            android:text="Mô tả" />
+
         <LinearLayout
             android:id="@+id/layoutIncidentActions"
             android:layout_width="match_parent"
@@ -54,18 +65,30 @@
 
             <Button
                 android:id="@+id/btnEditIncident"
+                style="@style/Widget.TroHub.Button.SmallSecondary"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:text="Sửa" />
 
             <Button
                 android:id="@+id/btnDeleteIncident"
+                style="@style/Widget.TroHub.Button.SmallDanger"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:layout_marginStart="8dp"
                 android:text="Xóa" />
+
+            <Button
+                android:id="@+id/btnResolveIncident"
+                style="@style/Widget.TroHub.Button.SmallSecondary"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginStart="8dp"
+                android:text="Đã xử lý" />
         </LinearLayout>
 
     </LinearLayout>
 </androidx.cardview.widget.CardView>
+
+
 

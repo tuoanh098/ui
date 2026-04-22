@@ -142,7 +142,9 @@ public class GuestEntriesActivity extends AppCompatActivity implements GuestEntr
             public void onResponse(Call<List<Tenant>> call, Response<List<Tenant>> response) {
                 if (response.isSuccessful() && response.body() != null) {
                     for (Tenant tenant : response.body()) {
-                        if (tenant.getTaiKhoanId() != null && tenant.getTaiKhoanId().equals(accountId)) {
+                        boolean isMine = accountId == null
+                                || (tenant.getTaiKhoanId() != null && tenant.getTaiKhoanId().equals(accountId));
+                        if (isMine) {
                             myRoomId = tenant.getSophong();
                             break;
                         }
@@ -207,7 +209,7 @@ public class GuestEntriesActivity extends AppCompatActivity implements GuestEntr
                     etNote.setText("");
                     loadGuestEntries(false);
                 } else {
-                    Toast.makeText(GuestEntriesActivity.this, "Khai báo thất bại", Toast.LENGTH_SHORT).show();
+                    Toast.makeText(GuestEntriesActivity.this, "Khai báo thất bại: " + response.code(), Toast.LENGTH_SHORT).show();
                 }
             }
 

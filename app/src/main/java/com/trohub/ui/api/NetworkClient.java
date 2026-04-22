@@ -21,6 +21,10 @@ public class NetworkClient {
         retrofit = null;
     }
 
+    public static String getBaseUrl() {
+        return BASE_URL;
+    }
+
     public static synchronized Retrofit getRetrofitClient() {
         if (retrofit == null) {
             OkHttpClient client = new OkHttpClient.Builder().addInterceptor(new Interceptor() {

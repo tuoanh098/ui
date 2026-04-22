@@ -26,8 +26,7 @@
         android:hardwareAccelerated="false"
         android:label="Quản Lý Trọ"
         android:supportsRtl="true"
-        android:testOnly="true"
-        android:theme="@style/Theme.AppCompat.Light.DarkActionBar"
+        android:theme="@style/Theme.TroHub"
         android:usesCleartextTraffic="true" >
         <activity
             android:name="com.trohub.ui.auth.LoginActivity"

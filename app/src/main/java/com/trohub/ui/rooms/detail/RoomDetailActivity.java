@@ -49,6 +49,7 @@ public class RoomDetailActivity extends AppCompatActivity {
 
     private ApiService apiService;
     private TenantsAdapter tenantsAdapter;
+    private boolean tenantMode;
 
     private Long roomId;
     private Phong currentRoom;
@@ -61,6 +62,7 @@ public class RoomDetailActivity extends AppCompatActivity {
 
         SessionManager sessionManager = new SessionManager(this);
         NetworkClient.setAuthToken(sessionManager.getToken());
+        tenantMode = sessionManager.hasAnyRole("ROLE_USER") && !sessionManager.hasAnyRole("ROLE_ADMIN", "ROLE_LANDLORD", "ROLE_BILLING_STAFF");
         apiService = NetworkClient.getRetrofitClient().create(ApiService.class);
 
         roomId = getIntent().getLongExtra("ROOM_ID", -1L);
@@ -91,19 +93,25 @@ public class RoomDetailActivity extends AppCompatActivity {
         rvTenants = findViewById(R.id.rvTenants);
 
         tvTitle.setText("Chi tiết phòng");
-        tvBuildingLink.setPaintFlags(tvBuildingLink.getPaintFlags() | Paint.UNDERLINE_TEXT_FLAG);
+        if (!tenantMode) {
+            tvBuildingLink.setPaintFlags(tvBuildingLink.getPaintFlags() | Paint.UNDERLINE_TEXT_FLAG);
+        }
     }
 
     private void setupRecycler() {
         tenantsAdapter = new TenantsAdapter();
-        tenantsAdapter.setTenantItemClickListener(this::openTenantDetail);
+        if (!tenantMode) {
+            tenantsAdapter.setTenantItemClickListener(this::openTenantDetail);
+        }
         rvTenants.setLayoutManager(new LinearLayoutManager(this));
         rvTenants.setAdapter(tenantsAdapter);
     }
 
     private void setupActions() {
         swipeRefresh.setOnRefreshListener(() -> loadRoomDetail(false));
-        tvBuildingLink.setOnClickListener(v -> openBuildingDetail());
+        tvBuildingLink.setOnClickListener(v -> {
+            if (!tenantMode) openBuildingDetail();
+        });
     }
 
     private void loadRoomDetail(boolean firstLoad) {
@@ -188,6 +196,7 @@ public class RoomDetailActivity extends AppCompatActivity {
                 }
 
                 tvBuildingLink.setText("Tòa nhà: " + safe(currentBuilding.getTen()) + " (ID " + currentBuilding.getId() + ")");
+                tvBuildingLink.setEnabled(!tenantMode);
                 loadOwnerInfo(currentBuilding.getChuTroId());
             }
 

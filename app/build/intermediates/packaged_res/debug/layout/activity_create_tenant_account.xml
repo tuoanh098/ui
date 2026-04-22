@@ -10,18 +10,18 @@
         android:padding="16dp">
 
         <TextView
+            style="@style/Text.TroHub.Title"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:text="Tạo tài khoản khách thuê"
-            android:textSize="22sp"
-            android:textStyle="bold" />
+            android:textSize="22sp" />
 
         <TextView
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:layout_marginTop="6dp"
             android:text="Tài khoản mới sẽ có ROLE_USER. Nếu nhập thông tin tenant bên dưới, hệ thống sẽ tự tạo hồ sơ người thuê."
-            android:textColor="#666666" />
+            android:textColor="@color/app_text_muted" />
 
         <EditText
             android:id="@+id/etUsername"
@@ -89,6 +89,7 @@
 
         <Button
             android:id="@+id/btnCreateAccount"
+            style="@style/Widget.TroHub.Button"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:layout_marginTop="12dp"
@@ -99,9 +100,9 @@
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:layout_marginTop="10dp"
-            android:background="#EEF7EE"
+            android:background="@drawable/bg_panel_tint"
             android:padding="10dp"
-            android:textColor="#1B5E20"
+            android:textColor="@color/app_success"
             android:visibility="gone" />
     </LinearLayout>
 </ScrollView>

@@ -1,0 +1,31 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <color name="app_bg">#F3F6F8</color>
+    <color name="app_surface">#FFFFFF</color>
+    <color name="app_surface_alt">#EAF3F1</color>
+    <color name="app_primary">#0F766E</color>
+    <color name="app_primary_dark">#0B4F4A</color>
+    <color name="app_accent">#2563EB</color>
+    <color name="app_success">#15803D</color>
+    <color name="app_warning">#D97706</color>
+    <color name="app_danger">#B42318</color>
+    <color name="app_text">#17212B</color>
+    <color name="app_text_muted">#667085</color>
+    <color name="app_line">#D9E2E7</color>
+    <color name="app_ripple">#26303030</color>
+    <color name="app_on_primary">#FFFFFF</color>
+    <color name="app_on_primary_muted">#D0D5DD</color>
+    <color name="app_chip">#E7F0FF</color>
+    <color name="app_chip_text">#1D4ED8</color>
+
+    <color name="dash_bg">#F4F6F8</color>
+    <color name="dash_surface">#FFFFFF</color>
+    <color name="dash_primary">#1E3A5F</color>
+    <color name="dash_text_primary">#1F2933</color>
+    <color name="dash_text_secondary">#667085</color>
+    <color name="dash_green">#2E7D32</color>
+    <color name="dash_red">#C62828</color>
+    <color name="dash_orange">#E07A1F</color>
+    <color name="dash_blue">#1565C0</color>
+    <color name="dash_divider">#E4E7EC</color>
+</resources>

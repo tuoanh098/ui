@@ -48,6 +48,7 @@ public class ReportsActivity extends AppCompatActivity {
     private EditText etYear;
     private EditText etMonth;
     private EditText etRoomKeyword;
+    private Spinner spStatus;
     private CheckBox cbOverdueOnly;
     private Button btnApply;
     private ProgressBar progressBar;
@@ -55,6 +56,7 @@ public class ReportsActivity extends AppCompatActivity {
     private TextView tvSummaryCounts;
     private TextView tvEmpty;
     private RecyclerView rvReport;
+    private RevenueChartView chartRevenue;
 
     private ApiService apiService;
     private SessionManager sessionManager;
@@ -65,6 +67,7 @@ public class ReportsActivity extends AppCompatActivity {
     private final List<Tenant> allTenants = new ArrayList<>();
     private final List<Contract> allContracts = new ArrayList<>();
     private final List<Long> spinnerBuildingIds = new ArrayList<>();
+    private final List<String> statusValues = new ArrayList<>();
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -77,6 +80,7 @@ public class ReportsActivity extends AppCompatActivity {
 
         bindViews();
         setupDefaults();
+        setupStatusSpinner();
 
         adapter = new RoomRevenueAdapter();
         rvReport.setLayoutManager(new LinearLayoutManager(this));
@@ -91,6 +95,7 @@ public class ReportsActivity extends AppCompatActivity {
         etYear = findViewById(R.id.etReportYear);
         etMonth = findViewById(R.id.etReportMonth);
         etRoomKeyword = findViewById(R.id.etRoomKeyword);
+        spStatus = findViewById(R.id.spStatusFilter);
         cbOverdueOnly = findViewById(R.id.cbOverdueOnly);
         btnApply = findViewById(R.id.btnApplyFilter);
         progressBar = findViewById(R.id.progressBar);
@@ -98,12 +103,35 @@ public class ReportsActivity extends AppCompatActivity {
         tvSummaryCounts = findViewById(R.id.tvSummaryCounts);
         tvEmpty = findViewById(R.id.tvEmpty);
         rvReport = findViewById(R.id.rvReportRooms);
+        chartRevenue = findViewById(R.id.chartRevenue);
     }
 
     private void setupDefaults() {
         Calendar c = Calendar.getInstance();
         etYear.setText(String.valueOf(c.get(Calendar.YEAR)));
         etMonth.setText(String.valueOf(c.get(Calendar.MONTH) + 1));
+    }
+
+    private void setupStatusSpinner() {
+        statusValues.clear();
+        statusValues.add("ALL");
+        statusValues.add("PAID");
+        statusValues.add("UNPAID");
+        statusValues.add("OVERDUE");
+        statusValues.add("PARTIALLY_PAID");
+        statusValues.add("DRAFT");
+
+        List<String> labels = new ArrayList<>();
+        labels.add("Tất cả trạng thái");
+        labels.add("PAID - đã thanh toán");
+        labels.add("UNPAID - chưa thanh toán");
+        labels.add("OVERDUE - trễ hạn");
+        labels.add("PARTIALLY_PAID - thanh toán một phần");
+        labels.add("DRAFT - hóa đơn nháp");
+
+        ArrayAdapter<String> adapter = new ArrayAdapter<>(this, android.R.layout.simple_spinner_item, labels);
+        adapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
+        spStatus.setAdapter(adapter);
     }
 
     private void loadBaseReferenceData() {
@@ -222,6 +250,7 @@ public class ReportsActivity extends AppCompatActivity {
                     tvEmpty.setVisibility(View.VISIBLE);
                     tvEmpty.setText("Không tải được dữ liệu hóa đơn");
                     adapter.setItems(new ArrayList<>());
+                    chartRevenue.setEntries(new ArrayList<>());
                     return;
                 }
                 renderReport(response.body(), year, month);
@@ -233,6 +262,7 @@ public class ReportsActivity extends AppCompatActivity {
                 tvEmpty.setVisibility(View.VISIBLE);
                 tvEmpty.setText("Lỗi kết nối: " + t.getMessage());
                 adapter.setItems(new ArrayList<>());
+                chartRevenue.setEntries(new ArrayList<>());
             }
         });
     }
@@ -240,6 +270,7 @@ public class ReportsActivity extends AppCompatActivity {
     private void renderReport(List<Invoice> invoices, int year, int month) {
         Long selectedBuildingId = getSelectedBuildingId();
         String roomKeyword = etRoomKeyword.getText().toString().trim().toLowerCase(Locale.US);
+        String selectedStatus = getSelectedStatus();
         boolean overdueOnly = cbOverdueOnly.isChecked();
 
         Map<Long, Phong> roomById = new HashMap<>();
@@ -247,21 +278,21 @@ public class ReportsActivity extends AppCompatActivity {
         for (Phong room : allRooms) roomById.put(room.getId(), room);
         for (ToaNha b : availableBuildings) buildingNameById.put(b.getId(), b.getTen());
 
-        Map<Long, Tenant> tenantByAccount = new HashMap<>();
+        Map<Long, Long> roomByTenantId = new HashMap<>();
         for (Tenant tenant : allTenants) {
-            if (tenant.getTaiKhoanId() != null) tenantByAccount.put(tenant.getTaiKhoanId(), tenant);
-        }
-
-        Map<Long, Long> roomByAccountId = new HashMap<>();
-        for (Tenant tenant : allTenants) {
-            if (tenant.getTaiKhoanId() == null) continue;
+            if (tenant.getId() == null) continue;
             Long roomId = findRoomForTenant(tenant);
-            if (roomId != null) roomByAccountId.put(tenant.getTaiKhoanId(), roomId);
+            if (roomId != null) roomByTenantId.put(tenant.getId(), roomId);
         }
 
         class Agg {
             double revenue = 0;
+            double expected = 0;
+            int invoiceCount = 0;
             int paid = 0;
+            int unpaid = 0;
+            int draft = 0;
+            int partial = 0;
             int overdue = 0;
             String roomCode = "N/A";
             String buildingName = "N/A";
@@ -271,34 +302,51 @@ public class ReportsActivity extends AppCompatActivity {
         int totalOverdueInvoices = 0;
 
         for (Invoice invoice : invoices) {
-            if (invoice.getTenantId() == null) continue;
-            Long roomId = roomByAccountId.get(invoice.getTenantId());
+            String status = normalizeStatus(invoice.getStatus());
+            if (!matchesStatus(selectedStatus, status)) continue;
+
+            Long roomId = invoice.getRoomId();
+            if (roomId == null && invoice.getTenantId() != null) {
+                roomId = roomByTenantId.get(invoice.getTenantId());
+            }
             if (roomId == null) continue;
 
             Phong room = roomById.get(roomId);
-            if (room == null) continue;
+            Long buildingId = invoice.getBuildingId();
+            String roomCode = safe(invoice.getRoomCode());
+            String buildingName = safe(invoice.getBuildingName());
+            if (room != null) {
+                buildingId = room.getToaNhaId();
+                roomCode = safe(room.getMaPhong());
+                buildingName = safe(buildingNameById.get(room.getToaNhaId()));
+            }
 
-            if (selectedBuildingId != null && (room.getToaNhaId() == null || !selectedBuildingId.equals(room.getToaNhaId()))) {
+            if (selectedBuildingId != null && (buildingId == null || !selectedBuildingId.equals(buildingId))) {
                 continue;
             }
 
-            String roomCode = safe(room.getMaPhong());
-            String roomIdText = String.valueOf(room.getId());
+            String roomIdText = String.valueOf(roomId);
             if (!roomKeyword.isEmpty()
                     && !roomCode.toLowerCase(Locale.US).contains(roomKeyword)
                     && !roomIdText.contains(roomKeyword)) {
                 continue;
             }
 
-            String status = normalizeStatus(invoice.getStatus());
             Agg agg = aggByRoom.containsKey(roomId) ? aggByRoom.get(roomId) : new Agg();
             agg.roomCode = roomCode;
-            agg.buildingName = safe(buildingNameById.get(room.getToaNhaId()));
+            agg.buildingName = buildingName;
+            agg.invoiceCount++;
+            agg.expected += safeAmount(invoice.getTotalAmount());
 
             if (isPaidLike(status)) {
                 agg.revenue += safeAmount(invoice.getTotalAmount());
+            }
+            if ("PAID".equals(status)) {
                 agg.paid++;
             }
+            if ("UNPAID".equals(status)) agg.unpaid++;
+            if ("DRAFT".equals(status)) agg.draft++;
+            if ("PARTIALLY_PAID".equals(status)) agg.partial++;
             if ("OVERDUE".equals(status)) {
                 agg.overdue++;
                 totalOverdueInvoices++;
@@ -308,8 +356,13 @@ public class ReportsActivity extends AppCompatActivity {
 
         List<RoomRevenueItem> result = new ArrayList<>();
         double totalRevenue = 0;
+        double totalExpected = 0;
         int overdueRooms = 0;
         int paidInvoices = 0;
+        int unpaidInvoices = 0;
+        int draftInvoices = 0;
+        int partialInvoices = 0;
+        int totalInvoices = 0;
 
         for (Map.Entry<Long, Agg> entry : aggByRoom.entrySet()) {
             Agg agg = entry.getValue();
@@ -319,12 +372,22 @@ public class ReportsActivity extends AppCompatActivity {
                     agg.roomCode,
                     agg.buildingName,
                     agg.revenue,
+                    agg.expected,
+                    agg.invoiceCount,
                     agg.paid,
+                    agg.unpaid,
+                    agg.draft,
+                    agg.partial,
                     agg.overdue
             );
             result.add(item);
             totalRevenue += agg.revenue;
+            totalExpected += agg.expected;
+            totalInvoices += agg.invoiceCount;
             paidInvoices += agg.paid;
+            unpaidInvoices += agg.unpaid;
+            draftInvoices += agg.draft;
+            partialInvoices += agg.partial;
             if (agg.overdue > 0) overdueRooms++;
         }
 
@@ -335,18 +398,24 @@ public class ReportsActivity extends AppCompatActivity {
         });
 
         adapter.setItems(result);
+        renderChart(result);
         tvEmpty.setVisibility(result.isEmpty() ? View.VISIBLE : View.GONE);
         if (result.isEmpty()) {
             tvEmpty.setText("Không có dữ liệu phù hợp bộ lọc");
         }
 
         String monthText = String.format(Locale.US, "%02d/%04d", month, year);
-        tvSummaryRevenue.setText("Doanh thu " + monthText + ": " + formatMoney(totalRevenue) + " VND");
+        tvSummaryRevenue.setText("Đã thu " + monthText + ": " + formatMoney(totalRevenue)
+                + " VND | Phải thu: " + formatMoney(totalExpected) + " VND");
         tvSummaryCounts.setText(
                 "Phòng hiển thị: " + result.size()
-                        + " | Hóa đơn đã thanh toán: " + paidInvoices
+                        + " | HĐ: " + totalInvoices
+                        + " | PAID: " + paidInvoices
+                        + " | UNPAID: " + unpaidInvoices
+                        + " | PARTIAL: " + partialInvoices
+                        + " | DRAFT: " + draftInvoices
+                        + " | OVERDUE: " + totalOverdueInvoices
                         + " | Phòng trễ hạn: " + overdueRooms
-                        + " | HĐ trễ hạn: " + totalOverdueInvoices
         );
     }
 
@@ -398,6 +467,27 @@ public class ReportsActivity extends AppCompatActivity {
         int index = spBuilding.getSelectedItemPosition();
         if (index < 0 || index >= spinnerBuildingIds.size()) return null;
         return spinnerBuildingIds.get(index);
+    }
+
+    private String getSelectedStatus() {
+        int index = spStatus.getSelectedItemPosition();
+        if (index < 0 || index >= statusValues.size()) return "ALL";
+        return statusValues.get(index);
+    }
+
+    private boolean matchesStatus(String selected, String actual) {
+        if (selected == null || "ALL".equals(selected)) return true;
+        return selected.equalsIgnoreCase(actual);
+    }
+
+    private void renderChart(List<RoomRevenueItem> items) {
+        List<RevenueChartView.Entry> entries = new ArrayList<>();
+        int count = Math.min(8, items == null ? 0 : items.size());
+        for (int i = 0; i < count; i++) {
+            RoomRevenueItem item = items.get(i);
+            entries.add(new RevenueChartView.Entry(item.getRoomCode(), item.getRevenue()));
+        }
+        chartRevenue.setEntries(entries);
     }
 
     private String normalizeStatus(String status) {

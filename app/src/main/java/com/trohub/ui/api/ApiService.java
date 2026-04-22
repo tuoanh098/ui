@@ -114,6 +114,9 @@ public interface ApiService {
     @DELETE("api/incidents/{id}")
     Call<Void> deleteIncident(@Path("id") Long id);
 
+    @POST("api/incidents/{id}/resolve")
+    Call<Incident> resolveIncident(@Path("id") Long id);
+
     @Multipart
     @POST("api/incidents/{id}/attachments")
     Call<ResponseBody> uploadAttachment(@Path("id") Long id, @Part MultipartBody.Part file);

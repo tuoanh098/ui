@@ -107,8 +107,8 @@ MERGED from [androidx.startup:startup-runtime:1.1.1] C:\Users\tuoan\.gradle\cach
 		ADDED from D:\IdeaProjects\backend\ui\app\src\main\AndroidManifest.xml:9:9-35
 		ADDED from D:\IdeaProjects\backend\ui\app\src\main\AndroidManifest.xml:9:9-35
 	android:theme
-		ADDED from D:\IdeaProjects\backend\ui\app\src\main\AndroidManifest.xml:12:9-67
-		ADDED from D:\IdeaProjects\backend\ui\app\src\main\AndroidManifest.xml:12:9-67
+		ADDED from D:\IdeaProjects\backend\ui\app\src\main\AndroidManifest.xml:12:9-44
+		ADDED from D:\IdeaProjects\backend\ui\app\src\main\AndroidManifest.xml:12:9-44
 	tools:replace
 		ADDED from D:\IdeaProjects\backend\ui\app\src\debug\AndroidManifest.xml:7:9-52
 	android:usesCleartextTraffic

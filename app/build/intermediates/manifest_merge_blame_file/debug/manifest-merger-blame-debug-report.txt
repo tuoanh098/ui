@@ -43,145 +43,144 @@
 27-->D:\IdeaProjects\backend\ui\app\src\main\AndroidManifest.xml:10:9-36
 28        android:supportsRtl="true"
 28-->D:\IdeaProjects\backend\ui\app\src\main\AndroidManifest.xml:11:9-35
-29        android:testOnly="true"
-30        android:theme="@style/Theme.AppCompat.Light.DarkActionBar"
-30-->D:\IdeaProjects\backend\ui\app\src\main\AndroidManifest.xml:12:9-67
-31        android:usesCleartextTraffic="true" >
-31-->D:\IdeaProjects\backend\ui\app\src\main\AndroidManifest.xml:13:9-44
-32        <activity
-32-->D:\IdeaProjects\backend\ui\app\src\main\AndroidManifest.xml:14:9-21:20
-33            android:name="com.trohub.ui.auth.LoginActivity"
-33-->D:\IdeaProjects\backend\ui\app\src\main\AndroidManifest.xml:15:13-47
-34            android:exported="true" >
-34-->D:\IdeaProjects\backend\ui\app\src\main\AndroidManifest.xml:16:13-36
-35            <intent-filter>
-35-->D:\IdeaProjects\backend\ui\app\src\main\AndroidManifest.xml:17:13-20:29
-36                <action android:name="android.intent.action.MAIN" />
-36-->D:\IdeaProjects\backend\ui\app\src\main\AndroidManifest.xml:18:17-69
-36-->D:\IdeaProjects\backend\ui\app\src\main\AndroidManifest.xml:18:25-66
-37
-38                <category android:name="android.intent.category.LAUNCHER" />
-38-->D:\IdeaProjects\backend\ui\app\src\main\AndroidManifest.xml:19:17-77
-38-->D:\IdeaProjects\backend\ui\app\src\main\AndroidManifest.xml:19:27-74
-39            </intent-filter>
-40        </activity>
-41        <activity android:name="com.trohub.ui.MainActivity" />
-41-->D:\IdeaProjects\backend\ui\app\src\main\AndroidManifest.xml:23:9-50
-41-->D:\IdeaProjects\backend\ui\app\src\main\AndroidManifest.xml:23:19-47
-42        <activity android:name="com.trohub.ui.auth.CreateTenantAccountActivity" />
-42-->D:\IdeaProjects\backend\ui\app\src\main\AndroidManifest.xml:24:9-70
-42-->D:\IdeaProjects\backend\ui\app\src\main\AndroidManifest.xml:24:19-67
-43        <activity android:name="com.trohub.ui.rooms.RoomsActivity" />
-43-->D:\IdeaProjects\backend\ui\app\src\main\AndroidManifest.xml:25:9-57
-43-->D:\IdeaProjects\backend\ui\app\src\main\AndroidManifest.xml:25:19-54
-44        <activity android:name="com.trohub.ui.rooms.detail.RoomDetailActivity" />
-44-->D:\IdeaProjects\backend\ui\app\src\main\AndroidManifest.xml:26:9-69
-44-->D:\IdeaProjects\backend\ui\app\src\main\AndroidManifest.xml:26:19-66
-45        <activity android:name="com.trohub.ui.buildings.BuildingsActivity" />
-45-->D:\IdeaProjects\backend\ui\app\src\main\AndroidManifest.xml:27:9-65
-45-->D:\IdeaProjects\backend\ui\app\src\main\AndroidManifest.xml:27:19-62
-46        <activity android:name="com.trohub.ui.buildings.BuildingRoomsActivity" />
-46-->D:\IdeaProjects\backend\ui\app\src\main\AndroidManifest.xml:28:9-69
-46-->D:\IdeaProjects\backend\ui\app\src\main\AndroidManifest.xml:28:19-66
-47        <activity android:name="com.trohub.ui.buildings.BuildingDetailActivity" />
-47-->D:\IdeaProjects\backend\ui\app\src\main\AndroidManifest.xml:29:9-70
-47-->D:\IdeaProjects\backend\ui\app\src\main\AndroidManifest.xml:29:19-67
-48        <activity android:name="com.trohub.ui.contracts.ContractsActivity" />
-48-->D:\IdeaProjects\backend\ui\app\src\main\AndroidManifest.xml:30:9-65
-48-->D:\IdeaProjects\backend\ui\app\src\main\AndroidManifest.xml:30:19-62
-49        <activity android:name="com.trohub.ui.tenants.TenantsActivity" />
-49-->D:\IdeaProjects\backend\ui\app\src\main\AndroidManifest.xml:31:9-61
-49-->D:\IdeaProjects\backend\ui\app\src\main\AndroidManifest.xml:31:19-58
-50        <activity android:name="com.trohub.ui.tenants.detail.TenantDetailActivity" />
-50-->D:\IdeaProjects\backend\ui\app\src\main\AndroidManifest.xml:32:9-73
-50-->D:\IdeaProjects\backend\ui\app\src\main\AndroidManifest.xml:32:19-70
-51        <activity android:name="com.trohub.ui.incidents.IncidentsActivity" />
-51-->D:\IdeaProjects\backend\ui\app\src\main\AndroidManifest.xml:33:9-65
-51-->D:\IdeaProjects\backend\ui\app\src\main\AndroidManifest.xml:33:19-62
-52        <activity android:name="com.trohub.ui.incidents.CreateIncidentActivity" />
-52-->D:\IdeaProjects\backend\ui\app\src\main\AndroidManifest.xml:34:9-70
-52-->D:\IdeaProjects\backend\ui\app\src\main\AndroidManifest.xml:34:19-67
-53        <activity android:name="com.trohub.ui.guest.GuestEntriesActivity" />
-53-->D:\IdeaProjects\backend\ui\app\src\main\AndroidManifest.xml:35:9-64
-53-->D:\IdeaProjects\backend\ui\app\src\main\AndroidManifest.xml:35:19-61
-54        <activity android:name="com.trohub.ui.guest.LandlordGuestReviewActivity" />
-54-->D:\IdeaProjects\backend\ui\app\src\main\AndroidManifest.xml:36:9-71
-54-->D:\IdeaProjects\backend\ui\app\src\main\AndroidManifest.xml:36:19-68
-55        <activity android:name="com.trohub.ui.profile.ProfileActivity" />
-55-->D:\IdeaProjects\backend\ui\app\src\main\AndroidManifest.xml:37:9-61
-55-->D:\IdeaProjects\backend\ui\app\src\main\AndroidManifest.xml:37:19-58
-56        <activity android:name="com.trohub.ui.billing.BillingActivity" />
-56-->D:\IdeaProjects\backend\ui\app\src\main\AndroidManifest.xml:38:9-61
-56-->D:\IdeaProjects\backend\ui\app\src\main\AndroidManifest.xml:38:19-58
-57        <activity android:name="com.trohub.ui.reports.ReportsActivity" />
-57-->D:\IdeaProjects\backend\ui\app\src\main\AndroidManifest.xml:39:9-61
-57-->D:\IdeaProjects\backend\ui\app\src\main\AndroidManifest.xml:39:19-58
-58
-59        <provider
-59-->[androidx.emoji2:emoji2:1.2.0] C:\Users\tuoan\.gradle\caches\transforms-3\986cb90b811bf58fb8e8ff4e6584552d\transformed\emoji2-1.2.0\AndroidManifest.xml:24:9-32:20
-60            android:name="androidx.startup.InitializationProvider"
-60-->[androidx.emoji2:emoji2:1.2.0] C:\Users\tuoan\.gradle\caches\transforms-3\986cb90b811bf58fb8e8ff4e6584552d\transformed\emoji2-1.2.0\AndroidManifest.xml:25:13-67
-61            android:authorities="com.trohub.ui.androidx-startup"
-61-->[androidx.emoji2:emoji2:1.2.0] C:\Users\tuoan\.gradle\caches\transforms-3\986cb90b811bf58fb8e8ff4e6584552d\transformed\emoji2-1.2.0\AndroidManifest.xml:26:13-68
-62            android:exported="false" >
-62-->[androidx.emoji2:emoji2:1.2.0] C:\Users\tuoan\.gradle\caches\transforms-3\986cb90b811bf58fb8e8ff4e6584552d\transformed\emoji2-1.2.0\AndroidManifest.xml:27:13-37
-63            <meta-data
-63-->[androidx.emoji2:emoji2:1.2.0] C:\Users\tuoan\.gradle\caches\transforms-3\986cb90b811bf58fb8e8ff4e6584552d\transformed\emoji2-1.2.0\AndroidManifest.xml:29:13-31:52
-64                android:name="androidx.emoji2.text.EmojiCompatInitializer"
-64-->[androidx.emoji2:emoji2:1.2.0] C:\Users\tuoan\.gradle\caches\transforms-3\986cb90b811bf58fb8e8ff4e6584552d\transformed\emoji2-1.2.0\AndroidManifest.xml:30:17-75
-65                android:value="androidx.startup" />
-65-->[androidx.emoji2:emoji2:1.2.0] C:\Users\tuoan\.gradle\caches\transforms-3\986cb90b811bf58fb8e8ff4e6584552d\transformed\emoji2-1.2.0\AndroidManifest.xml:31:17-49
-66            <meta-data
-66-->[androidx.lifecycle:lifecycle-process:2.6.1] C:\Users\tuoan\.gradle\caches\transforms-3\6e8a5b813c4f665d15cd61be7df27f51\transformed\lifecycle-process-2.6.1\AndroidManifest.xml:29:13-31:52
-67                android:name="androidx.lifecycle.ProcessLifecycleInitializer"
-67-->[androidx.lifecycle:lifecycle-process:2.6.1] C:\Users\tuoan\.gradle\caches\transforms-3\6e8a5b813c4f665d15cd61be7df27f51\transformed\lifecycle-process-2.6.1\AndroidManifest.xml:30:17-78
-68                android:value="androidx.startup" />
-68-->[androidx.lifecycle:lifecycle-process:2.6.1] C:\Users\tuoan\.gradle\caches\transforms-3\6e8a5b813c4f665d15cd61be7df27f51\transformed\lifecycle-process-2.6.1\AndroidManifest.xml:31:17-49
-69            <meta-data
-69-->[androidx.profileinstaller:profileinstaller:1.3.0] C:\Users\tuoan\.gradle\caches\transforms-3\92e8251532aef0a688bfdf15bbedba07\transformed\profileinstaller-1.3.0\AndroidManifest.xml:29:13-31:52
-70                android:name="androidx.profileinstaller.ProfileInstallerInitializer"
-70-->[androidx.profileinstaller:profileinstaller:1.3.0] C:\Users\tuoan\.gradle\caches\transforms-3\92e8251532aef0a688bfdf15bbedba07\transformed\profileinstaller-1.3.0\AndroidManifest.xml:30:17-85
-71                android:value="androidx.startup" />
-71-->[androidx.profileinstaller:profileinstaller:1.3.0] C:\Users\tuoan\.gradle\caches\transforms-3\92e8251532aef0a688bfdf15bbedba07\transformed\profileinstaller-1.3.0\AndroidManifest.xml:31:17-49
-72        </provider>
-73
-74        <receiver
-74-->[androidx.profileinstaller:profileinstaller:1.3.0] C:\Users\tuoan\.gradle\caches\transforms-3\92e8251532aef0a688bfdf15bbedba07\transformed\profileinstaller-1.3.0\AndroidManifest.xml:34:9-52:20
-75            android:name="androidx.profileinstaller.ProfileInstallReceiver"
-75-->[androidx.profileinstaller:profileinstaller:1.3.0] C:\Users\tuoan\.gradle\caches\transforms-3\92e8251532aef0a688bfdf15bbedba07\transformed\profileinstaller-1.3.0\AndroidManifest.xml:35:13-76
-76            android:directBootAware="false"
-76-->[androidx.profileinstaller:profileinstaller:1.3.0] C:\Users\tuoan\.gradle\caches\transforms-3\92e8251532aef0a688bfdf15bbedba07\transformed\profileinstaller-1.3.0\AndroidManifest.xml:36:13-44
-77            android:enabled="true"
-77-->[androidx.profileinstaller:profileinstaller:1.3.0] C:\Users\tuoan\.gradle\caches\transforms-3\92e8251532aef0a688bfdf15bbedba07\transformed\profileinstaller-1.3.0\AndroidManifest.xml:37:13-35
-78            android:exported="true"
-78-->[androidx.profileinstaller:profileinstaller:1.3.0] C:\Users\tuoan\.gradle\caches\transforms-3\92e8251532aef0a688bfdf15bbedba07\transformed\profileinstaller-1.3.0\AndroidManifest.xml:38:13-36
-79            android:permission="android.permission.DUMP" >
-79-->[androidx.profileinstaller:profileinstaller:1.3.0] C:\Users\tuoan\.gradle\caches\transforms-3\92e8251532aef0a688bfdf15bbedba07\transformed\profileinstaller-1.3.0\AndroidManifest.xml:39:13-57
-80            <intent-filter>
-80-->[androidx.profileinstaller:profileinstaller:1.3.0] C:\Users\tuoan\.gradle\caches\transforms-3\92e8251532aef0a688bfdf15bbedba07\transformed\profileinstaller-1.3.0\AndroidManifest.xml:40:13-42:29
-81                <action android:name="androidx.profileinstaller.action.INSTALL_PROFILE" />
-81-->[androidx.profileinstaller:profileinstaller:1.3.0] C:\Users\tuoan\.gradle\caches\transforms-3\92e8251532aef0a688bfdf15bbedba07\transformed\profileinstaller-1.3.0\AndroidManifest.xml:41:17-91
-81-->[androidx.profileinstaller:profileinstaller:1.3.0] C:\Users\tuoan\.gradle\caches\transforms-3\92e8251532aef0a688bfdf15bbedba07\transformed\profileinstaller-1.3.0\AndroidManifest.xml:41:25-88
-82            </intent-filter>
-83            <intent-filter>
-83-->[androidx.profileinstaller:profileinstaller:1.3.0] C:\Users\tuoan\.gradle\caches\transforms-3\92e8251532aef0a688bfdf15bbedba07\transformed\profileinstaller-1.3.0\AndroidManifest.xml:43:13-45:29
-84                <action android:name="androidx.profileinstaller.action.SKIP_FILE" />
-84-->[androidx.profileinstaller:profileinstaller:1.3.0] C:\Users\tuoan\.gradle\caches\transforms-3\92e8251532aef0a688bfdf15bbedba07\transformed\profileinstaller-1.3.0\AndroidManifest.xml:44:17-85
-84-->[androidx.profileinstaller:profileinstaller:1.3.0] C:\Users\tuoan\.gradle\caches\transforms-3\92e8251532aef0a688bfdf15bbedba07\transformed\profileinstaller-1.3.0\AndroidManifest.xml:44:25-82
-85            </intent-filter>
-86            <intent-filter>
-86-->[androidx.profileinstaller:profileinstaller:1.3.0] C:\Users\tuoan\.gradle\caches\transforms-3\92e8251532aef0a688bfdf15bbedba07\transformed\profileinstaller-1.3.0\AndroidManifest.xml:46:13-48:29
-87                <action android:name="androidx.profileinstaller.action.SAVE_PROFILE" />
-87-->[androidx.profileinstaller:profileinstaller:1.3.0] C:\Users\tuoan\.gradle\caches\transforms-3\92e8251532aef0a688bfdf15bbedba07\transformed\profileinstaller-1.3.0\AndroidManifest.xml:47:17-88
-87-->[androidx.profileinstaller:profileinstaller:1.3.0] C:\Users\tuoan\.gradle\caches\transforms-3\92e8251532aef0a688bfdf15bbedba07\transformed\profileinstaller-1.3.0\AndroidManifest.xml:47:25-85
-88            </intent-filter>
-89            <intent-filter>
-89-->[androidx.profileinstaller:profileinstaller:1.3.0] C:\Users\tuoan\.gradle\caches\transforms-3\92e8251532aef0a688bfdf15bbedba07\transformed\profileinstaller-1.3.0\AndroidManifest.xml:49:13-51:29
-90                <action android:name="androidx.profileinstaller.action.BENCHMARK_OPERATION" />
-90-->[androidx.profileinstaller:profileinstaller:1.3.0] C:\Users\tuoan\.gradle\caches\transforms-3\92e8251532aef0a688bfdf15bbedba07\transformed\profileinstaller-1.3.0\AndroidManifest.xml:50:17-95
-90-->[androidx.profileinstaller:profileinstaller:1.3.0] C:\Users\tuoan\.gradle\caches\transforms-3\92e8251532aef0a688bfdf15bbedba07\transformed\profileinstaller-1.3.0\AndroidManifest.xml:50:25-92
-91            </intent-filter>
-92        </receiver>
-93    </application>
-94
-95</manifest>
+29        android:theme="@style/Theme.TroHub"
+29-->D:\IdeaProjects\backend\ui\app\src\main\AndroidManifest.xml:12:9-44
+30        android:usesCleartextTraffic="true" >
+30-->D:\IdeaProjects\backend\ui\app\src\main\AndroidManifest.xml:13:9-44
+31        <activity
+31-->D:\IdeaProjects\backend\ui\app\src\main\AndroidManifest.xml:14:9-21:20
+32            android:name="com.trohub.ui.auth.LoginActivity"
+32-->D:\IdeaProjects\backend\ui\app\src\main\AndroidManifest.xml:15:13-47
+33            android:exported="true" >
+33-->D:\IdeaProjects\backend\ui\app\src\main\AndroidManifest.xml:16:13-36
+34            <intent-filter>
+34-->D:\IdeaProjects\backend\ui\app\src\main\AndroidManifest.xml:17:13-20:29
+35                <action android:name="android.intent.action.MAIN" />
+35-->D:\IdeaProjects\backend\ui\app\src\main\AndroidManifest.xml:18:17-69
+35-->D:\IdeaProjects\backend\ui\app\src\main\AndroidManifest.xml:18:25-66
+36
+37                <category android:name="android.intent.category.LAUNCHER" />
+37-->D:\IdeaProjects\backend\ui\app\src\main\AndroidManifest.xml:19:17-77
+37-->D:\IdeaProjects\backend\ui\app\src\main\AndroidManifest.xml:19:27-74
+38            </intent-filter>
+39        </activity>
+40        <activity android:name="com.trohub.ui.MainActivity" />
+40-->D:\IdeaProjects\backend\ui\app\src\main\AndroidManifest.xml:23:9-50
+40-->D:\IdeaProjects\backend\ui\app\src\main\AndroidManifest.xml:23:19-47
+41        <activity android:name="com.trohub.ui.auth.CreateTenantAccountActivity" />
+41-->D:\IdeaProjects\backend\ui\app\src\main\AndroidManifest.xml:24:9-70
+41-->D:\IdeaProjects\backend\ui\app\src\main\AndroidManifest.xml:24:19-67
+42        <activity android:name="com.trohub.ui.rooms.RoomsActivity" />
+42-->D:\IdeaProjects\backend\ui\app\src\main\AndroidManifest.xml:25:9-57
+42-->D:\IdeaProjects\backend\ui\app\src\main\AndroidManifest.xml:25:19-54
+43        <activity android:name="com.trohub.ui.rooms.detail.RoomDetailActivity" />
+43-->D:\IdeaProjects\backend\ui\app\src\main\AndroidManifest.xml:26:9-69
+43-->D:\IdeaProjects\backend\ui\app\src\main\AndroidManifest.xml:26:19-66
+44        <activity android:name="com.trohub.ui.buildings.BuildingsActivity" />
+44-->D:\IdeaProjects\backend\ui\app\src\main\AndroidManifest.xml:27:9-65
+44-->D:\IdeaProjects\backend\ui\app\src\main\AndroidManifest.xml:27:19-62
+45        <activity android:name="com.trohub.ui.buildings.BuildingRoomsActivity" />
+45-->D:\IdeaProjects\backend\ui\app\src\main\AndroidManifest.xml:28:9-69
+45-->D:\IdeaProjects\backend\ui\app\src\main\AndroidManifest.xml:28:19-66
+46        <activity android:name="com.trohub.ui.buildings.BuildingDetailActivity" />
+46-->D:\IdeaProjects\backend\ui\app\src\main\AndroidManifest.xml:29:9-70
+46-->D:\IdeaProjects\backend\ui\app\src\main\AndroidManifest.xml:29:19-67
+47        <activity android:name="com.trohub.ui.contracts.ContractsActivity" />
+47-->D:\IdeaProjects\backend\ui\app\src\main\AndroidManifest.xml:30:9-65
+47-->D:\IdeaProjects\backend\ui\app\src\main\AndroidManifest.xml:30:19-62
+48        <activity android:name="com.trohub.ui.tenants.TenantsActivity" />
+48-->D:\IdeaProjects\backend\ui\app\src\main\AndroidManifest.xml:31:9-61
+48-->D:\IdeaProjects\backend\ui\app\src\main\AndroidManifest.xml:31:19-58
+49        <activity android:name="com.trohub.ui.tenants.detail.TenantDetailActivity" />
+49-->D:\IdeaProjects\backend\ui\app\src\main\AndroidManifest.xml:32:9-73
+49-->D:\IdeaProjects\backend\ui\app\src\main\AndroidManifest.xml:32:19-70
+50        <activity android:name="com.trohub.ui.incidents.IncidentsActivity" />
+50-->D:\IdeaProjects\backend\ui\app\src\main\AndroidManifest.xml:33:9-65
+50-->D:\IdeaProjects\backend\ui\app\src\main\AndroidManifest.xml:33:19-62
+51        <activity android:name="com.trohub.ui.incidents.CreateIncidentActivity" />
+51-->D:\IdeaProjects\backend\ui\app\src\main\AndroidManifest.xml:34:9-70
+51-->D:\IdeaProjects\backend\ui\app\src\main\AndroidManifest.xml:34:19-67
+52        <activity android:name="com.trohub.ui.guest.GuestEntriesActivity" />
+52-->D:\IdeaProjects\backend\ui\app\src\main\AndroidManifest.xml:35:9-64
+52-->D:\IdeaProjects\backend\ui\app\src\main\AndroidManifest.xml:35:19-61
+53        <activity android:name="com.trohub.ui.guest.LandlordGuestReviewActivity" />
+53-->D:\IdeaProjects\backend\ui\app\src\main\AndroidManifest.xml:36:9-71
+53-->D:\IdeaProjects\backend\ui\app\src\main\AndroidManifest.xml:36:19-68
+54        <activity android:name="com.trohub.ui.profile.ProfileActivity" />
+54-->D:\IdeaProjects\backend\ui\app\src\main\AndroidManifest.xml:37:9-61
+54-->D:\IdeaProjects\backend\ui\app\src\main\AndroidManifest.xml:37:19-58
+55        <activity android:name="com.trohub.ui.billing.BillingActivity" />
+55-->D:\IdeaProjects\backend\ui\app\src\main\AndroidManifest.xml:38:9-61
+55-->D:\IdeaProjects\backend\ui\app\src\main\AndroidManifest.xml:38:19-58
+56        <activity android:name="com.trohub.ui.reports.ReportsActivity" />
+56-->D:\IdeaProjects\backend\ui\app\src\main\AndroidManifest.xml:39:9-61
+56-->D:\IdeaProjects\backend\ui\app\src\main\AndroidManifest.xml:39:19-58
+57
+58        <provider
+58-->[androidx.emoji2:emoji2:1.2.0] C:\Users\tuoan\.gradle\caches\transforms-3\986cb90b811bf58fb8e8ff4e6584552d\transformed\emoji2-1.2.0\AndroidManifest.xml:24:9-32:20
+59            android:name="androidx.startup.InitializationProvider"
+59-->[androidx.emoji2:emoji2:1.2.0] C:\Users\tuoan\.gradle\caches\transforms-3\986cb90b811bf58fb8e8ff4e6584552d\transformed\emoji2-1.2.0\AndroidManifest.xml:25:13-67
+60            android:authorities="com.trohub.ui.androidx-startup"
+60-->[androidx.emoji2:emoji2:1.2.0] C:\Users\tuoan\.gradle\caches\transforms-3\986cb90b811bf58fb8e8ff4e6584552d\transformed\emoji2-1.2.0\AndroidManifest.xml:26:13-68
+61            android:exported="false" >
+61-->[androidx.emoji2:emoji2:1.2.0] C:\Users\tuoan\.gradle\caches\transforms-3\986cb90b811bf58fb8e8ff4e6584552d\transformed\emoji2-1.2.0\AndroidManifest.xml:27:13-37
+62            <meta-data
+62-->[androidx.emoji2:emoji2:1.2.0] C:\Users\tuoan\.gradle\caches\transforms-3\986cb90b811bf58fb8e8ff4e6584552d\transformed\emoji2-1.2.0\AndroidManifest.xml:29:13-31:52
+63                android:name="androidx.emoji2.text.EmojiCompatInitializer"
+63-->[androidx.emoji2:emoji2:1.2.0] C:\Users\tuoan\.gradle\caches\transforms-3\986cb90b811bf58fb8e8ff4e6584552d\transformed\emoji2-1.2.0\AndroidManifest.xml:30:17-75
+64                android:value="androidx.startup" />
+64-->[androidx.emoji2:emoji2:1.2.0] C:\Users\tuoan\.gradle\caches\transforms-3\986cb90b811bf58fb8e8ff4e6584552d\transformed\emoji2-1.2.0\AndroidManifest.xml:31:17-49
+65            <meta-data
+65-->[androidx.lifecycle:lifecycle-process:2.6.1] C:\Users\tuoan\.gradle\caches\transforms-3\6e8a5b813c4f665d15cd61be7df27f51\transformed\lifecycle-process-2.6.1\AndroidManifest.xml:29:13-31:52
+66                android:name="androidx.lifecycle.ProcessLifecycleInitializer"
+66-->[androidx.lifecycle:lifecycle-process:2.6.1] C:\Users\tuoan\.gradle\caches\transforms-3\6e8a5b813c4f665d15cd61be7df27f51\transformed\lifecycle-process-2.6.1\AndroidManifest.xml:30:17-78
+67                android:value="androidx.startup" />
+67-->[androidx.lifecycle:lifecycle-process:2.6.1] C:\Users\tuoan\.gradle\caches\transforms-3\6e8a5b813c4f665d15cd61be7df27f51\transformed\lifecycle-process-2.6.1\AndroidManifest.xml:31:17-49
+68            <meta-data
+68-->[androidx.profileinstaller:profileinstaller:1.3.0] C:\Users\tuoan\.gradle\caches\transforms-3\92e8251532aef0a688bfdf15bbedba07\transformed\profileinstaller-1.3.0\AndroidManifest.xml:29:13-31:52
+69                android:name="androidx.profileinstaller.ProfileInstallerInitializer"
+69-->[androidx.profileinstaller:profileinstaller:1.3.0] C:\Users\tuoan\.gradle\caches\transforms-3\92e8251532aef0a688bfdf15bbedba07\transformed\profileinstaller-1.3.0\AndroidManifest.xml:30:17-85
+70                android:value="androidx.startup" />
+70-->[androidx.profileinstaller:profileinstaller:1.3.0] C:\Users\tuoan\.gradle\caches\transforms-3\92e8251532aef0a688bfdf15bbedba07\transformed\profileinstaller-1.3.0\AndroidManifest.xml:31:17-49
+71        </provider>
+72
+73        <receiver
+73-->[androidx.profileinstaller:profileinstaller:1.3.0] C:\Users\tuoan\.gradle\caches\transforms-3\92e8251532aef0a688bfdf15bbedba07\transformed\profileinstaller-1.3.0\AndroidManifest.xml:34:9-52:20
+74            android:name="androidx.profileinstaller.ProfileInstallReceiver"
+74-->[androidx.profileinstaller:profileinstaller:1.3.0] C:\Users\tuoan\.gradle\caches\transforms-3\92e8251532aef0a688bfdf15bbedba07\transformed\profileinstaller-1.3.0\AndroidManifest.xml:35:13-76
+75            android:directBootAware="false"
+75-->[androidx.profileinstaller:profileinstaller:1.3.0] C:\Users\tuoan\.gradle\caches\transforms-3\92e8251532aef0a688bfdf15bbedba07\transformed\profileinstaller-1.3.0\AndroidManifest.xml:36:13-44
+76            android:enabled="true"
+76-->[androidx.profileinstaller:profileinstaller:1.3.0] C:\Users\tuoan\.gradle\caches\transforms-3\92e8251532aef0a688bfdf15bbedba07\transformed\profileinstaller-1.3.0\AndroidManifest.xml:37:13-35
+77            android:exported="true"
+77-->[androidx.profileinstaller:profileinstaller:1.3.0] C:\Users\tuoan\.gradle\caches\transforms-3\92e8251532aef0a688bfdf15bbedba07\transformed\profileinstaller-1.3.0\AndroidManifest.xml:38:13-36
+78            android:permission="android.permission.DUMP" >
+78-->[androidx.profileinstaller:profileinstaller:1.3.0] C:\Users\tuoan\.gradle\caches\transforms-3\92e8251532aef0a688bfdf15bbedba07\transformed\profileinstaller-1.3.0\AndroidManifest.xml:39:13-57
+79            <intent-filter>
+79-->[androidx.profileinstaller:profileinstaller:1.3.0] C:\Users\tuoan\.gradle\caches\transforms-3\92e8251532aef0a688bfdf15bbedba07\transformed\profileinstaller-1.3.0\AndroidManifest.xml:40:13-42:29
+80                <action android:name="androidx.profileinstaller.action.INSTALL_PROFILE" />
+80-->[androidx.profileinstaller:profileinstaller:1.3.0] C:\Users\tuoan\.gradle\caches\transforms-3\92e8251532aef0a688bfdf15bbedba07\transformed\profileinstaller-1.3.0\AndroidManifest.xml:41:17-91
+80-->[androidx.profileinstaller:profileinstaller:1.3.0] C:\Users\tuoan\.gradle\caches\transforms-3\92e8251532aef0a688bfdf15bbedba07\transformed\profileinstaller-1.3.0\AndroidManifest.xml:41:25-88
+81            </intent-filter>
+82            <intent-filter>
+82-->[androidx.profileinstaller:profileinstaller:1.3.0] C:\Users\tuoan\.gradle\caches\transforms-3\92e8251532aef0a688bfdf15bbedba07\transformed\profileinstaller-1.3.0\AndroidManifest.xml:43:13-45:29
+83                <action android:name="androidx.profileinstaller.action.SKIP_FILE" />
+83-->[androidx.profileinstaller:profileinstaller:1.3.0] C:\Users\tuoan\.gradle\caches\transforms-3\92e8251532aef0a688bfdf15bbedba07\transformed\profileinstaller-1.3.0\AndroidManifest.xml:44:17-85
+83-->[androidx.profileinstaller:profileinstaller:1.3.0] C:\Users\tuoan\.gradle\caches\transforms-3\92e8251532aef0a688bfdf15bbedba07\transformed\profileinstaller-1.3.0\AndroidManifest.xml:44:25-82
+84            </intent-filter>
+85            <intent-filter>
+85-->[androidx.profileinstaller:profileinstaller:1.3.0] C:\Users\tuoan\.gradle\caches\transforms-3\92e8251532aef0a688bfdf15bbedba07\transformed\profileinstaller-1.3.0\AndroidManifest.xml:46:13-48:29
+86                <action android:name="androidx.profileinstaller.action.SAVE_PROFILE" />
+86-->[androidx.profileinstaller:profileinstaller:1.3.0] C:\Users\tuoan\.gradle\caches\transforms-3\92e8251532aef0a688bfdf15bbedba07\transformed\profileinstaller-1.3.0\AndroidManifest.xml:47:17-88
+86-->[androidx.profileinstaller:profileinstaller:1.3.0] C:\Users\tuoan\.gradle\caches\transforms-3\92e8251532aef0a688bfdf15bbedba07\transformed\profileinstaller-1.3.0\AndroidManifest.xml:47:25-85
+87            </intent-filter>
+88            <intent-filter>
+88-->[androidx.profileinstaller:profileinstaller:1.3.0] C:\Users\tuoan\.gradle\caches\transforms-3\92e8251532aef0a688bfdf15bbedba07\transformed\profileinstaller-1.3.0\AndroidManifest.xml:49:13-51:29
+89                <action android:name="androidx.profileinstaller.action.BENCHMARK_OPERATION" />
+89-->[androidx.profileinstaller:profileinstaller:1.3.0] C:\Users\tuoan\.gradle\caches\transforms-3\92e8251532aef0a688bfdf15bbedba07\transformed\profileinstaller-1.3.0\AndroidManifest.xml:50:17-95
+89-->[androidx.profileinstaller:profileinstaller:1.3.0] C:\Users\tuoan\.gradle\caches\transforms-3\92e8251532aef0a688bfdf15bbedba07\transformed\profileinstaller-1.3.0\AndroidManifest.xml:50:25-92
+90            </intent-filter>
+91        </receiver>
+92    </application>
+93
+94</manifest>

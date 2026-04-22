@@ -1,4 +1,4 @@
-<?xml version="1.0" encoding="utf-8"?>
+﻿<?xml version="1.0" encoding="utf-8"?>
 <androidx.cardview.widget.CardView xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
     android:layout_width="match_parent"
@@ -6,6 +6,8 @@
     android:layout_marginBottom="8dp"
     app:cardCornerRadius="8dp"
     app:cardElevation="2dp"
+    app:cardBackgroundColor="@color/app_surface"
+    app:cardUseCompatPadding="true"
     app:contentPadding="12dp">
 
     <LinearLayout
@@ -33,7 +35,7 @@
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:text="Tiền thuê: 0"
-            android:textColor="#388E3C"
+            android:textColor="@color/app_success"
             android:layout_marginTop="4dp" />
 
         <TextView
@@ -56,7 +58,7 @@
             android:layout_height="wrap_content"
             android:text="Giá điện: | Nước: "
             android:layout_marginTop="4dp"
-            android:textColor="#555555" />
+            android:textColor="@color/app_text_muted" />
 
         <LinearLayout
             android:id="@+id/layoutContractActions"
@@ -69,6 +71,7 @@
 
             <Button
                 android:id="@+id/btnEditContract"
+                style="@style/Widget.TroHub.Button.SmallSecondary"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:text="Sửa" />
@@ -76,4 +79,6 @@
 
     </LinearLayout>
 </androidx.cardview.widget.CardView>
+
+
 

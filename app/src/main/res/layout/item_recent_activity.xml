@@ -1,4 +1,4 @@
-<?xml version="1.0" encoding="utf-8"?>
+﻿<?xml version="1.0" encoding="utf-8"?>
 <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
     android:layout_width="match_parent"
     android:layout_height="wrap_content"
@@ -19,7 +19,7 @@
         android:layout_height="wrap_content"
         android:layout_marginTop="2dp"
         android:text="Mô tả chi tiết"
-        android:textColor="#666666"
+        android:textColor="@color/app_text_muted"
         android:textSize="13sp" />
 
     <TextView
@@ -28,6 +28,7 @@
         android:layout_height="wrap_content"
         android:layout_marginTop="2dp"
         android:text="Thời gian"
-        android:textColor="#999999"
+        android:textColor="@color/app_text_muted"
         android:textSize="12sp" />
 </LinearLayout>
+
