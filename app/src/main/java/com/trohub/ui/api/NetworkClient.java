@@ -11,7 +11,7 @@ import java.io.IOException;
 public class NetworkClient {
     // For local android emulator connecting to local spring boot, use 10.0.2.2.
     // If using a physical device on same wifi, use PC's local IP address like 192.168.1.X
-    private static final String BASE_URL = "http://10.0.2.2:8081/";
+    private static final String BASE_URL = "https://backend-ufb3.onrender.com/";
     private static Retrofit retrofit;
     private static String authToken = null;
 
