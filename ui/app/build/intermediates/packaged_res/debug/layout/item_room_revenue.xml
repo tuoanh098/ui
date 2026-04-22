@@ -1,0 +1,46 @@
+<?xml version="1.0" encoding="utf-8"?>
+<androidx.cardview.widget.CardView xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:layout_marginBottom="8dp"
+    app:cardCornerRadius="8dp"
+    app:cardElevation="2dp"
+    app:contentPadding="12dp">
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="vertical">
+
+        <TextView
+            android:id="@+id/tvRoomRevenueTitle"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="Phòng"
+            android:textStyle="bold" />
+
+        <TextView
+            android:id="@+id/tvRoomRevenueBuilding"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="3dp"
+            android:text="Tòa" />
+
+        <TextView
+            android:id="@+id/tvRoomRevenueAmount"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="3dp"
+            android:text="Doanh thu"
+            android:textColor="#2E7D32"
+            android:textStyle="bold" />
+
+        <TextView
+            android:id="@+id/tvRoomRevenueStatus"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="3dp"
+            android:text="Trạng thái" />
+    </LinearLayout>
+</androidx.cardview.widget.CardView>

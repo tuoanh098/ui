@@ -1,0 +1,77 @@
+<?xml version="1.0" encoding="utf-8"?>
+<ScrollView xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content">
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="vertical"
+        android:padding="16dp">
+
+        <EditText
+            android:id="@+id/etContractCode"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:hint="Mã hợp đồng *" />
+
+        <AutoCompleteTextView
+            android:id="@+id/etContractRoomId"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="8dp"
+            android:hint="Chọn phòng * (tìm theo mã phòng)" />
+
+        <AutoCompleteTextView
+            android:id="@+id/etContractTenantId"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="8dp"
+            android:hint="Chọn người thuê * (tìm theo tên/cccd)" />
+
+        <EditText
+            android:id="@+id/etContractStart"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="8dp"
+            android:hint="Ngày bắt đầu * (yyyy-MM-dd)" />
+
+        <EditText
+            android:id="@+id/etContractEnd"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="8dp"
+            android:hint="Ngày kết thúc (yyyy-MM-dd)" />
+
+        <EditText
+            android:id="@+id/etContractRent"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="8dp"
+            android:hint="Tiền thuê *"
+            android:inputType="numberDecimal" />
+
+        <EditText
+            android:id="@+id/etContractElectric"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="8dp"
+            android:hint="Giá điện/kWh"
+            android:inputType="numberDecimal" />
+
+        <EditText
+            android:id="@+id/etContractWater"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="8dp"
+            android:hint="Tiền nước cố định"
+            android:inputType="numberDecimal" />
+
+        <EditText
+            android:id="@+id/etContractStatus"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="8dp"
+            android:hint="Trạng thái (ACTIVE...)" />
+    </LinearLayout>
+</ScrollView>
