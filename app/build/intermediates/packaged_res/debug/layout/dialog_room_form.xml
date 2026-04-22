@@ -1,0 +1,44 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:orientation="vertical"
+    android:padding="16dp">
+
+    <EditText
+        android:id="@+id/etRoomCode"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:hint="Mã phòng" />
+
+    <AutoCompleteTextView
+        android:id="@+id/etRoomBuildingId"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="8dp"
+        android:hint="Chọn tòa nhà (tìm theo tên/địa chỉ)" />
+
+    <EditText
+        android:id="@+id/etRoomBeds"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="8dp"
+        android:hint="Số giường"
+        android:inputType="number" />
+
+    <EditText
+        android:id="@+id/etRoomStatus"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="8dp"
+        android:hint="Trạng thái (TRONG / DA_THUE...)" />
+
+    <EditText
+        android:id="@+id/etRoomDesc"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="8dp"
+        android:hint="Mô tả"
+        android:importantForAutofill="no"
+        android:minLines="2" />
+</LinearLayout>

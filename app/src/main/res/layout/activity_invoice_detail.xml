@@ -1,0 +1,76 @@
+<?xml version="1.0" encoding="utf-8"?>
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:padding="16dp"
+    tools:context=".InvoiceDetailActivity">
+
+    <TextView
+        android:id="@+id/invoice_id_label"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="Invoice ID:"
+        android:textStyle="bold" />
+
+    <TextView
+        android:id="@+id/invoice_id"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_toEndOf="@id/invoice_id_label"
+        android:layout_marginStart="8dp" />
+
+    <TextView
+        android:id="@+id/tenant_name_label"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_below="@id/invoice_id_label"
+        android:layout_marginTop="8dp"
+        android:text="Tenant:"
+        android:textStyle="bold" />
+
+    <TextView
+        android:id="@+id/tenant_name"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_toEndOf="@id/tenant_name_label"
+        android:layout_alignTop="@id/tenant_name_label"
+        android:layout_marginStart="8dp" />
+
+    <TextView
+        android:id="@+id/amount_label"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_below="@id/tenant_name_label"
+        android:layout_marginTop="8dp"
+        android:text="Amount:"
+        android:textStyle="bold" />
+
+    <TextView
+        android:id="@+id/amount"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_toEndOf="@id/amount_label"
+        android:layout_alignTop="@id/amount_label"
+        android:layout_marginStart="8dp" />
+
+    <Button
+        android:id="@+id/manual_payment_button"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_alignParentBottom="true"
+        android:layout_centerHorizontal="true"
+        android:text="Create Manual Payment"
+        android:visibility="gone"
+        tools:visibility="visible"/>
+
+    <Button
+        android:id="@+id/show_qr_button"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_above="@id/manual_payment_button"
+        android:layout_centerHorizontal="true"
+        android:layout_marginBottom="16dp"
+        android:text="Show QR Code" />
+
+</RelativeLayout>
