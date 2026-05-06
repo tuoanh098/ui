@@ -10,7 +10,7 @@ import android.widget.ProgressBar;
 import android.widget.TextView;
 import android.widget.Toast;
 
-import androidx.appcompat.app.AppCompatActivity;
+import com.trohub.ui.common.TroHubActivity;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 import androidx.swiperefreshlayout.widget.SwipeRefreshLayout;
@@ -18,19 +18,22 @@ import androidx.swiperefreshlayout.widget.SwipeRefreshLayout;
 import com.trohub.ui.R;
 import com.trohub.ui.api.ApiService;
 import com.trohub.ui.api.NetworkClient;
+import com.trohub.ui.api.models.Landlord;
 import com.trohub.ui.api.models.Phong;
 import com.trohub.ui.rooms.detail.RoomDetailActivity;
 import com.trohub.ui.rooms.RoomsAdapter;
 
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Locale;
+import java.util.Map;
 
 import retrofit2.Call;
 import retrofit2.Callback;
 import retrofit2.Response;
 
-public class BuildingDetailActivity extends AppCompatActivity {
+public class BuildingDetailActivity extends TroHubActivity {
 
     private static final int PAGE_SIZE = 10;
 
@@ -56,6 +59,7 @@ public class BuildingDetailActivity extends AppCompatActivity {
     private long buildingRoomCount;
     private long buildingOccupiedCount;
     private long buildingManagerId;
+    private String buildingManagerName = "Chưa gán";
 
     private final List<Phong> allRoomsInBuilding = new ArrayList<>();
     private final List<Phong> filteredRooms = new ArrayList<>();
@@ -77,12 +81,16 @@ public class BuildingDetailActivity extends AppCompatActivity {
         }
 
         roomsAdapter = new RoomsAdapter();
+        Map<Long, String> buildingLabels = new HashMap<>();
+        buildingLabels.put(buildingId, safe(buildingName));
+        roomsAdapter.setBuildingLabels(buildingLabels);
         roomsAdapter.setRoomItemClickListener(this::openRoomDetail);
         rvRooms.setLayoutManager(new LinearLayoutManager(this));
         rvRooms.setAdapter(roomsAdapter);
 
         renderBuildingHeader();
         setupActions();
+        loadManagerName();
         loadRooms(true);
     }
 
@@ -118,11 +126,39 @@ public class BuildingDetailActivity extends AppCompatActivity {
         tvBuildingName.setText("Tên tòa: " + safe(buildingName));
         tvBuildingAddress.setText("Địa chỉ: " + safe(buildingAddress));
 
-        String managerText = buildingManagerId > 0 ? String.valueOf(buildingManagerId) : "N/A";
-        tvBuildingMeta.setText("ID: " + buildingId
-                + " | Chủ trọ ID: " + managerText
+        tvBuildingMeta.setText("Chủ trọ: " + safe(buildingManagerName)
                 + " | Phòng: " + buildingRoomCount
                 + " | Đang thuê: " + buildingOccupiedCount);
+    }
+
+    private void loadManagerName() {
+        if (buildingManagerId <= 0) {
+            buildingManagerName = "Chưa gán";
+            renderBuildingHeader();
+            return;
+        }
+        apiService.getLandlords().enqueue(new Callback<List<Landlord>>() {
+            @Override
+            public void onResponse(Call<List<Landlord>> call, Response<List<Landlord>> response) {
+                if (response.isSuccessful() && response.body() != null) {
+                    for (Landlord landlord : response.body()) {
+                        if (landlord != null && landlord.getId() != null && landlord.getId().equals(buildingManagerId)) {
+                            buildingManagerName = safe(landlord.getTen());
+                            renderBuildingHeader();
+                            return;
+                        }
+                    }
+                }
+                buildingManagerName = "Chưa có tên";
+                renderBuildingHeader();
+            }
+
+            @Override
+            public void onFailure(Call<List<Landlord>> call, Throwable t) {
+                buildingManagerName = "Chưa có tên";
+                renderBuildingHeader();
+            }
+        });
     }
 
     private void setupActions() {
@@ -211,9 +247,8 @@ public class BuildingDetailActivity extends AppCompatActivity {
         } else {
             for (Phong room : allRoomsInBuilding) {
                 String maPhong = safeLower(room.getMaPhong());
-                String roomId = room.getId() == null ? "" : String.valueOf(room.getId());
                 String moTa = safeLower(room.getMoTa());
-                if (maPhong.contains(query) || roomId.contains(query) || moTa.contains(query)) {
+                if (maPhong.contains(query) || moTa.contains(query)) {
                     filteredRooms.add(room);
                 }
             }

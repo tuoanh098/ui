@@ -14,13 +14,17 @@ import com.trohub.ui.R;
 import com.trohub.ui.api.models.Contract;
 
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 public class ContractsAdapter extends RecyclerView.Adapter<ContractsAdapter.ContractViewHolder> {
 
     private List<Contract> contractList = new ArrayList<>();
     private final ContractActionListener actionListener;
     private final boolean canManage;
+    private Map<Long, String> roomLabels = new HashMap<>();
+    private Map<Long, String> tenantLabels = new HashMap<>();
 
     public interface ContractActionListener {
         void onEditContract(Contract contract);
@@ -40,6 +44,12 @@ public class ContractsAdapter extends RecyclerView.Adapter<ContractsAdapter.Cont
         notifyDataSetChanged();
     }
 
+    public void setLookupLabels(Map<Long, String> roomLabels, Map<Long, String> tenantLabels) {
+        this.roomLabels = roomLabels == null ? new HashMap<>() : new HashMap<>(roomLabels);
+        this.tenantLabels = tenantLabels == null ? new HashMap<>() : new HashMap<>(tenantLabels);
+        notifyDataSetChanged();
+    }
+
     @NonNull
     @Override
     public ContractViewHolder onCreateViewHolder(@NonNull ViewGroup parent, int viewType) {
@@ -53,7 +63,8 @@ public class ContractsAdapter extends RecyclerView.Adapter<ContractsAdapter.Cont
         holder.tvContractId.setText(contract.getMaHopDong() != null ? contract.getMaHopDong() : "N/A");
         holder.tvContractStatus.setText("Trạng thái: " + (contract.getTrangThai() != null ? contract.getTrangThai() : "Mới"));
         holder.tvContractPrice.setText("Tiền thuê: " + formatMoney(contract.getTienThue()) + " VNĐ");
-        holder.tvContractRoom.setText("Phòng ID: " + contract.getPhongId() + " | Người ID: " + contract.getNguoiId());
+        holder.tvContractRoom.setText("Phòng: " + labelOrUnset(roomLabels, contract.getPhongId())
+                + " | Người thuê: " + labelOrUnset(tenantLabels, contract.getNguoiId()));
         holder.tvContractPeriod.setText("Thời hạn: " + safe(contract.getNgayBatDau()) + " -> " + safe(contract.getNgayKetThuc()));
         holder.tvUtilities.setText("Giá điện: " + formatMoney(contract.getTienDienPerUnit()) + "/kWh | Nước: " + formatMoney(contract.getTienNuocFixed()) + " VNĐ");
 
@@ -99,6 +110,12 @@ public class ContractsAdapter extends RecyclerView.Adapter<ContractsAdapter.Cont
     private String formatMoney(Double value) {
         if (value == null) return "0";
         return String.format(java.util.Locale.US, "%,.0f", value);
+    }
+
+    private String labelOrUnset(Map<Long, String> labels, Long id) {
+        if (id == null) return "Chưa gán";
+        String label = labels == null ? null : labels.get(id);
+        return label == null || label.trim().isEmpty() ? "Chưa có tên" : label;
     }
 }
 

@@ -8,7 +8,7 @@ import android.widget.ProgressBar;
 import android.widget.TextView;
 import android.widget.Toast;
 
-import androidx.appcompat.app.AppCompatActivity;
+import com.trohub.ui.common.TroHubActivity;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 import androidx.swiperefreshlayout.widget.SwipeRefreshLayout;
@@ -19,6 +19,7 @@ import com.trohub.ui.api.NetworkClient;
 import com.trohub.ui.api.models.Contract;
 import com.trohub.ui.api.models.Invoice;
 import com.trohub.ui.api.models.PaymentDto;
+import com.trohub.ui.api.models.Phong;
 import com.trohub.ui.api.models.Tenant;
 import com.trohub.ui.auth.SessionManager;
 import com.trohub.ui.contracts.ContractsAdapter;
@@ -26,14 +27,16 @@ import com.trohub.ui.rooms.detail.RoomDetailActivity;
 
 import java.util.ArrayList;
 import java.util.Collections;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Locale;
+import java.util.Map;
 
 import retrofit2.Call;
 import retrofit2.Callback;
 import retrofit2.Response;
 
-public class TenantDetailActivity extends AppCompatActivity {
+public class TenantDetailActivity extends TroHubActivity {
 
     private TextView tvTitle;
     private TextView tvTenantName;
@@ -56,6 +59,8 @@ public class TenantDetailActivity extends AppCompatActivity {
 
     private Long tenantId;
     private Tenant currentTenant;
+    private final Map<Long, String> roomLabels = new HashMap<>();
+    private final Map<Long, String> tenantLabels = new HashMap<>();
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -102,6 +107,7 @@ public class TenantDetailActivity extends AppCompatActivity {
 
     private void setupLists() {
         contractsAdapter = new ContractsAdapter();
+        contractsAdapter.setLookupLabels(roomLabels, tenantLabels);
         paymentHistoryAdapter = new PaymentHistoryAdapter();
 
         rvContracts.setLayoutManager(new LinearLayoutManager(this));
@@ -158,21 +164,50 @@ public class TenantDetailActivity extends AppCompatActivity {
     }
 
     private void renderTenantInfo() {
-        tvTenantName.setText(safe(currentTenant.getHoTen()) + " (ID " + currentTenant.getId() + ")");
+        tvTenantName.setText(safe(currentTenant.getHoTen()));
+        tenantLabels.clear();
+        if (currentTenant.getId() != null) {
+            tenantLabels.put(currentTenant.getId(), safe(currentTenant.getHoTen()));
+            contractsAdapter.setLookupLabels(roomLabels, tenantLabels);
+        }
         tvTenantMeta.setText("CCCD: " + safe(currentTenant.getCccd())
                 + " | Giới tính: " + safe(currentTenant.getGioiTinh())
                 + " | Ngày sinh: " + safe(currentTenant.getNgaySinh()));
-        tvTenantContact.setText("SĐT: " + safe(currentTenant.getSdt())
-                + " | Tài khoản ID: " + (currentTenant.getTaiKhoanId() == null ? "N/A" : currentTenant.getTaiKhoanId()));
+        tvTenantContact.setText("SĐT: " + safe(currentTenant.getSdt()));
         tvTenantAddress.setText("Địa chỉ: " + safe(currentTenant.getDiaChi()));
 
         if (currentTenant.getSophong() == null) {
             tvRoomLink.setText("Phòng: N/A");
             tvRoomLink.setEnabled(false);
         } else {
-            tvRoomLink.setText("Phòng: ID " + currentTenant.getSophong() + " (bấm để xem chi tiết)");
+            tvRoomLink.setText("Phòng: đang tải...");
             tvRoomLink.setEnabled(true);
+            loadRoomLabel(currentTenant.getSophong());
         }
+    }
+
+    private void loadRoomLabel(Long roomId) {
+        apiService.getPhongs().enqueue(new Callback<List<Phong>>() {
+            @Override
+            public void onResponse(Call<List<Phong>> call, Response<List<Phong>> response) {
+                roomLabels.clear();
+                if (response.isSuccessful() && response.body() != null) {
+                    for (Phong room : response.body()) {
+                        if (room == null || room.getId() == null) continue;
+                        roomLabels.put(room.getId(), safe(room.getMaPhong()));
+                    }
+                }
+                contractsAdapter.setLookupLabels(roomLabels, tenantLabels);
+                tvRoomLink.setText("Phòng: " + labelOrUnset(roomLabels, roomId) + " (bấm để xem chi tiết)");
+            }
+
+            @Override
+            public void onFailure(Call<List<Phong>> call, Throwable t) {
+                roomLabels.clear();
+                contractsAdapter.setLookupLabels(roomLabels, tenantLabels);
+                tvRoomLink.setText("Phòng: Chưa có tên (bấm để xem chi tiết)");
+            }
+        });
     }
 
     private void loadContracts() {
@@ -333,5 +368,11 @@ public class TenantDetailActivity extends AppCompatActivity {
 
     private String safe(String value) {
         return value == null || value.trim().isEmpty() ? "N/A" : value;
+    }
+
+    private String labelOrUnset(Map<Long, String> labels, Long id) {
+        if (id == null) return "Chưa gán";
+        String label = labels == null ? null : labels.get(id);
+        return label == null || label.trim().isEmpty() ? "Chưa có tên" : label;
     }
 }

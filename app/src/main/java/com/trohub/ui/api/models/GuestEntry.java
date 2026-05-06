@@ -1,5 +1,7 @@
 package com.trohub.ui.api.models;
 
+import java.util.List;
+
 public class GuestEntry {
     private Long id;
     private String ten;
@@ -10,6 +12,7 @@ public class GuestEntry {
     private String timestamp;
     private String ghiChu;
     private String approvalStatus;
+    private List<String> imagePaths;
 
     public Long getId() { return id; }
     public void setId(Long id) { this.id = id; }
@@ -29,4 +32,6 @@ public class GuestEntry {
     public void setGhiChu(String ghiChu) { this.ghiChu = ghiChu; }
     public String getApprovalStatus() { return approvalStatus; }
     public void setApprovalStatus(String approvalStatus) { this.approvalStatus = approvalStatus; }
+    public List<String> getImagePaths() { return imagePaths; }
+    public void setImagePaths(List<String> imagePaths) { this.imagePaths = imagePaths; }
 }

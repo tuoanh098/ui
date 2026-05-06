@@ -13,7 +13,7 @@ import android.widget.ProgressBar;
 import android.widget.TextView;
 import android.widget.Toast;
 
-import androidx.appcompat.app.AppCompatActivity;
+import com.trohub.ui.common.TroHubActivity;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 import androidx.swiperefreshlayout.widget.SwipeRefreshLayout;
@@ -30,13 +30,15 @@ import com.trohub.ui.common.SelectionHelper;
 import com.trohub.ui.tenants.detail.TenantDetailActivity;
 
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 import retrofit2.Call;
 import retrofit2.Callback;
 import retrofit2.Response;
 
-public class TenantsActivity extends AppCompatActivity implements TenantsAdapter.TenantActionListener {
+public class TenantsActivity extends TroHubActivity implements TenantsAdapter.TenantActionListener {
 
     private RecyclerView rvTenants;
     private TenantsAdapter adapter;
@@ -46,6 +48,7 @@ public class TenantsActivity extends AppCompatActivity implements TenantsAdapter
     private Button btnAddTenant;
     private EditText etSearchTenant;
     private final List<Tenant> visibleTenants = new ArrayList<>();
+    private final Map<Long, String> roomLabels = new HashMap<>();
 
     private ApiService apiService;
     private boolean canManageTenants;
@@ -68,20 +71,45 @@ public class TenantsActivity extends AppCompatActivity implements TenantsAdapter
         apiService = NetworkClient.getRetrofitClient().create(ApiService.class);
 
         adapter = new TenantsAdapter(this, canManageTenants);
+        adapter.setRoomLabels(roomLabels);
         adapter.setTenantItemClickListener(this::openTenantDetail);
         rvTenants.setAdapter(adapter);
 
         btnAddTenant.setVisibility(canManageTenants ? View.VISIBLE : View.GONE);
         btnAddTenant.setOnClickListener(v -> showCreateOrEditDialog(null));
 
-        swipeRefresh.setOnRefreshListener(() -> loadTenants(false));
+        swipeRefresh.setOnRefreshListener(() -> loadRoomLabelsThenTenants(false));
         etSearchTenant.addTextChangedListener(new SimpleWatcher() {
             @Override
             public void afterTextChanged(Editable s) {
                 renderTenants();
             }
         });
-        loadTenants(true);
+        loadRoomLabelsThenTenants(true);
+    }
+
+    private void loadRoomLabelsThenTenants(boolean firstLoad) {
+        apiService.getPhongs().enqueue(new Callback<List<Phong>>() {
+            @Override
+            public void onResponse(Call<List<Phong>> call, Response<List<Phong>> response) {
+                roomLabels.clear();
+                if (response.isSuccessful() && response.body() != null) {
+                    for (Phong room : response.body()) {
+                        if (room == null || room.getId() == null) continue;
+                        roomLabels.put(room.getId(), safe(room.getMaPhong()));
+                    }
+                }
+                adapter.setRoomLabels(roomLabels);
+                loadTenants(firstLoad);
+            }
+
+            @Override
+            public void onFailure(Call<List<Phong>> call, Throwable t) {
+                roomLabels.clear();
+                adapter.setRoomLabels(roomLabels);
+                loadTenants(firstLoad);
+            }
+        });
     }
 
     private void loadTenants(boolean firstLoad) {
@@ -141,8 +169,7 @@ public class TenantsActivity extends AppCompatActivity implements TenantsAdapter
                 || contains(tenant.getSdt(), q)
                 || contains(tenant.getCccd(), q)
                 || contains(tenant.getDiaChi(), q)
-                || contains(String.valueOf(tenant.getId()), q)
-                || contains(String.valueOf(tenant.getSophong()), q);
+                || contains(roomLabels.get(tenant.getSophong()), q);
     }
 
     private boolean contains(String value, String q) {
@@ -171,7 +198,7 @@ public class TenantsActivity extends AppCompatActivity implements TenantsAdapter
                         public void onResponse(Call<Void> call, Response<Void> response) {
                             if (response.isSuccessful()) {
                                 Toast.makeText(TenantsActivity.this, "Đã xóa người thuê", Toast.LENGTH_SHORT).show();
-                                loadTenants(false);
+                                loadRoomLabelsThenTenants(false);
                             } else {
                                 Toast.makeText(TenantsActivity.this, "Xóa thất bại: " + response.code(), Toast.LENGTH_SHORT).show();
                             }
@@ -262,8 +289,8 @@ public class TenantsActivity extends AppCompatActivity implements TenantsAdapter
             etAddress.setText(safeEditable(editing.getDiaChi()));
             String roomLabel = SelectionHelper.findLabelById(roomOptions, editing.getSophong());
             String accountLabel = SelectionHelper.findLabelById(accountOptions, editing.getTaiKhoanId());
-            etRoom.setText(roomLabel.isEmpty() && editing.getSophong() != null ? "ID " + editing.getSophong() : roomLabel, false);
-            etAccount.setText(accountLabel.isEmpty() && editing.getTaiKhoanId() != null ? "ID " + editing.getTaiKhoanId() : accountLabel, false);
+            etRoom.setText(roomLabel, false);
+            etAccount.setText(accountLabel, false);
         }
 
         AlertDialog dialog = new AlertDialog.Builder(this)
@@ -328,7 +355,7 @@ public class TenantsActivity extends AppCompatActivity implements TenantsAdapter
                     if (response.isSuccessful()) {
                         Toast.makeText(TenantsActivity.this, editing == null ? "Đã thêm người thuê" : "Đã cập nhật người thuê", Toast.LENGTH_SHORT).show();
                         dialog.dismiss();
-                        loadTenants(false);
+                        loadRoomLabelsThenTenants(false);
                     } else {
                         Toast.makeText(TenantsActivity.this, "Lưu thất bại: " + response.code(), Toast.LENGTH_SHORT).show();
                     }

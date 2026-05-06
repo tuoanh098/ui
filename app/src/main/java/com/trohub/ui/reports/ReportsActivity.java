@@ -11,7 +11,7 @@ import android.widget.Spinner;
 import android.widget.TextView;
 import android.widget.Toast;
 
-import androidx.appcompat.app.AppCompatActivity;
+import com.trohub.ui.common.TroHubActivity;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
@@ -43,7 +43,7 @@ import retrofit2.Call;
 import retrofit2.Callback;
 import retrofit2.Response;
 
-public class ReportsActivity extends AppCompatActivity {
+public class ReportsActivity extends TroHubActivity {
     private Spinner spBuilding;
     private EditText etYear;
     private EditText etMonth;
@@ -123,10 +123,10 @@ public class ReportsActivity extends AppCompatActivity {
 
         List<String> labels = new ArrayList<>();
         labels.add("Tất cả trạng thái");
-        labels.add("PAID - đã thanh toán");
-        labels.add("UNPAID - chưa thanh toán");
+        labels.add("Đã thanh toán");
+        labels.add("Chưa thanh toán");
         labels.add("OVERDUE - trễ hạn");
-        labels.add("PARTIALLY_PAID - thanh toán một phần");
+        labels.add("Thanh toán một phần");
         labels.add("DRAFT - hóa đơn nháp");
 
         ArrayAdapter<String> adapter = new ArrayAdapter<>(this, android.R.layout.simple_spinner_item, labels);
@@ -224,7 +224,7 @@ public class ReportsActivity extends AppCompatActivity {
         spinnerBuildingIds.add(null);
 
         for (ToaNha b : availableBuildings) {
-            labels.add(safe(b.getTen()) + " (ID " + b.getId() + ")");
+            labels.add(safe(b.getTen()));
             spinnerBuildingIds.add(b.getId());
         }
 
@@ -410,11 +410,11 @@ public class ReportsActivity extends AppCompatActivity {
         tvSummaryCounts.setText(
                 "Phòng hiển thị: " + result.size()
                         + " | HĐ: " + totalInvoices
-                        + " | PAID: " + paidInvoices
-                        + " | UNPAID: " + unpaidInvoices
-                        + " | PARTIAL: " + partialInvoices
-                        + " | DRAFT: " + draftInvoices
-                        + " | OVERDUE: " + totalOverdueInvoices
+                        + " | Đã thanh toán: " + paidInvoices
+                        + " | Chưa thanh toán: " + unpaidInvoices
+                        + " | Thanh toán một phần: " + partialInvoices
+                        + " | Nháp: " + draftInvoices
+                        + " | Trễ hạn: " + totalOverdueInvoices
                         + " | Phòng trễ hạn: " + overdueRooms
         );
     }

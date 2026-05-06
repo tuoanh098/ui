@@ -13,7 +13,9 @@ import com.trohub.ui.R;
 import com.trohub.ui.api.models.Phong;
 
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 public class RoomsAdapter extends RecyclerView.Adapter<RoomsAdapter.RoomViewHolder> {
 
@@ -22,6 +24,7 @@ public class RoomsAdapter extends RecyclerView.Adapter<RoomsAdapter.RoomViewHold
     private final boolean canEdit;
     private final boolean canDelete;
     private RoomItemClickListener roomItemClickListener;
+    private Map<Long, String> buildingLabels = new HashMap<>();
 
     public interface RoomActionListener {
         void onEditRoom(Phong room);
@@ -47,6 +50,11 @@ public class RoomsAdapter extends RecyclerView.Adapter<RoomsAdapter.RoomViewHold
         notifyDataSetChanged();
     }
 
+    public void setBuildingLabels(Map<Long, String> labels) {
+        this.buildingLabels = labels == null ? new HashMap<>() : new HashMap<>(labels);
+        notifyDataSetChanged();
+    }
+
     public void setRoomItemClickListener(RoomItemClickListener listener) {
         this.roomItemClickListener = listener;
     }
@@ -65,7 +73,7 @@ public class RoomsAdapter extends RecyclerView.Adapter<RoomsAdapter.RoomViewHold
         holder.tvRoomName.setText(phong.getMaPhong() != null ? phong.getMaPhong() : "Phòng #" + phong.getId());
         holder.tvRoomBeds.setText("Số giường: " + (phong.getSoGiuong() != null ? phong.getSoGiuong() : 0));
         holder.tvRoomStatus.setText("Trạng thái: " + (phong.getTrangThai() != null ? phong.getTrangThai() : "N/A"));
-        holder.tvRoomBuilding.setText("Tòa nhà ID: " + (phong.getToaNhaId() != null ? phong.getToaNhaId() : "N/A"));
+        holder.tvRoomBuilding.setText("Tòa nhà: " + labelOrUnset(buildingLabels, phong.getToaNhaId()));
 
         boolean showActions = actionListener != null && (canEdit || canDelete);
         holder.layoutActions.setVisibility(showActions ? View.VISIBLE : View.GONE);
@@ -112,6 +120,12 @@ public class RoomsAdapter extends RecyclerView.Adapter<RoomsAdapter.RoomViewHold
             btnEdit = itemView.findViewById(R.id.btnEditRoom);
             btnDelete = itemView.findViewById(R.id.btnDeleteRoom);
         }
+    }
+
+    private String labelOrUnset(Map<Long, String> labels, Long id) {
+        if (id == null) return "Chưa gán";
+        String label = labels == null ? null : labels.get(id);
+        return label == null || label.trim().isEmpty() ? "Chưa có tên" : label;
     }
 }
 

@@ -8,7 +8,7 @@ import android.widget.EditText;
 import android.widget.TextView;
 import android.widget.Toast;
 
-import androidx.appcompat.app.AppCompatActivity;
+import com.trohub.ui.common.TroHubActivity;
 
 import com.trohub.ui.R;
 import com.trohub.ui.api.ApiService;
@@ -28,7 +28,7 @@ import retrofit2.Call;
 import retrofit2.Callback;
 import retrofit2.Response;
 
-public class CreateTenantAccountActivity extends AppCompatActivity {
+public class CreateTenantAccountActivity extends TroHubActivity {
 
     private EditText etUsername;
     private EditText etPassword;
@@ -156,8 +156,8 @@ public class CreateTenantAccountActivity extends AppCompatActivity {
                 if (response.isSuccessful() && response.body() != null) {
                     TaiKhoanDto user = response.body();
                     String msg = String.format(Locale.US,
-                            "Đã tạo tài khoản thành công\nID: %d\nUsername: %s\nRole: ROLE_USER",
-                            user.getId(), safe(user.getUsername()));
+                            "Đã tạo tài khoản thành công\nTên đăng nhập: %s\nQuyền: Khách thuê",
+                            safe(user.getUsername()));
                     tvResult.setText(msg);
                     tvResult.setVisibility(View.VISIBLE);
                     Toast.makeText(CreateTenantAccountActivity.this, "Tạo tài khoản thành công", Toast.LENGTH_SHORT).show();

@@ -116,16 +116,6 @@
                 android:layout_weight="1"
                 android:text="Áp phí trễ hạn"
                 android:visibility="gone" />
-
-            <Button
-                android:id="@+id/btnSimulatePaid"
-                style="@style/Widget.TroHub.Button.Secondary"
-                android:layout_width="0dp"
-                android:layout_height="wrap_content"
-                android:layout_marginStart="8dp"
-                android:layout_weight="1"
-                android:text="Simulate Paid"
-                android:visibility="gone" />
         </LinearLayout>
 
     </LinearLayout>

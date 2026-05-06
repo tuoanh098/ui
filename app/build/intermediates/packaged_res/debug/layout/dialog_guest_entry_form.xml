@@ -51,5 +51,21 @@
             android:layout_marginTop="8dp"
             android:hint="Ghi chú"
             android:minLines="2" />
+
+        <Button
+            android:id="@+id/btnSelectGuestImage"
+            style="@style/Widget.TroHub.Button.Secondary"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="8dp"
+            android:text="Tải ảnh khách" />
+
+        <TextView
+            android:id="@+id/tvGuestImageFile"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="4dp"
+            android:text="Chưa có ảnh"
+            android:textColor="@color/app_text_muted" />
     </LinearLayout>
 </ScrollView>

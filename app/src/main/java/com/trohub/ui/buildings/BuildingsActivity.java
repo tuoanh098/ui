@@ -13,7 +13,7 @@ import android.widget.ProgressBar;
 import android.widget.TextView;
 import android.widget.Toast;
 
-import androidx.appcompat.app.AppCompatActivity;
+import com.trohub.ui.common.TroHubActivity;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 import androidx.swiperefreshlayout.widget.SwipeRefreshLayout;
@@ -28,13 +28,15 @@ import com.trohub.ui.common.IdLabelOption;
 import com.trohub.ui.common.SelectionHelper;
 
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 import retrofit2.Call;
 import retrofit2.Callback;
 import retrofit2.Response;
 
-public class BuildingsActivity extends AppCompatActivity implements BuildingsAdapter.BuildingActionListener {
+public class BuildingsActivity extends TroHubActivity implements BuildingsAdapter.BuildingActionListener {
 
     private RecyclerView rvBuildings;
     private BuildingsAdapter adapter;
@@ -44,6 +46,7 @@ public class BuildingsActivity extends AppCompatActivity implements BuildingsAda
     private Button btnAddBuilding;
     private EditText etSearchBuilding;
     private final List<ToaNha> visibleBuildings = new ArrayList<>();
+    private final Map<Long, String> managerLabels = new HashMap<>();
 
     private SessionManager sessionManager;
     private ApiService apiService;
@@ -95,7 +98,7 @@ public class BuildingsActivity extends AppCompatActivity implements BuildingsAda
                 progressBar.setVisibility(View.GONE);
                 swipeRefresh.setRefreshing(false);
                 if (response.isSuccessful() && response.body() != null) {
-                    applyBuildings(response.body());
+                    loadManagerLabelsThenApplyBuildings(response.body());
                 } else {
                     tvEmpty.setVisibility(View.VISIBLE);
                     tvEmpty.setText("Không tải được danh sách tòa nhà");
@@ -110,6 +113,30 @@ public class BuildingsActivity extends AppCompatActivity implements BuildingsAda
                 tvEmpty.setVisibility(View.VISIBLE);
                 tvEmpty.setText("Không có kết nối mạng");
                 Toast.makeText(BuildingsActivity.this, "Lỗi kết nối: " + t.getMessage(), Toast.LENGTH_SHORT).show();
+            }
+        });
+    }
+
+    private void loadManagerLabelsThenApplyBuildings(List<ToaNha> buildings) {
+        apiService.getLandlords().enqueue(new Callback<List<Landlord>>() {
+            @Override
+            public void onResponse(Call<List<Landlord>> call, Response<List<Landlord>> response) {
+                managerLabels.clear();
+                if (response.isSuccessful() && response.body() != null) {
+                    for (Landlord landlord : response.body()) {
+                        if (landlord == null || landlord.getId() == null) continue;
+                        managerLabels.put(landlord.getId(), safe(landlord.getTen()));
+                    }
+                }
+                adapter.setManagerLabels(managerLabels);
+                applyBuildings(buildings);
+            }
+
+            @Override
+            public void onFailure(Call<List<Landlord>> call, Throwable t) {
+                managerLabels.clear();
+                adapter.setManagerLabels(managerLabels);
+                applyBuildings(buildings);
             }
         });
     }
@@ -138,8 +165,7 @@ public class BuildingsActivity extends AppCompatActivity implements BuildingsAda
         if (q == null || q.isEmpty()) return true;
         return contains(building.getTen(), q)
                 || contains(building.getDiaChi(), q)
-                || contains(String.valueOf(building.getId()), q)
-                || contains(String.valueOf(building.getChuTroId()), q);
+                || contains(managerLabels.get(building.getChuTroId()), q);
     }
 
     private boolean contains(String value, String q) {
@@ -221,9 +247,6 @@ public class BuildingsActivity extends AppCompatActivity implements BuildingsAda
             etName.setText(safeEditable(editing.getTen()));
             etAddress.setText(safeEditable(editing.getDiaChi()));
             String managerLabel = SelectionHelper.findLabelById(managerOptions, editing.getChuTroId());
-            if (managerLabel.isEmpty() && editing.getChuTroId() != null) {
-                managerLabel = "ID " + editing.getChuTroId();
-            }
             etManagerId.setText(managerLabel, false);
         }
 

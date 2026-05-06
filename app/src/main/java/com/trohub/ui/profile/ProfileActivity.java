@@ -9,7 +9,7 @@ import android.widget.ProgressBar;
 import android.widget.TextView;
 import android.widget.Toast;
 
-import androidx.appcompat.app.AppCompatActivity;
+import com.trohub.ui.common.TroHubActivity;
 
 import com.trohub.ui.R;
 import com.trohub.ui.api.ApiService;
@@ -17,6 +17,7 @@ import com.trohub.ui.api.NetworkClient;
 import com.trohub.ui.api.models.BankInfo;
 import com.trohub.ui.api.models.BankInfoRequest;
 import com.trohub.ui.api.models.Landlord;
+import com.trohub.ui.api.models.Phong;
 import com.trohub.ui.api.models.Tenant;
 import com.trohub.ui.auth.LoginActivity;
 import com.trohub.ui.auth.SessionManager;
@@ -27,7 +28,7 @@ import retrofit2.Call;
 import retrofit2.Callback;
 import retrofit2.Response;
 
-public class ProfileActivity extends AppCompatActivity {
+public class ProfileActivity extends TroHubActivity {
 
     private SessionManager sessionManager;
     private ApiService apiService;
@@ -207,12 +208,39 @@ public class ProfileActivity extends AppCompatActivity {
         tvStatus.setText("Tên và CCCD là thông tin khóa, chỉ cập nhật thông tin liên hệ.");
         tvTenantName.setText("Tên: " + safe(tenant.getHoTen()));
         tvTenantCccd.setText("CCCD: " + safe(tenant.getCccd()));
-        tvTenantRoom.setText("Phòng ID: " + (tenant.getSophong() != null ? tenant.getSophong() : "N/A"));
+        renderTenantRoom(tenant.getSophong());
         etTenantPhone.setText(safeEditable(tenant.getSdt()));
         etTenantAddress.setText(safeEditable(tenant.getDiaChi()));
         etTenantQueQuan.setText(safeEditable(tenant.getQueQuan()));
         etTenantJob.setText(safeEditable(tenant.getNgheNghiep()));
         etTenantContact.setText(safeEditable(tenant.getThongTinLienLac()));
+    }
+
+    private void renderTenantRoom(Long roomId) {
+        if (roomId == null) {
+            tvTenantRoom.setText("Phòng: Chưa gán");
+            return;
+        }
+        tvTenantRoom.setText("Phòng: Đang tải...");
+        apiService.getPhongs().enqueue(new Callback<List<Phong>>() {
+            @Override
+            public void onResponse(Call<List<Phong>> call, Response<List<Phong>> response) {
+                if (response.isSuccessful() && response.body() != null) {
+                    for (Phong room : response.body()) {
+                        if (room != null && room.getId() != null && room.getId().equals(roomId)) {
+                            tvTenantRoom.setText("Phòng: " + safe(room.getMaPhong()));
+                            return;
+                        }
+                    }
+                }
+                tvTenantRoom.setText("Phòng: Chưa có tên");
+            }
+
+            @Override
+            public void onFailure(Call<List<Phong>> call, Throwable t) {
+                tvTenantRoom.setText("Phòng: Chưa có tên");
+            }
+        });
     }
 
     private void loadBankInfo() {

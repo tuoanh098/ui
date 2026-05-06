@@ -13,7 +13,7 @@ import android.widget.ProgressBar;
 import android.widget.TextView;
 import android.widget.Toast;
 
-import androidx.appcompat.app.AppCompatActivity;
+import com.trohub.ui.common.TroHubActivity;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 import androidx.swiperefreshlayout.widget.SwipeRefreshLayout;
@@ -29,13 +29,15 @@ import com.trohub.ui.common.IdLabelOption;
 import com.trohub.ui.common.SelectionHelper;
 
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 import retrofit2.Call;
 import retrofit2.Callback;
 import retrofit2.Response;
 
-public class ContractsActivity extends AppCompatActivity implements ContractsAdapter.ContractActionListener {
+public class ContractsActivity extends TroHubActivity implements ContractsAdapter.ContractActionListener {
 
     private RecyclerView rvContracts;
     private ContractsAdapter adapter;
@@ -46,6 +48,8 @@ public class ContractsActivity extends AppCompatActivity implements ContractsAda
     private Button btnAddContract;
     private EditText etSearchContract;
     private final List<Contract> visibleContracts = new ArrayList<>();
+    private final Map<Long, String> roomLabels = new HashMap<>();
+    private final Map<Long, String> tenantLabels = new HashMap<>();
 
     private SessionManager sessionManager;
     private ApiService apiService;
@@ -75,19 +79,66 @@ public class ContractsActivity extends AppCompatActivity implements ContractsAda
                 && !sessionManager.hasAnyRole("ROLE_ADMIN", "ROLE_BILLING_STAFF", "ROLE_LANDLORD");
 
         adapter = new ContractsAdapter(this, canManageContracts);
+        adapter.setLookupLabels(roomLabels, tenantLabels);
         rvContracts.setAdapter(adapter);
 
         btnAddContract.setVisibility(canManageContracts ? View.VISIBLE : View.GONE);
         btnAddContract.setOnClickListener(v -> showCreateOrEditDialog(null));
 
-        swipeRefresh.setOnRefreshListener(() -> loadContracts(false));
+        swipeRefresh.setOnRefreshListener(() -> loadLookupLabelsThenContracts(false));
         etSearchContract.addTextChangedListener(new SimpleWatcher() {
             @Override
             public void afterTextChanged(Editable s) {
                 renderContracts();
             }
         });
-        loadContracts(true);
+        loadLookupLabelsThenContracts(true);
+    }
+
+    private void loadLookupLabelsThenContracts(boolean firstLoad) {
+        apiService.getPhongs().enqueue(new Callback<List<Phong>>() {
+            @Override
+            public void onResponse(Call<List<Phong>> call, Response<List<Phong>> roomResp) {
+                roomLabels.clear();
+                if (roomResp.isSuccessful() && roomResp.body() != null) {
+                    for (Phong room : roomResp.body()) {
+                        if (room == null || room.getId() == null) continue;
+                        roomLabels.put(room.getId(), safe(room.getMaPhong()));
+                    }
+                }
+                loadTenantLabelsThenContracts(firstLoad);
+            }
+
+            @Override
+            public void onFailure(Call<List<Phong>> call, Throwable t) {
+                roomLabels.clear();
+                loadTenantLabelsThenContracts(firstLoad);
+            }
+        });
+    }
+
+    private void loadTenantLabelsThenContracts(boolean firstLoad) {
+        apiService.getTenants().enqueue(new Callback<List<Tenant>>() {
+            @Override
+            public void onResponse(Call<List<Tenant>> call, Response<List<Tenant>> tenantResp) {
+                tenantLabels.clear();
+                if (tenantResp.isSuccessful() && tenantResp.body() != null) {
+                    for (Tenant tenant : tenantResp.body()) {
+                        if (tenant == null || tenant.getId() == null) continue;
+                        tenantLabels.put(tenant.getId(), safe(tenant.getHoTen()));
+                    }
+                }
+                adapter.setLookupLabels(roomLabels, tenantLabels);
+                loadContracts(firstLoad);
+            }
+
+            @Override
+            public void onFailure(Call<List<Tenant>> call, Throwable t) {
+                tenantLabels.clear();
+                adapter.setLookupLabels(roomLabels, tenantLabels);
+                loadContracts(firstLoad);
+            }
+        });
     }
 
     private void loadContracts(boolean firstLoad) {
@@ -187,9 +238,8 @@ public class ContractsActivity extends AppCompatActivity implements ContractsAda
                 || contains(contract.getTrangThai(), q)
                 || contains(contract.getNgayBatDau(), q)
                 || contains(contract.getNgayKetThuc(), q)
-                || contains(String.valueOf(contract.getId()), q)
-                || contains(String.valueOf(contract.getPhongId()), q)
-                || contains(String.valueOf(contract.getNguoiId()), q);
+                || contains(roomLabels.get(contract.getPhongId()), q)
+                || contains(tenantLabels.get(contract.getNguoiId()), q);
     }
 
     private boolean contains(String value, String q) {
@@ -278,8 +328,8 @@ public class ContractsActivity extends AppCompatActivity implements ContractsAda
             etCode.setText(safeEditable(editing.getMaHopDong()));
             String roomLabel = SelectionHelper.findLabelById(roomOptions, editing.getPhongId());
             String tenantLabel = SelectionHelper.findLabelById(tenantOptions, editing.getNguoiId());
-            etRoomId.setText(roomLabel.isEmpty() && editing.getPhongId() != null ? "ID " + editing.getPhongId() : roomLabel, false);
-            etTenantId.setText(tenantLabel.isEmpty() && editing.getNguoiId() != null ? "ID " + editing.getNguoiId() : tenantLabel, false);
+            etRoomId.setText(roomLabel, false);
+            etTenantId.setText(tenantLabel, false);
             etStart.setText(safeEditable(editing.getNgayBatDau()));
             etEnd.setText(safeEditable(editing.getNgayKetThuc()));
             etRent.setText(editing.getTienThue() == null ? "" : String.valueOf(editing.getTienThue()));
@@ -377,7 +427,7 @@ public class ContractsActivity extends AppCompatActivity implements ContractsAda
                     if (response.isSuccessful()) {
                         Toast.makeText(ContractsActivity.this, editing == null ? "Đã thêm hợp đồng" : "Đã cập nhật hợp đồng", Toast.LENGTH_SHORT).show();
                         dialog.dismiss();
-                        loadContracts(false);
+                        loadLookupLabelsThenContracts(false);
                     } else {
                         Toast.makeText(ContractsActivity.this, "Lưu thất bại: " + response.code(), Toast.LENGTH_SHORT).show();
                     }

@@ -14,7 +14,9 @@ import com.trohub.ui.R;
 import com.trohub.ui.api.models.Tenant;
 
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 public class TenantsAdapter extends RecyclerView.Adapter<TenantsAdapter.TenantViewHolder> {
 
@@ -22,6 +24,7 @@ public class TenantsAdapter extends RecyclerView.Adapter<TenantsAdapter.TenantVi
     private final TenantActionListener actionListener;
     private final boolean canManage;
     private TenantItemClickListener itemClickListener;
+    private Map<Long, String> roomLabels = new HashMap<>();
 
     public interface TenantActionListener {
         void onEditTenant(Tenant tenant);
@@ -46,6 +49,11 @@ public class TenantsAdapter extends RecyclerView.Adapter<TenantsAdapter.TenantVi
         notifyDataSetChanged();
     }
 
+    public void setRoomLabels(Map<Long, String> labels) {
+        this.roomLabels = labels == null ? new HashMap<>() : new HashMap<>(labels);
+        notifyDataSetChanged();
+    }
+
     public void setTenantItemClickListener(TenantItemClickListener listener) {
         this.itemClickListener = listener;
     }
@@ -64,7 +72,7 @@ public class TenantsAdapter extends RecyclerView.Adapter<TenantsAdapter.TenantVi
         holder.tvTenantName.setText(tenant.getHoTen() != null ? tenant.getHoTen() : "N/A");
         holder.tvTenantPhone.setText("SĐT: " + (tenant.getSdt() != null ? tenant.getSdt() : ""));
         holder.tvTenantIdCard.setText("CCCD: " + (tenant.getCccd() != null ? tenant.getCccd() : ""));
-        holder.tvTenantRoom.setText("Phòng ID: " + (tenant.getSophong() != null ? tenant.getSophong() : "N/A"));
+        holder.tvTenantRoom.setText("Phòng: " + labelOrUnset(roomLabels, tenant.getSophong()));
 
         boolean showActions = canManage && actionListener != null;
         holder.layoutActions.setVisibility(showActions ? View.VISIBLE : View.GONE);
@@ -104,6 +112,12 @@ public class TenantsAdapter extends RecyclerView.Adapter<TenantsAdapter.TenantVi
             btnEdit = itemView.findViewById(R.id.btnEditTenant);
             btnDelete = itemView.findViewById(R.id.btnDeleteTenant);
         }
+    }
+
+    private String labelOrUnset(Map<Long, String> labels, Long id) {
+        if (id == null) return "Chưa gán phòng";
+        String label = labels == null ? null : labels.get(id);
+        return label == null || label.trim().isEmpty() ? "Chưa có tên phòng" : label;
     }
 }
 

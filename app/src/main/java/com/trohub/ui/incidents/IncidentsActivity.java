@@ -19,7 +19,7 @@ import android.widget.ScrollView;
 import android.widget.TextView;
 import android.widget.Toast;
 
-import androidx.appcompat.app.AppCompatActivity;
+import com.trohub.ui.common.TroHubActivity;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 import androidx.swiperefreshlayout.widget.SwipeRefreshLayout;
@@ -36,14 +36,16 @@ import com.trohub.ui.common.IdLabelOption;
 import com.trohub.ui.common.SelectionHelper;
 
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 import java.net.URL;
 
 import retrofit2.Call;
 import retrofit2.Callback;
 import retrofit2.Response;
 
-public class IncidentsActivity extends AppCompatActivity implements IncidentsAdapter.IncidentActionListener {
+public class IncidentsActivity extends TroHubActivity implements IncidentsAdapter.IncidentActionListener {
 
     private RecyclerView rvIncidents;
     private IncidentsAdapter adapter;
@@ -56,6 +58,8 @@ public class IncidentsActivity extends AppCompatActivity implements IncidentsAda
     private boolean canManageIncidents;
     private boolean canEditOwnIncidents;
     private boolean canCreateIncident;
+    private final Map<Long, String> roomLabels = new HashMap<>();
+    private final Map<Long, String> reporterLabels = new HashMap<>();
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -76,8 +80,9 @@ public class IncidentsActivity extends AppCompatActivity implements IncidentsAda
 
         rvIncidents.setLayoutManager(new LinearLayoutManager(this));
         adapter = new IncidentsAdapter(this, canEditOwnIncidents, canManageIncidents);
+        adapter.setLookupLabels(roomLabels, reporterLabels);
         rvIncidents.setAdapter(adapter);
-        swipeRefresh.setOnRefreshListener(() -> loadIncidents(false));
+        swipeRefresh.setOnRefreshListener(() -> loadLookupLabelsThenIncidents(false));
 
         btnCreateIncident.setVisibility(canCreateIncident ? View.VISIBLE : View.GONE);
         btnCreateIncident.setOnClickListener(v -> {
@@ -99,8 +104,8 @@ public class IncidentsActivity extends AppCompatActivity implements IncidentsAda
         StringBuilder sb = new StringBuilder();
         sb.append("Loại: ").append(safe(incident.getLoai())).append("\n");
         sb.append("Trạng thái: ").append(safe(incident.getStatus())).append("\n");
-        sb.append("Phòng ID: ").append(incident.getPhongId() != null ? incident.getPhongId() : "N/A").append("\n");
-        sb.append("Người báo ID: ").append(incident.getReportedBy() != null ? incident.getReportedBy() : "N/A").append("\n");
+        sb.append("Phòng: ").append(labelOrUnset(roomLabels, incident.getPhongId())).append("\n");
+        sb.append("Người báo: ").append(labelOrUnset(reporterLabels, incident.getReportedBy())).append("\n");
         sb.append("Thời gian báo: ").append(safe(incident.getReportedAt())).append("\n");
         if (incident.getResolvedAt() != null) {
             sb.append("Đã xử lý: ").append(incident.getResolvedAt()).append("\n");
@@ -123,7 +128,7 @@ public class IncidentsActivity extends AppCompatActivity implements IncidentsAda
         }
 
         new AlertDialog.Builder(this)
-                .setTitle("Chi tiết sự cố #" + (incident.getId() != null ? incident.getId() : ""))
+                .setTitle("Chi tiết sự cố")
                 .setView(scrollView)
                 .setPositiveButton("Đóng", null)
                 .show();
@@ -161,9 +166,14 @@ public class IncidentsActivity extends AppCompatActivity implements IncidentsAda
         if (rawPath == null || rawPath.trim().isEmpty()) return "";
         String path = rawPath.trim();
         if (path.startsWith("http://") || path.startsWith("https://")) return path;
+        path = path.replace("\\", "/");
+        int uploadsIndex = path.indexOf("/uploads/");
+        if (uploadsIndex >= 0) {
+            path = path.substring(uploadsIndex + 1);
+        }
         String base = NetworkClient.getBaseUrl();
         if (path.startsWith("/")) path = path.substring(1);
-        return base + path;
+        return base + path.replace(" ", "%20");
     }
 
     private int dp(int value) {
@@ -173,7 +183,53 @@ public class IncidentsActivity extends AppCompatActivity implements IncidentsAda
     @Override
     protected void onResume() {
         super.onResume();
-        loadIncidents(true);
+        loadLookupLabelsThenIncidents(true);
+    }
+
+    private void loadLookupLabelsThenIncidents(boolean firstLoad) {
+        apiService.getPhongs().enqueue(new Callback<List<Phong>>() {
+            @Override
+            public void onResponse(Call<List<Phong>> call, Response<List<Phong>> response) {
+                roomLabels.clear();
+                if (response.isSuccessful() && response.body() != null) {
+                    for (Phong room : response.body()) {
+                        if (room == null || room.getId() == null) continue;
+                        roomLabels.put(room.getId(), safe(room.getMaPhong()));
+                    }
+                }
+                loadReporterLabelsThenIncidents(firstLoad);
+            }
+
+            @Override
+            public void onFailure(Call<List<Phong>> call, Throwable t) {
+                roomLabels.clear();
+                loadReporterLabelsThenIncidents(firstLoad);
+            }
+        });
+    }
+
+    private void loadReporterLabelsThenIncidents(boolean firstLoad) {
+        apiService.getTenants().enqueue(new Callback<List<Tenant>>() {
+            @Override
+            public void onResponse(Call<List<Tenant>> call, Response<List<Tenant>> response) {
+                reporterLabels.clear();
+                if (response.isSuccessful() && response.body() != null) {
+                    for (Tenant tenant : response.body()) {
+                        if (tenant == null || tenant.getId() == null) continue;
+                        reporterLabels.put(tenant.getId(), safe(tenant.getHoTen()));
+                    }
+                }
+                adapter.setLookupLabels(roomLabels, reporterLabels);
+                loadIncidents(firstLoad);
+            }
+
+            @Override
+            public void onFailure(Call<List<Tenant>> call, Throwable t) {
+                reporterLabels.clear();
+                adapter.setLookupLabels(roomLabels, reporterLabels);
+                loadIncidents(firstLoad);
+            }
+        });
     }
 
     private void loadIncidents(boolean firstLoad) {
@@ -219,14 +275,14 @@ public class IncidentsActivity extends AppCompatActivity implements IncidentsAda
         if (incident == null || incident.getId() == null) return;
         new AlertDialog.Builder(this)
                 .setTitle("Xóa sự cố")
-                .setMessage("Xóa sự cố #" + incident.getId() + "?")
+                .setMessage("Xóa sự cố này?")
                 .setPositiveButton("Xóa", (dialog, which) -> {
                     apiService.deleteIncident(incident.getId()).enqueue(new Callback<Void>() {
                         @Override
                         public void onResponse(Call<Void> call, Response<Void> response) {
                             if (response.isSuccessful()) {
                                 Toast.makeText(IncidentsActivity.this, "Đã xóa sự cố", Toast.LENGTH_SHORT).show();
-                                loadIncidents(false);
+                                loadLookupLabelsThenIncidents(false);
                             } else {
                                 Toast.makeText(IncidentsActivity.this, "Xóa thất bại: " + response.code(), Toast.LENGTH_SHORT).show();
                             }
@@ -250,7 +306,7 @@ public class IncidentsActivity extends AppCompatActivity implements IncidentsAda
             public void onResponse(Call<Incident> call, Response<Incident> response) {
                 if (response.isSuccessful()) {
                     Toast.makeText(IncidentsActivity.this, "Đã xác nhận xử lý sự cố", Toast.LENGTH_SHORT).show();
-                    loadIncidents(false);
+                    loadLookupLabelsThenIncidents(false);
                 } else {
                     Toast.makeText(IncidentsActivity.this, "Xác nhận thất bại: " + response.code(), Toast.LENGTH_SHORT).show();
                 }
@@ -401,7 +457,7 @@ public class IncidentsActivity extends AppCompatActivity implements IncidentsAda
                     if (response.isSuccessful()) {
                         Toast.makeText(IncidentsActivity.this, "Đã cập nhật sự cố", Toast.LENGTH_SHORT).show();
                         dialog.dismiss();
-                        loadIncidents(false);
+                        loadLookupLabelsThenIncidents(false);
                     } else {
                         Toast.makeText(IncidentsActivity.this, "Cập nhật thất bại: " + response.code(), Toast.LENGTH_SHORT).show();
                     }
@@ -423,5 +479,11 @@ public class IncidentsActivity extends AppCompatActivity implements IncidentsAda
 
     private String safe(String value) {
         return value == null || value.trim().isEmpty() ? "N/A" : value;
+    }
+
+    private String labelOrUnset(Map<Long, String> labels, Long id) {
+        if (id == null) return "Chưa gán";
+        String label = labels == null ? null : labels.get(id);
+        return label == null || label.trim().isEmpty() ? "Chưa có tên" : label;
     }
 }

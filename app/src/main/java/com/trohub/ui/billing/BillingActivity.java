@@ -17,7 +17,7 @@ import android.widget.LinearLayout;
 import android.widget.TextView;
 import android.widget.Toast;
 
-import androidx.appcompat.app.AppCompatActivity;
+import com.trohub.ui.common.TroHubActivity;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
@@ -30,8 +30,6 @@ import com.trohub.ui.api.models.PaymentDto;
 import com.trohub.ui.api.models.PriceRequest;
 import com.trohub.ui.api.models.QrRequest;
 import com.trohub.ui.api.models.QrResponse;
-import com.trohub.ui.api.models.RegenerateInvoicesRequest;
-import com.trohub.ui.api.models.SimulateQrRequest;
 import com.trohub.ui.auth.SessionManager;
 
 import java.time.LocalDate;
@@ -46,7 +44,7 @@ import retrofit2.Call;
 import retrofit2.Callback;
 import retrofit2.Response;
 
-public class BillingActivity extends AppCompatActivity implements InvoiceAdapter.InvoiceActionListener {
+public class BillingActivity extends TroHubActivity implements InvoiceAdapter.InvoiceActionListener {
 
     private EditText etYear;
     private EditText etMonth;
@@ -85,14 +83,9 @@ public class BillingActivity extends AppCompatActivity implements InvoiceAdapter
         setupDefaults();
         setupActions();
 
-        if (!adminOrStaff) {
-            generateContainer.setVisibility(View.GONE);
-            btnToggleQa.setVisibility(View.GONE);
-            qaContainer.setVisibility(View.GONE);
-        } else {
-            btnGenerateSync.setText("Tạo kỳ mới (Regenerate)");
-            btnGenerateAsync.setVisibility(View.GONE);
-        }
+        generateContainer.setVisibility(View.GONE);
+        btnToggleQa.setVisibility(View.GONE);
+        qaContainer.setVisibility(View.GONE);
 
         updateBillingHint();
         loadInvoices();
@@ -130,13 +123,9 @@ public class BillingActivity extends AppCompatActivity implements InvoiceAdapter
     private void setupActions() {
         btnCheck.setOnClickListener(v -> {
             updateBillingHint();
-            if (adminOrStaff) {
-                regenerateAndLoad(false);
-            } else {
-                loadInvoices();
-            }
+            loadInvoices();
         });
-        btnGenerateSync.setOnClickListener(v -> regenerateAndLoad(true));
+        btnGenerateSync.setOnClickListener(v -> loadInvoices());
         btnToggleQa.setOnClickListener(v -> {
             boolean show = qaContainer.getVisibility() != View.VISIBLE;
             qaContainer.setVisibility(show ? View.VISIBLE : View.GONE);
@@ -214,37 +203,6 @@ public class BillingActivity extends AppCompatActivity implements InvoiceAdapter
         return value != null && value.toLowerCase().contains(q);
     }
 
-    private void regenerateAndLoad(boolean showSuccessToast) {
-        if (!adminOrStaff) return;
-
-        Integer year = parseInt(etYear.getText().toString().trim());
-        Integer month = parseInt(etMonth.getText().toString().trim());
-        if (year == null || month == null || month < 1 || month > 12) {
-            Toast.makeText(this, "Vui lòng nhập tháng/năm hợp lệ", Toast.LENGTH_SHORT).show();
-            return;
-        }
-
-        RegenerateInvoicesRequest req = new RegenerateInvoicesRequest(null, year, month);
-        apiService.regenerateInvoices(req).enqueue(new Callback<List<Invoice>>() {
-            @Override
-            public void onResponse(Call<List<Invoice>> call, Response<List<Invoice>> response) {
-                if (response.isSuccessful()) {
-                    if (showSuccessToast) {
-                        Toast.makeText(BillingActivity.this, "Regenerate hóa đơn thành công", Toast.LENGTH_SHORT).show();
-                    }
-                    loadInvoices();
-                } else {
-                    Toast.makeText(BillingActivity.this, "Regenerate thất bại: " + response.code(), Toast.LENGTH_SHORT).show();
-                }
-            }
-
-            @Override
-            public void onFailure(Call<List<Invoice>> call, Throwable t) {
-                Toast.makeText(BillingActivity.this, "Lỗi kết nối: " + t.getMessage(), Toast.LENGTH_SHORT).show();
-            }
-        });
-    }
-
     private void createPriceQA() {
         PriceRequest req = new PriceRequest("ELECTRIC", 4000.0, "2026-01-01", "2099-12-31");
         apiService.createPrice(req).enqueue(new Callback<Object>() {
@@ -307,27 +265,6 @@ public class BillingActivity extends AppCompatActivity implements InvoiceAdapter
     }
 
     @Override
-    public void onSimulatePaid(Invoice invoice) {
-        if (!adminOrStaff || invoice == null || invoice.getId() == null) return;
-        apiService.simulateInvoicePaid(invoice.getId()).enqueue(new Callback<Object>() {
-            @Override
-            public void onResponse(Call<Object> call, Response<Object> response) {
-                if (response.isSuccessful()) {
-                    Toast.makeText(BillingActivity.this, "Simulate paid thành công", Toast.LENGTH_SHORT).show();
-                    loadInvoices();
-                } else {
-                    Toast.makeText(BillingActivity.this, "Simulate paid thất bại", Toast.LENGTH_SHORT).show();
-                }
-            }
-
-            @Override
-            public void onFailure(Call<Object> call, Throwable t) {
-                Toast.makeText(BillingActivity.this, "Lỗi kết nối: " + t.getMessage(), Toast.LENGTH_SHORT).show();
-            }
-        });
-    }
-
-    @Override
     public void onViewPayments(Invoice invoice) {
         if (invoice == null || invoice.getId() == null) return;
         apiService.getInvoicePayments(invoice.getId()).enqueue(new Callback<List<PaymentDto>>() {
@@ -342,36 +279,6 @@ public class BillingActivity extends AppCompatActivity implements InvoiceAdapter
 
             @Override
             public void onFailure(Call<List<PaymentDto>> call, Throwable t) {
-                Toast.makeText(BillingActivity.this, "Lỗi kết nối: " + t.getMessage(), Toast.LENGTH_SHORT).show();
-            }
-        });
-    }
-
-    private void simulateQrPayment(QrResponse qr, Invoice invoice) {
-        if (qr == null || TextUtils.isEmpty(qr.getQrCode())) {
-            Toast.makeText(this, "QR không hợp lệ", Toast.LENGTH_SHORT).show();
-            return;
-        }
-
-        Double amount = qr.getExpectedAmount() != null ? qr.getExpectedAmount() : invoice.getTotalAmount();
-        SimulateQrRequest payload = new SimulateQrRequest(
-                qr.getQrCode(),
-                "txn-app-" + System.currentTimeMillis(),
-                amount
-        );
-        apiService.simulateQrPayment(payload).enqueue(new Callback<Object>() {
-            @Override
-            public void onResponse(Call<Object> call, Response<Object> response) {
-                if (response.isSuccessful()) {
-                    Toast.makeText(BillingActivity.this, "Thanh toán QR mô phỏng thành công", Toast.LENGTH_SHORT).show();
-                    loadInvoices();
-                } else {
-                    Toast.makeText(BillingActivity.this, "Thanh toán QR thất bại", Toast.LENGTH_SHORT).show();
-                }
-            }
-
-            @Override
-            public void onFailure(Call<Object> call, Throwable t) {
                 Toast.makeText(BillingActivity.this, "Lỗi kết nối: " + t.getMessage(), Toast.LENGTH_SHORT).show();
             }
         });
@@ -396,8 +303,7 @@ public class BillingActivity extends AppCompatActivity implements InvoiceAdapter
         AlertDialog.Builder builder = new AlertDialog.Builder(this);
         builder.setTitle("QR thanh toán - " + safeInvoiceNumber(invoice));
         builder.setView(view);
-        builder.setPositiveButton("Xác nhận đã thanh toán", (dialog, which) -> simulateQrPayment(qr, invoice));
-        builder.setNegativeButton("Đóng", (dialog, which) -> dialog.dismiss());
+        builder.setPositiveButton("Đóng", (dialog, which) -> dialog.dismiss());
         builder.show();
     }
 
@@ -468,7 +374,7 @@ public class BillingActivity extends AppCompatActivity implements InvoiceAdapter
         Integer year = parseInt(etYear.getText().toString().trim());
         Integer month = parseInt(etMonth.getText().toString().trim());
         if (year == null || month == null || month < 1 || month > 12) {
-            tvBillingHint.setText("Luồng billing chuẩn: bấm Tải dữ liệu/Tạo kỳ để regenerate invoice theo hợp đồng -> thanh toán QR -> áp phí trễ hạn sau grace.");
+            tvBillingHint.setText("Luồng billing: tải hóa đơn theo kỳ, xem QR thanh toán và áp phí trễ hạn sau grace.");
             return;
         }
 
@@ -477,14 +383,13 @@ public class BillingActivity extends AppCompatActivity implements InvoiceAdapter
             LocalDate start = ym.atDay(4);
             LocalDate grace = ym.atDay(8);
             tvBillingHint.setText("Kỳ " + month + "/" + year
-                    + " | Regenerate theo hợp đồng"
                     + " | Thu từ " + start.format(DateTimeFormatter.ISO_DATE)
                     + " | Grace đến " + grace.format(DateTimeFormatter.ISO_DATE)
                     + " | quá hạn dùng nút Áp phí trễ hạn.");
             return;
         }
 
-        tvBillingHint.setText("Kỳ " + month + "/" + year + " | Regenerate theo hợp đồng | Thu từ ngày 4, grace đến ngày 8, sau đó áp phí trễ hạn.");
+        tvBillingHint.setText("Kỳ " + month + "/" + year + " | Thu từ ngày 4, grace đến ngày 8, sau đó áp phí trễ hạn.");
     }
 
     private Integer parseInt(String value) {
@@ -507,7 +412,7 @@ public class BillingActivity extends AppCompatActivity implements InvoiceAdapter
     private String safeInvoiceNumber(Invoice invoice) {
         if (invoice == null) return "N/A";
         if (!TextUtils.isEmpty(invoice.getInvoiceNumber())) return invoice.getInvoiceNumber();
-        return "ID " + invoice.getId();
+        return "Chưa có mã hóa đơn";
     }
 
     private abstract static class SimpleWatcher implements TextWatcher {

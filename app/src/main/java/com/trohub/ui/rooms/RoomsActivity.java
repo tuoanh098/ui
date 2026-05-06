@@ -13,7 +13,7 @@ import android.widget.TextView;
 import android.widget.Toast;
 
 import androidx.appcompat.app.AlertDialog;
-import androidx.appcompat.app.AppCompatActivity;
+import com.trohub.ui.common.TroHubActivity;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 import androidx.swiperefreshlayout.widget.SwipeRefreshLayout;
@@ -31,13 +31,15 @@ import com.trohub.ui.common.SelectionHelper;
 import com.trohub.ui.rooms.detail.RoomDetailActivity;
 
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 import retrofit2.Call;
 import retrofit2.Callback;
 import retrofit2.Response;
 
-public class RoomsActivity extends AppCompatActivity implements RoomsAdapter.RoomActionListener {
+public class RoomsActivity extends TroHubActivity implements RoomsAdapter.RoomActionListener {
 
     private RecyclerView rvRooms;
     private RoomsAdapter adapter;
@@ -47,6 +49,7 @@ public class RoomsActivity extends AppCompatActivity implements RoomsAdapter.Roo
     private Button btnAddRoom;
     private EditText etSearchRoom;
     private final List<Phong> visibleRooms = new ArrayList<>();
+    private final Map<Long, String> buildingLabels = new HashMap<>();
 
     private SessionManager sessionManager;
     private ApiService apiService;
@@ -83,6 +86,7 @@ public class RoomsActivity extends AppCompatActivity implements RoomsAdapter.Roo
         canDeleteRooms = canManageRooms;
 
         adapter = new RoomsAdapter(this, canEditRooms, canDeleteRooms);
+        adapter.setBuildingLabels(buildingLabels);
         adapter.setRoomItemClickListener(this::openRoomDetail);
         rvRooms.setAdapter(adapter);
 
@@ -136,7 +140,7 @@ public class RoomsActivity extends AppCompatActivity implements RoomsAdapter.Roo
                 progressBar.setVisibility(View.GONE);
                 swipeRefresh.setRefreshing(false);
                 if (response.isSuccessful() && response.body() != null) {
-                    handleRoleFilter(response.body());
+                    loadBuildingLabelsThenFilter(response.body());
                 } else {
                     tvEmpty.setVisibility(View.VISIBLE);
                     int code = response.code();
@@ -157,6 +161,30 @@ public class RoomsActivity extends AppCompatActivity implements RoomsAdapter.Roo
                 tvEmpty.setVisibility(View.VISIBLE);
                 tvEmpty.setText("Không có kết nối mạng");
                 Toast.makeText(RoomsActivity.this, "Lỗi kết nối: " + t.getMessage(), Toast.LENGTH_SHORT).show();
+            }
+        });
+    }
+
+    private void loadBuildingLabelsThenFilter(List<Phong> rooms) {
+        apiService.getBuildings().enqueue(new Callback<List<ToaNha>>() {
+            @Override
+            public void onResponse(Call<List<ToaNha>> call, Response<List<ToaNha>> response) {
+                buildingLabels.clear();
+                if (response.isSuccessful() && response.body() != null) {
+                    for (ToaNha building : response.body()) {
+                        if (building == null || building.getId() == null) continue;
+                        buildingLabels.put(building.getId(), safe(building.getTen()));
+                    }
+                }
+                adapter.setBuildingLabels(buildingLabels);
+                handleRoleFilter(rooms);
+            }
+
+            @Override
+            public void onFailure(Call<List<ToaNha>> call, Throwable t) {
+                buildingLabels.clear();
+                adapter.setBuildingLabels(buildingLabels);
+                handleRoleFilter(rooms);
             }
         });
     }
@@ -225,8 +253,7 @@ public class RoomsActivity extends AppCompatActivity implements RoomsAdapter.Roo
         return contains(room.getMaPhong(), q)
                 || contains(room.getTrangThai(), q)
                 || contains(room.getMoTa(), q)
-                || contains(String.valueOf(room.getId()), q)
-                || contains(String.valueOf(room.getToaNhaId()), q);
+                || contains(buildingLabels.get(room.getToaNhaId()), q);
     }
 
     private boolean contains(String value, String q) {
@@ -321,9 +348,6 @@ public class RoomsActivity extends AppCompatActivity implements RoomsAdapter.Roo
         if (editing != null) {
             etMaPhong.setText(safeEditable(editing.getMaPhong()));
             String buildingLabel = SelectionHelper.findLabelById(buildingOptions, editing.getToaNhaId());
-            if (buildingLabel.isEmpty() && editing.getToaNhaId() != null) {
-                buildingLabel = "ID " + editing.getToaNhaId();
-            }
             etBuildingId.setText(buildingLabel, false);
             etBeds.setText(editing.getSoGiuong() == null ? "" : String.valueOf(editing.getSoGiuong()));
             etStatus.setText(safeEditable(editing.getTrangThai()));

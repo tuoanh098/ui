@@ -6,7 +6,7 @@ import android.widget.ProgressBar;
 import android.widget.TextView;
 import android.widget.Toast;
 
-import androidx.appcompat.app.AppCompatActivity;
+import com.trohub.ui.common.TroHubActivity;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 import androidx.swiperefreshlayout.widget.SwipeRefreshLayout;
@@ -19,13 +19,15 @@ import com.trohub.ui.rooms.detail.RoomDetailActivity;
 import com.trohub.ui.rooms.RoomsAdapter; // Re-use RoomAdapter!
 
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 import retrofit2.Call;
 import retrofit2.Callback;
 import retrofit2.Response;
 
-public class BuildingRoomsActivity extends AppCompatActivity {
+public class BuildingRoomsActivity extends TroHubActivity {
 
     private RecyclerView rvRooms;
     private RoomsAdapter adapter;
@@ -33,6 +35,7 @@ public class BuildingRoomsActivity extends AppCompatActivity {
     private ProgressBar progressBar;
     private TextView tvEmpty;
     private SwipeRefreshLayout swipeRefresh;
+    private String buildingName;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -46,10 +49,10 @@ public class BuildingRoomsActivity extends AppCompatActivity {
         swipeRefresh = findViewById(R.id.swipeRefresh);
 
         buildingId = getIntent().getLongExtra("BUILDING_ID", -1);
-        String buildingName = getIntent().getStringExtra("BUILDING_NAME");
+        buildingName = getIntent().getStringExtra("BUILDING_NAME");
 
         if (buildingId == -1) {
-            Toast.makeText(this, "Không có ID tòa nhà", Toast.LENGTH_SHORT).show();
+            Toast.makeText(this, "Không có thông tin tòa nhà", Toast.LENGTH_SHORT).show();
             finish();
             return;
         }
@@ -58,6 +61,9 @@ public class BuildingRoomsActivity extends AppCompatActivity {
 
         rvRooms.setLayoutManager(new LinearLayoutManager(this));
         adapter = new RoomsAdapter();
+        Map<Long, String> buildingLabels = new HashMap<>();
+        buildingLabels.put(buildingId, buildingName != null ? buildingName : "N/A");
+        adapter.setBuildingLabels(buildingLabels);
         adapter.setRoomItemClickListener(this::openRoomDetail);
         rvRooms.setAdapter(adapter);
         swipeRefresh.setOnRefreshListener(() -> loadRooms(false));

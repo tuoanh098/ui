@@ -14,7 +14,7 @@ import android.widget.Spinner;
 import android.widget.TextView;
 import android.widget.Toast;
 
-import androidx.appcompat.app.AppCompatActivity;
+import com.trohub.ui.common.TroHubActivity;
 
 import com.trohub.ui.R;
 import com.trohub.ui.api.ApiService;
@@ -38,7 +38,7 @@ import retrofit2.Call;
 import retrofit2.Callback;
 import retrofit2.Response;
 
-public class CreateIncidentActivity extends AppCompatActivity {
+public class CreateIncidentActivity extends TroHubActivity {
 
     private Spinner spLoai;
     private AutoCompleteTextView acRoom;
@@ -165,6 +165,9 @@ public class CreateIncidentActivity extends AppCompatActivity {
                 }
 
                 tvFilePath.setText(selectedImageName != null ? selectedImageName : "Đã chọn file");
+                if (is != null) {
+                    is.close();
+                }
 
             } catch (Exception e) {
                 e.printStackTrace();
@@ -240,14 +243,22 @@ public class CreateIncidentActivity extends AppCompatActivity {
     }
 
     private void uploadAttachment(Long incidentId, ApiService apiService) {
-        RequestBody requestFile = RequestBody.create(MediaType.parse("image/*"), selectedImageBytes);
+        String mimeType = selectedImageUri == null ? null : getContentResolver().getType(selectedImageUri);
+        if (mimeType == null || mimeType.trim().isEmpty()) {
+            mimeType = "image/jpeg";
+        }
+        RequestBody requestFile = RequestBody.create(MediaType.parse(mimeType), selectedImageBytes);
         MultipartBody.Part body = MultipartBody.Part.createFormData("file", selectedImageName != null ? selectedImageName : "image.jpg", requestFile);
 
         Call<ResponseBody> call = apiService.uploadAttachment(incidentId, body);
         call.enqueue(new Callback<ResponseBody>() {
             @Override
             public void onResponse(Call<ResponseBody> call, Response<ResponseBody> response) {
-                Toast.makeText(CreateIncidentActivity.this, "Tạo sự cố và upload ảnh thành công!", Toast.LENGTH_SHORT).show();
+                if (response.isSuccessful()) {
+                    Toast.makeText(CreateIncidentActivity.this, "Tạo sự cố và upload ảnh thành công!", Toast.LENGTH_SHORT).show();
+                } else {
+                    Toast.makeText(CreateIncidentActivity.this, "Đã tạo sự cố nhưng upload ảnh thất bại: " + response.code(), Toast.LENGTH_LONG).show();
+                }
                 finish();
             }
 

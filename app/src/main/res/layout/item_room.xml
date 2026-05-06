@@ -43,7 +43,7 @@
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_marginTop="4dp"
-            android:text="Tòa nhà ID: 1" />
+            android:text="Tòa nhà: Tòa A" />
 
         <LinearLayout
             android:id="@+id/layoutRoomActions"

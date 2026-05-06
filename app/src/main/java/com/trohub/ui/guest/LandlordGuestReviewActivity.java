@@ -8,7 +8,7 @@ import android.widget.ProgressBar;
 import android.widget.TextView;
 import android.widget.Toast;
 
-import androidx.appcompat.app.AppCompatActivity;
+import com.trohub.ui.common.TroHubActivity;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 import androidx.swiperefreshlayout.widget.SwipeRefreshLayout;
@@ -30,7 +30,7 @@ import retrofit2.Call;
 import retrofit2.Callback;
 import retrofit2.Response;
 
-public class LandlordGuestReviewActivity extends AppCompatActivity implements LandlordGuestReviewAdapter.ReviewActionListener {
+public class LandlordGuestReviewActivity extends TroHubActivity implements LandlordGuestReviewAdapter.ReviewActionListener {
 
     private SwipeRefreshLayout swipeRefresh;
     private ProgressBar progressBar;
@@ -81,7 +81,7 @@ public class LandlordGuestReviewActivity extends AppCompatActivity implements La
                 if (response.isSuccessful() && response.body() != null) {
                     for (Phong room : response.body()) {
                         if (room == null || room.getId() == null) continue;
-                        roomCodeById.put(room.getId(), room.getMaPhong() == null ? ("ID " + room.getId()) : room.getMaPhong());
+                        roomCodeById.put(room.getId(), room.getMaPhong() == null ? "Chưa có tên phòng" : room.getMaPhong());
                     }
                 }
                 loadReviewItems();

@@ -193,4 +193,8 @@ public interface ApiService {
 
     @POST("api/guest-entries/{id}/request-info")
     Call<GuestEntry> requestGuestInfo(@Path("id") Long id, @Body com.trohub.ui.api.models.GuestReviewRequest body);
+
+    @Multipart
+    @POST("api/guest-entries/{id}/attachments")
+    Call<GuestEntry> uploadGuestEntryAttachment(@Path("id") Long id, @Part MultipartBody.Part file);
 }

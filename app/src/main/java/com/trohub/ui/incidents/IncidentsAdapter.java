@@ -14,7 +14,10 @@ import com.trohub.ui.R;
 import com.trohub.ui.api.models.Incident;
 
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
+import java.util.Locale;
 
 public class IncidentsAdapter extends RecyclerView.Adapter<IncidentsAdapter.IncidentViewHolder> {
 
@@ -22,6 +25,8 @@ public class IncidentsAdapter extends RecyclerView.Adapter<IncidentsAdapter.Inci
     private final IncidentActionListener actionListener;
     private final boolean canManage;
     private final boolean canResolve;
+    private Map<Long, String> roomLabels = new HashMap<>();
+    private Map<Long, String> reporterLabels = new HashMap<>();
 
     public interface IncidentActionListener {
         void onViewIncident(Incident incident);
@@ -49,6 +54,12 @@ public class IncidentsAdapter extends RecyclerView.Adapter<IncidentsAdapter.Inci
         notifyDataSetChanged();
     }
 
+    public void setLookupLabels(Map<Long, String> roomLabels, Map<Long, String> reporterLabels) {
+        this.roomLabels = roomLabels == null ? new HashMap<>() : new HashMap<>(roomLabels);
+        this.reporterLabels = reporterLabels == null ? new HashMap<>() : new HashMap<>(reporterLabels);
+        notifyDataSetChanged();
+    }
+
     @NonNull
     @Override
     public IncidentViewHolder onCreateViewHolder(@NonNull ViewGroup parent, int viewType) {
@@ -62,20 +73,24 @@ public class IncidentsAdapter extends RecyclerView.Adapter<IncidentsAdapter.Inci
         Incident incident = incidentList.get(position);
         holder.tvIncidentTitle.setText(incident.getLoai() != null ? incident.getLoai() : "Sự cố");
         holder.tvIncidentStatus.setText("Trạng thái: " + (incident.getStatus() != null ? incident.getStatus() : "OPEN"));
-        holder.tvIncidentRoom.setText("Phòng ID: " + (incident.getPhongId() != null ? incident.getPhongId() : "N/A"));
-        holder.tvIncidentReporter.setText("Người báo ID: " + (incident.getReportedBy() != null ? incident.getReportedBy() : "N/A"));
+        holder.tvIncidentRoom.setText("Phòng: " + labelOrUnset(roomLabels, incident.getPhongId()));
+        holder.tvIncidentReporter.setText("Người báo: " + labelOrUnset(reporterLabels, incident.getReportedBy()));
         holder.tvIncidentDescription.setText(incident.getMoTa() != null && !incident.getMoTa().trim().isEmpty() ? incident.getMoTa() : "Chưa có mô tả");
         holder.itemView.setOnClickListener(v -> {
             if (actionListener != null) actionListener.onViewIncident(incident);
         });
 
-        boolean showActions = canManage && actionListener != null;
+        boolean showActions = canManage && actionListener != null && !isResolved(incident);
         holder.layoutActions.setVisibility(showActions ? View.VISIBLE : View.GONE);
         if (showActions) {
             holder.btnEdit.setOnClickListener(v -> actionListener.onEditIncident(incident));
             holder.btnDelete.setOnClickListener(v -> actionListener.onDeleteIncident(incident));
             holder.btnResolve.setVisibility(canResolve ? View.VISIBLE : View.GONE);
             holder.btnResolve.setOnClickListener(v -> actionListener.onResolveIncident(incident));
+        } else {
+            holder.btnEdit.setOnClickListener(null);
+            holder.btnDelete.setOnClickListener(null);
+            holder.btnResolve.setOnClickListener(null);
         }
     }
 
@@ -107,6 +122,23 @@ public class IncidentsAdapter extends RecyclerView.Adapter<IncidentsAdapter.Inci
             btnDelete = itemView.findViewById(R.id.btnDeleteIncident);
             btnResolve = itemView.findViewById(R.id.btnResolveIncident);
         }
+    }
+
+    private String labelOrUnset(Map<Long, String> labels, Long id) {
+        if (id == null) return "Chưa gán";
+        String label = labels == null ? null : labels.get(id);
+        return label == null || label.trim().isEmpty() ? "Chưa có tên" : label;
+    }
+
+    private boolean isResolved(Incident incident) {
+        if (incident == null) return false;
+        if (incident.getResolvedAt() != null && !incident.getResolvedAt().trim().isEmpty()) return true;
+        String status = incident.getStatus() == null ? "" : incident.getStatus().trim().toUpperCase(Locale.US);
+        return "RESOLVED".equals(status)
+                || "CLOSED".equals(status)
+                || "DONE".equals(status)
+                || "DA_XU_LY".equals(status)
+                || "ĐÃ XỬ LÝ".equals(status);
     }
 }
 

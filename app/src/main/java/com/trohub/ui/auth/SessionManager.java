@@ -130,10 +130,27 @@ public class SessionManager {
 
     public boolean isLoggedIn() {
         String token = getToken();
-        return token != null && !token.trim().isEmpty();
+        if (token == null || token.trim().isEmpty()) return false;
+        if (isTokenExpired()) {
+            clear();
+            return false;
+        }
+        return true;
     }
 
     public void clear() {
         prefs.edit().clear().apply();
+    }
+
+    private boolean isTokenExpired() {
+        JSONObject obj = parseTokenPayload();
+        if (obj == null || !obj.has("exp")) return false;
+        try {
+            long expSeconds = obj.getLong("exp");
+            long nowSeconds = System.currentTimeMillis() / 1000L;
+            return expSeconds <= nowSeconds;
+        } catch (Exception ignored) {
+            return false;
+        }
     }
 }

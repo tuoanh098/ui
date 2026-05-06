@@ -25,7 +25,6 @@ public class InvoiceAdapter extends RecyclerView.Adapter<InvoiceAdapter.InvoiceV
     public interface InvoiceActionListener {
         void onPayQr(Invoice invoice);
         void onApplyLateFee(Invoice invoice);
-        void onSimulatePaid(Invoice invoice);
         void onViewPayments(Invoice invoice);
     }
 
@@ -51,13 +50,11 @@ public class InvoiceAdapter extends RecyclerView.Adapter<InvoiceAdapter.InvoiceV
         Invoice invoice = invoiceList.get(position);
         String invoiceNo = safe(invoice.getInvoiceNumber());
         String period = String.format(Locale.US, "%02d/%04d", safeInt(invoice.getPeriodMonth()), safeInt(invoice.getPeriodYear()));
-        holder.tvInvoiceNumber.setText("Mã hóa đơn: " + invoiceNo + " (ID " + invoice.getId() + ")");
+        holder.tvInvoiceNumber.setText("Mã hóa đơn: " + invoiceNo);
         holder.tvInvoicePeriod.setText("Kỳ hóa đơn: " + period);
         holder.tvInvoiceTenant.setText("Người trả: " + safe(invoice.getTenantName())
-                + " | SĐT: " + safe(invoice.getTenantPhone())
-                + " | Tenant ID: " + (invoice.getTenantId() == null ? "N/A" : invoice.getTenantId()));
+                + " | SĐT: " + safe(invoice.getTenantPhone()));
         holder.tvInvoiceRoomBuilding.setText("Phòng: " + safe(invoice.getRoomCode())
-                + " (ID " + (invoice.getRoomId() == null ? "N/A" : invoice.getRoomId()) + ")"
                 + " | Tòa: " + safe(invoice.getBuildingName())
                 + " | Chủ: " + safe(invoice.getLandlordName()));
         holder.tvInvoiceDates.setText("Ngày phát hành: " + safe(invoice.getIssueDate()) + " | Hạn: " + safe(invoice.getDueDate()));
@@ -84,11 +81,9 @@ public class InvoiceAdapter extends RecyclerView.Adapter<InvoiceAdapter.InvoiceV
 
         boolean showAdminActions = adminOrStaff && !isClosed;
         holder.btnApplyLateFee.setVisibility(showAdminActions ? View.VISIBLE : View.GONE);
-        holder.btnSimulatePaid.setVisibility(showAdminActions ? View.VISIBLE : View.GONE);
 
         if (showAdminActions) {
             holder.btnApplyLateFee.setOnClickListener(v -> actionListener.onApplyLateFee(invoice));
-            holder.btnSimulatePaid.setOnClickListener(v -> actionListener.onSimulatePaid(invoice));
         }
     }
 
@@ -117,12 +112,12 @@ public class InvoiceAdapter extends RecyclerView.Adapter<InvoiceAdapter.InvoiceV
     }
 
     private String statusLabel(String status) {
-        if ("DRAFT".equalsIgnoreCase(status)) return "DRAFT (nháp)";
-        if ("UNPAID".equalsIgnoreCase(status)) return "UNPAID (chưa thanh toán)";
-        if ("PARTIALLY_PAID".equalsIgnoreCase(status)) return "PARTIALLY_PAID (thanh toán một phần)";
-        if ("PAID".equalsIgnoreCase(status)) return "PAID (đã thanh toán)";
-        if ("OVERDUE".equalsIgnoreCase(status)) return "OVERDUE (trễ hạn)";
-        if ("CANCELLED".equalsIgnoreCase(status)) return "CANCELLED (đã hủy)";
+        if ("DRAFT".equalsIgnoreCase(status)) return "Nháp";
+        if ("UNPAID".equalsIgnoreCase(status)) return "Chưa thanh toán";
+        if ("PARTIALLY_PAID".equalsIgnoreCase(status)) return "Thanh toán một phần";
+        if ("PAID".equalsIgnoreCase(status)) return "Đã thanh toán";
+        if ("OVERDUE".equalsIgnoreCase(status)) return "Trễ hạn";
+        if ("CANCELLED".equalsIgnoreCase(status)) return "Đã hủy";
         return status;
     }
 
@@ -139,7 +134,6 @@ public class InvoiceAdapter extends RecyclerView.Adapter<InvoiceAdapter.InvoiceV
         Button btnPayQr;
         Button btnViewPayments;
         Button btnApplyLateFee;
-        Button btnSimulatePaid;
 
         public InvoiceViewHolder(@NonNull View itemView) {
             super(itemView);
@@ -155,7 +149,6 @@ public class InvoiceAdapter extends RecyclerView.Adapter<InvoiceAdapter.InvoiceV
             btnPayQr = itemView.findViewById(R.id.btnPayQr);
             btnViewPayments = itemView.findViewById(R.id.btnViewPayments);
             btnApplyLateFee = itemView.findViewById(R.id.btnApplyLateFee);
-            btnSimulatePaid = itemView.findViewById(R.id.btnSimulatePaid);
         }
     }
 }

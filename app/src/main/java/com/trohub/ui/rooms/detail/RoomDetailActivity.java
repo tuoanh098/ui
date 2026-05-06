@@ -8,7 +8,7 @@ import android.widget.ProgressBar;
 import android.widget.TextView;
 import android.widget.Toast;
 
-import androidx.appcompat.app.AppCompatActivity;
+import com.trohub.ui.common.TroHubActivity;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 import androidx.swiperefreshlayout.widget.SwipeRefreshLayout;
@@ -26,13 +26,15 @@ import com.trohub.ui.tenants.TenantsAdapter;
 import com.trohub.ui.tenants.detail.TenantDetailActivity;
 
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 import retrofit2.Call;
 import retrofit2.Callback;
 import retrofit2.Response;
 
-public class RoomDetailActivity extends AppCompatActivity {
+public class RoomDetailActivity extends TroHubActivity {
 
     private TextView tvTitle;
     private TextView tvRoomCode;
@@ -54,6 +56,7 @@ public class RoomDetailActivity extends AppCompatActivity {
     private Long roomId;
     private Phong currentRoom;
     private ToaNha currentBuilding;
+    private final Map<Long, String> roomLabels = new HashMap<>();
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -157,7 +160,12 @@ public class RoomDetailActivity extends AppCompatActivity {
     }
 
     private void renderRoomInfo() {
-        tvRoomCode.setText("Mã phòng: " + safe(currentRoom.getMaPhong()) + " (ID " + currentRoom.getId() + ")");
+        tvRoomCode.setText("Mã phòng: " + safe(currentRoom.getMaPhong()));
+        roomLabels.clear();
+        if (currentRoom.getId() != null) {
+            roomLabels.put(currentRoom.getId(), safe(currentRoom.getMaPhong()));
+            tenantsAdapter.setRoomLabels(roomLabels);
+        }
         tvRoomStatus.setText("Trạng thái: " + safe(currentRoom.getTrangThai()));
         tvRoomBeds.setText("Số giường: " + (currentRoom.getSoGiuong() == null ? "N/A" : currentRoom.getSoGiuong()));
         tvRoomDesc.setText("Mô tả: " + safe(currentRoom.getMoTa()));
@@ -195,7 +203,7 @@ public class RoomDetailActivity extends AppCompatActivity {
                     return;
                 }
 
-                tvBuildingLink.setText("Tòa nhà: " + safe(currentBuilding.getTen()) + " (ID " + currentBuilding.getId() + ")");
+                tvBuildingLink.setText("Tòa nhà: " + safe(currentBuilding.getTen()));
                 tvBuildingLink.setEnabled(!tenantMode);
                 loadOwnerInfo(currentBuilding.getChuTroId());
             }

@@ -15,13 +15,16 @@ import com.trohub.ui.R;
 import com.trohub.ui.api.models.ToaNha;
 
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 public class BuildingsAdapter extends RecyclerView.Adapter<BuildingsAdapter.BuildingViewHolder> {
 
     private List<ToaNha> buildingList = new ArrayList<>();
     private final BuildingActionListener actionListener;
     private final boolean canManage;
+    private Map<Long, String> managerLabels = new HashMap<>();
 
     public interface BuildingActionListener {
         void onEdit(ToaNha building);
@@ -35,6 +38,11 @@ public class BuildingsAdapter extends RecyclerView.Adapter<BuildingsAdapter.Buil
 
     public void setBuildings(List<ToaNha> buildings) {
         this.buildingList = buildings == null ? new ArrayList<>() : buildings;
+        notifyDataSetChanged();
+    }
+
+    public void setManagerLabels(Map<Long, String> labels) {
+        this.managerLabels = labels == null ? new HashMap<>() : new HashMap<>(labels);
         notifyDataSetChanged();
     }
 
@@ -52,7 +60,7 @@ public class BuildingsAdapter extends RecyclerView.Adapter<BuildingsAdapter.Buil
         holder.tvBuildingName.setText(building.getTen() != null ? building.getTen() : "Không tên");
         holder.tvBuildingAddress.setText("Địa chỉ: " + (building.getDiaChi() != null ? building.getDiaChi() : ""));
         holder.tvBuildingRooms.setText("Số phòng: " + (building.getRoomCount() != null ? building.getRoomCount() : "0") + " phòng");
-        holder.tvBuildingManager.setText("Người quản lý (Chủ trọ ID): " + (building.getChuTroId() != null ? building.getChuTroId() : "N/A"));
+        holder.tvBuildingManager.setText("Chủ trọ: " + labelOrUnset(managerLabels, building.getChuTroId()));
 
         holder.layoutActions.setVisibility(canManage ? View.VISIBLE : View.GONE);
         if (canManage) {
@@ -97,6 +105,12 @@ public class BuildingsAdapter extends RecyclerView.Adapter<BuildingsAdapter.Buil
             btnEdit = itemView.findViewById(R.id.btnEditBuilding);
             btnDelete = itemView.findViewById(R.id.btnDeleteBuilding);
         }
+    }
+
+    private String labelOrUnset(Map<Long, String> labels, Long id) {
+        if (id == null) return "Chưa gán";
+        String label = labels == null ? null : labels.get(id);
+        return label == null || label.trim().isEmpty() ? "Chưa có tên" : label;
     }
 }
 

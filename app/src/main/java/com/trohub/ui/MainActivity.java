@@ -1,17 +1,19 @@
 package com.trohub.ui;
 
 import android.content.Intent;
+import android.graphics.Bitmap;
+import android.graphics.BitmapFactory;
 import android.os.Bundle;
 import android.app.AlertDialog;
 import android.text.TextUtils;
 import android.view.LayoutInflater;
 import android.view.View;
-import android.view.ViewGroup;
 import android.widget.Button;
+import android.widget.GridLayout;
+import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.widget.TextView;
 
-import androidx.annotation.NonNull;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
@@ -41,8 +43,8 @@ import com.trohub.ui.profile.ProfileActivity;
 import com.trohub.ui.reports.ReportsActivity;
 import com.trohub.ui.rooms.RoomsActivity;
 import com.trohub.ui.tenants.TenantsActivity;
-import com.google.android.material.bottomsheet.BottomSheetDialog;
 
+import java.io.InputStream;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.time.ZoneId;
@@ -71,7 +73,7 @@ public class MainActivity extends AppCompatActivity {
     private RecentActivityAdapter recentActivityAdapter;
     private final List<String> overdueRoomLines = new ArrayList<>();
     private final List<RecentActivityItem> allRecentActivityItems = new ArrayList<>();
-    private int recentVisibleLimit = 5;
+    private boolean recentExpanded = false;
     private Button btnShowMoreRecent;
 
     @Override
@@ -114,34 +116,17 @@ public class MainActivity extends AppCompatActivity {
         LinearLayout alertOverdue = findViewById(R.id.alertOverdue);
         btnShowMoreRecent = findViewById(R.id.btnShowMoreRecent);
 
-        Button btnProfile = findViewById(R.id.btnProfile);
-        Button btnRooms = findViewById(R.id.btnRooms);
-        Button btnBuildings = findViewById(R.id.btnBuildings);
-        Button btnTenants = findViewById(R.id.btnTenants);
-        Button btnIncidents = findViewById(R.id.btnIncidents);
-        Button btnContracts = findViewById(R.id.btnContracts);
-        Button btnBilling = findViewById(R.id.btnBilling);
-        Button btnReports = findViewById(R.id.btnReports);
-        Button btnOverviewReports = findViewById(R.id.btnOverviewReports);
-        Button btnGuestEntries = findViewById(R.id.btnGuestEntries);
-        Button btnFunctionMenu = findViewById(R.id.btnFunctionMenu);
-        LinearLayout layoutOtherFunctions = findViewById(R.id.layoutOtherFunctions);
-        Button btnCreateTenantAccount = findViewById(R.id.btnCreateTenantAccount);
+        GridLayout gridLandlordFunctions = findViewById(R.id.gridLandlordFunctions);
+        GridLayout gridTenantFunctions = findViewById(R.id.gridTenantFunctions);
         Button btnLogout = findViewById(R.id.btnLogout);
         Button btnLogoutVisible = findViewById(R.id.btnLogoutVisible);
-        Button btnTenantProfile = findViewById(R.id.btnTenantProfile);
-        Button btnTenantRoom = findViewById(R.id.btnTenantRoom);
-        Button btnTenantContract = findViewById(R.id.btnTenantContract);
-        Button btnTenantBilling = findViewById(R.id.btnTenantBilling);
-        Button btnTenantIncident = findViewById(R.id.btnTenantIncident);
-        Button btnTenantGuest = findViewById(R.id.btnTenantGuest);
         boolean canCreateTenantAccount = sessionManager.isAdminOrLandlord();
 
         rvRecent.setLayoutManager(new LinearLayoutManager(this));
         recentActivityAdapter = new RecentActivityAdapter();
         rvRecent.setAdapter(recentActivityAdapter);
         btnShowMoreRecent.setOnClickListener(v -> {
-            recentVisibleLimit += 5;
+            recentExpanded = !recentExpanded;
             applyRecentActivityLimit();
         });
 
@@ -154,31 +139,15 @@ public class MainActivity extends AppCompatActivity {
         tvCurrentMonth.setText("Tháng " + currentDate.getMonthValue() + ", " + currentDate.getYear());
 
         if (isTenantOnly) {
-            btnFunctionMenu.setVisibility(View.GONE);
             landlordOverviewSection.setVisibility(View.GONE);
             tenantSummarySection.setVisibility(View.VISIBLE);
-            btnReports.setVisibility(View.GONE);
-
-            btnBuildings.setVisibility(View.GONE);
-            btnTenants.setVisibility(View.GONE);
-            btnProfile.setText("Hồ sơ của tôi");
-            btnRooms.setText("Phòng của tôi");
-            btnIncidents.setText("Báo cáo sự cố");
-            btnContracts.setText("Hợp đồng của tôi");
-            btnBilling.setText("Đóng tiền thuê phòng");
-            btnGuestEntries.setText("Đăng ký khách ra/vào");
-            btnGuestEntries.setVisibility(View.VISIBLE);
-            layoutOtherFunctions.setVisibility(View.GONE);
+            setupTenantFunctionGrid(gridTenantFunctions);
 
             loadTenantSummary(tvLandlordInfo, tvContractInfo, tvRoomInfo, tvBuildingInfo);
         } else {
-            btnFunctionMenu.setVisibility(View.VISIBLE);
             tenantSummarySection.setVisibility(View.GONE);
             landlordOverviewSection.setVisibility(View.VISIBLE);
-            btnReports.setVisibility(View.VISIBLE);
-            btnGuestEntries.setVisibility(View.VISIBLE);
-            btnGuestEntries.setText("Duyệt khách ra/vào");
-            layoutOtherFunctions.setVisibility(canCreateTenantAccount ? View.VISIBLE : View.GONE);
+            setupLandlordFunctionGrid(gridLandlordFunctions, canCreateTenantAccount);
 
             loadLandlordOverview(
                     tvOverviewRevenue,
@@ -193,37 +162,7 @@ public class MainActivity extends AppCompatActivity {
             );
         }
 
-        btnProfile.setOnClickListener(v -> startActivity(new Intent(MainActivity.this, ProfileActivity.class)));
-        btnRooms.setOnClickListener(v -> startActivity(new Intent(MainActivity.this, RoomsActivity.class)));
-        btnBuildings.setOnClickListener(v -> startActivity(new Intent(MainActivity.this, BuildingsActivity.class)));
-        btnTenants.setOnClickListener(v -> startActivity(new Intent(MainActivity.this, TenantsActivity.class)));
-        btnIncidents.setOnClickListener(v -> startActivity(new Intent(MainActivity.this, IncidentsActivity.class)));
-        btnContracts.setOnClickListener(v -> startActivity(new Intent(MainActivity.this, ContractsActivity.class)));
-        btnBilling.setOnClickListener(v -> startActivity(new Intent(MainActivity.this, BillingActivity.class)));
-        btnGuestEntries.setOnClickListener(v -> {
-            if (isTenantOnly) {
-                startActivity(new Intent(MainActivity.this, GuestEntriesActivity.class));
-            } else {
-                startActivity(new Intent(MainActivity.this, LandlordGuestReviewActivity.class));
-            }
-        });
-        btnCreateTenantAccount.setOnClickListener(v -> startActivity(new Intent(MainActivity.this, CreateTenantAccountActivity.class)));
-        btnFunctionMenu.setOnClickListener(v -> {
-            if (!isTenantOnly) {
-                showFunctionMenu(canCreateTenantAccount);
-            }
-        });
-        btnTenantProfile.setOnClickListener(v -> startActivity(new Intent(MainActivity.this, ProfileActivity.class)));
-        btnTenantRoom.setOnClickListener(v -> startActivity(new Intent(MainActivity.this, RoomsActivity.class)));
-        btnTenantContract.setOnClickListener(v -> startActivity(new Intent(MainActivity.this, ContractsActivity.class)));
-        btnTenantBilling.setOnClickListener(v -> startActivity(new Intent(MainActivity.this, BillingActivity.class)));
-        btnTenantIncident.setOnClickListener(v -> startActivity(new Intent(MainActivity.this, IncidentsActivity.class)));
-        btnTenantGuest.setOnClickListener(v -> startActivity(new Intent(MainActivity.this, GuestEntriesActivity.class)));
         alertOverdue.setOnClickListener(v -> showOverdueRoomsDialog());
-
-        View.OnClickListener reportClick = v -> startActivity(new Intent(MainActivity.this, ReportsActivity.class));
-        btnReports.setOnClickListener(reportClick);
-        btnOverviewReports.setOnClickListener(reportClick);
 
         btnLogout.setOnClickListener(v -> {
             NetworkClient.setAuthToken(null);
@@ -255,96 +194,65 @@ public class MainActivity extends AppCompatActivity {
         }
     }
 
-    private void showFunctionMenu(boolean canCreateTenantAccount) {
-        BottomSheetDialog dialog = new BottomSheetDialog(this);
-        LinearLayout root = new LinearLayout(this);
-        root.setOrientation(LinearLayout.VERTICAL);
-        root.setBackgroundResource(R.drawable.bg_menu_sheet);
-        root.setPadding(0, dp(14), 0, dp(10));
-
-        TextView handle = new TextView(this);
-        handle.setText("—");
-        handle.setGravity(android.view.Gravity.CENTER);
-        handle.setTextColor(0xFF98A2B3);
-        handle.setTextSize(24);
-        root.addView(handle, new LinearLayout.LayoutParams(
-                LinearLayout.LayoutParams.MATCH_PARENT,
-                dp(20)
-        ));
-
-        TextView title = new TextView(this);
-        title.setText("Danh mục chức năng");
-        title.setTextColor(0xFF1F2933);
-        title.setTextSize(20);
-        title.setTypeface(null, android.graphics.Typeface.BOLD);
-        title.setPadding(dp(18), dp(4), dp(18), 0);
-        root.addView(title);
-
-        TextView subtitle = new TextView(this);
-        subtitle.setText("Chọn nhanh màn hình cần thao tác");
-        subtitle.setTextColor(0xFF667085);
-        subtitle.setTextSize(13);
-        subtitle.setPadding(dp(18), dp(3), dp(18), dp(10));
-        root.addView(subtitle);
-
-        android.widget.ScrollView scrollView = new android.widget.ScrollView(this);
-        LinearLayout content = new LinearLayout(this);
-        content.setOrientation(LinearLayout.VERTICAL);
-        content.setPadding(0, 0, 0, dp(8));
-
-        addMenuSection(content, "Hồ sơ cá nhân");
-        addMenuRow(content, dialog, new MenuItem("P", "Hồ sơ cá nhân", "Thông tin tài khoản, ngân hàng, đăng xuất", ProfileActivity.class));
-
-        addMenuSection(content, "Quản lý");
-        addMenuRow(content, dialog, new MenuItem("B", "Quản lý tòa nhà", "Danh sách, chi tiết và CRUD tòa nhà", BuildingsActivity.class));
-        addMenuRow(content, dialog, new MenuItem("R", "Quản lý phòng", "Phòng, trạng thái và khách trong phòng", RoomsActivity.class));
-        addMenuRow(content, dialog, new MenuItem("T", "Quản lý khách thuê", "Hồ sơ khách thuê và liên kết phòng", TenantsActivity.class));
-        addMenuRow(content, dialog, new MenuItem("C", "Hợp đồng", "Hợp đồng thuê, tiền phòng và dịch vụ", ContractsActivity.class));
-
-        addMenuSection(content, "Thanh toán");
-        addMenuRow(content, dialog, new MenuItem("H", "Hóa đơn / thanh toán", "Tạo kỳ, QR, phí trễ hạn", BillingActivity.class));
-        addMenuRow(content, dialog, new MenuItem("S", "Thống kê & báo cáo", "Doanh thu, lọc theo phòng/tòa/trạng thái", ReportsActivity.class));
-
-        addMenuSection(content, "Chức năng khác");
-        addMenuRow(content, dialog, new MenuItem("I", "Quản lý sự cố", "Theo dõi, xử lý và xem ảnh sự cố", IncidentsActivity.class));
-        addMenuRow(content, dialog, new MenuItem("G", "Duyệt khách ra/vào", "Duyệt, yêu cầu bổ sung hoặc từ chối", LandlordGuestReviewActivity.class));
+    private void setupLandlordFunctionGrid(GridLayout grid, boolean canCreateTenantAccount) {
+        grid.removeAllViews();
+        addFunctionGridItem(grid, "P", "Hồ sơ", "IconHoSo.png", ProfileActivity.class);
+        addFunctionGridItem(grid, "B", "Tòa nhà", "IconToaNha.png", BuildingsActivity.class);
+        addFunctionGridItem(grid, "R", "Phòng", "IconPhong.png", RoomsActivity.class);
+        addFunctionGridItem(grid, "T", "Khách thuê", "IconKhachThue.png", TenantsActivity.class);
+        addFunctionGridItem(grid, "C", "Hợp đồng", "IconHopDong.png", ContractsActivity.class);
+        addFunctionGridItem(grid, "H", "Hóa đơn", "IconHoaDon.png", BillingActivity.class);
+        addFunctionGridItem(grid, "S", "Báo cáo", "IconBaoCao.png", ReportsActivity.class);
+        addFunctionGridItem(grid, "I", "Sự cố", "IconSuCo.png", IncidentsActivity.class);
+        addFunctionGridItem(grid, "G", "Duyệt khách", "IconDuyetKhach.png", LandlordGuestReviewActivity.class);
         if (canCreateTenantAccount) {
-            addMenuRow(content, dialog, new MenuItem("+", "Tạo tài khoản khách thuê", "Cấp tài khoản đăng nhập cho tenant", CreateTenantAccountActivity.class));
+            addFunctionGridItem(grid, "+", "Tạo tài khoản", "IconHoSo.png", CreateTenantAccountActivity.class);
         }
-
-        scrollView.addView(content);
-        root.addView(scrollView, new LinearLayout.LayoutParams(
-                LinearLayout.LayoutParams.MATCH_PARENT,
-                dp(520)
-        ));
-
-        dialog.setContentView(root);
-        dialog.show();
     }
 
-    private void addMenuSection(LinearLayout parent, String titleText) {
-        TextView title = new TextView(this);
+    private void setupTenantFunctionGrid(GridLayout grid) {
+        grid.removeAllViews();
+        addFunctionGridItem(grid, "P", "Hồ sơ", "IconHoSo.png", ProfileActivity.class);
+        addFunctionGridItem(grid, "R", "Phòng của tôi", "IconToaNha.png", RoomsActivity.class);
+        addFunctionGridItem(grid, "C", "Hợp đồng", "IconHopDong.png", ContractsActivity.class);
+        addFunctionGridItem(grid, "H", "Thanh toán", "IconHoaDon.png", BillingActivity.class);
+        addFunctionGridItem(grid, "I", "Báo sự cố", "IconSuCo.png", IncidentsActivity.class);
+        addFunctionGridItem(grid, "G", "Khách ra/vào", "IconDuyetKhach.png", GuestEntriesActivity.class);
+    }
+
+    private void addFunctionGridItem(GridLayout grid, String iconText, String titleText, String logoFileName, Class<?> activityClass) {
+        View view = LayoutInflater.from(this).inflate(R.layout.item_function_grid, grid, false);
+        TextView icon = view.findViewById(R.id.tvFunctionIcon);
+        ImageView logo = view.findViewById(R.id.ivFunctionIcon);
+        TextView title = view.findViewById(R.id.tvFunctionTitle);
+        icon.setText(iconText);
+        if (!applyCategoryLogo(logo, logoFileName)) {
+            logo.setVisibility(View.GONE);
+            icon.setVisibility(View.VISIBLE);
+        }
         title.setText(titleText);
-        title.setTextColor(0xFF0B4F4A);
-        title.setTextSize(13);
-        title.setTypeface(null, android.graphics.Typeface.BOLD);
-        title.setPadding(dp(18), dp(14), dp(18), dp(6));
-        parent.addView(title);
+        view.setOnClickListener(v -> startActivity(new Intent(MainActivity.this, activityClass)));
+
+        GridLayout.LayoutParams params = new GridLayout.LayoutParams();
+        params.width = 0;
+        params.height = dp(104);
+        params.columnSpec = GridLayout.spec(GridLayout.UNDEFINED, 1f);
+        params.setMargins(dp(4), dp(4), dp(4), dp(4));
+        view.setLayoutParams(params);
+        grid.addView(view);
     }
 
-    private void addMenuRow(LinearLayout parent, BottomSheetDialog dialog, MenuItem item) {
-        View view = LayoutInflater.from(this).inflate(R.layout.item_function_menu, parent, false);
-        TextView icon = view.findViewById(R.id.tvMenuIcon);
-        TextView title = view.findViewById(R.id.tvMenuTitle);
-        TextView subtitle = view.findViewById(R.id.tvMenuSubtitle);
-        icon.setText(item.icon);
-        title.setText(item.title);
-        subtitle.setText(item.subtitle);
-        view.setOnClickListener(v -> {
-            dialog.dismiss();
-            startActivity(new Intent(MainActivity.this, item.activityClass));
-        });
-        parent.addView(view);
+    private boolean applyCategoryLogo(ImageView logo, String fileName) {
+        if (logo == null || fileName == null || fileName.trim().isEmpty()) return false;
+        try (InputStream input = getAssets().open("category_logos/" + fileName)) {
+            Bitmap bitmap = BitmapFactory.decodeStream(input);
+            if (bitmap == null) return false;
+            logo.setImageBitmap(bitmap);
+            logo.setVisibility(View.VISIBLE);
+            return true;
+        } catch (Exception ignored) {
+            return false;
+        }
     }
 
     private void loadLandlordOverview(
@@ -713,17 +621,18 @@ public class MainActivity extends AppCompatActivity {
             ActivitySeed seed = seeds.get(i);
             allRecentActivityItems.add(new RecentActivityItem(seed.title, seed.subtitle, toRelativeLabel(seed.epochMs)));
         }
-        recentVisibleLimit = Math.min(recentVisibleLimit, Math.max(5, allRecentActivityItems.size()));
+        recentExpanded = false;
         applyRecentActivityLimit();
         tvRecentEmpty.setVisibility(allRecentActivityItems.isEmpty() ? View.VISIBLE : View.GONE);
     }
 
     private void applyRecentActivityLimit() {
-        int limit = Math.min(recentVisibleLimit, allRecentActivityItems.size());
+        int limit = recentExpanded ? allRecentActivityItems.size() : Math.min(5, allRecentActivityItems.size());
         recentActivityAdapter.setItems(new ArrayList<>(allRecentActivityItems.subList(0, limit)));
         if (btnShowMoreRecent != null) {
-            btnShowMoreRecent.setVisibility(limit < allRecentActivityItems.size() ? View.VISIBLE : View.GONE);
-            btnShowMoreRecent.setText("Hiển thị thêm (" + (allRecentActivityItems.size() - limit) + ")");
+            boolean hasMoreThanInitial = allRecentActivityItems.size() > 5;
+            btnShowMoreRecent.setVisibility(hasMoreThanInitial ? View.VISIBLE : View.GONE);
+            btnShowMoreRecent.setText(recentExpanded ? "Thu gọn" : "Xem thêm hoạt động");
         }
     }
 
@@ -1052,68 +961,6 @@ public class MainActivity extends AppCompatActivity {
 
     private interface BuildingScopeCallback {
         void onReady(List<ToaNha> buildings);
-    }
-
-    private interface MenuClickListener {
-        void onClick(MenuItem item);
-    }
-
-    private static class MenuItem {
-        final String icon;
-        final String title;
-        final String subtitle;
-        final Class<?> activityClass;
-
-        MenuItem(String icon, String title, String subtitle, Class<?> activityClass) {
-            this.icon = icon;
-            this.title = title;
-            this.subtitle = subtitle;
-            this.activityClass = activityClass;
-        }
-    }
-
-    private class FunctionMenuAdapter extends RecyclerView.Adapter<FunctionMenuAdapter.MenuViewHolder> {
-        private final List<MenuItem> items;
-        private final MenuClickListener listener;
-
-        FunctionMenuAdapter(List<MenuItem> items, MenuClickListener listener) {
-            this.items = items;
-            this.listener = listener;
-        }
-
-        @NonNull
-        @Override
-        public MenuViewHolder onCreateViewHolder(@NonNull ViewGroup parent, int viewType) {
-            View view = LayoutInflater.from(parent.getContext()).inflate(R.layout.item_function_menu, parent, false);
-            return new MenuViewHolder(view);
-        }
-
-        @Override
-        public void onBindViewHolder(@NonNull MenuViewHolder holder, int position) {
-            MenuItem item = items.get(position);
-            holder.icon.setText(item.icon);
-            holder.title.setText(item.title);
-            holder.subtitle.setText(item.subtitle);
-            holder.itemView.setOnClickListener(v -> listener.onClick(item));
-        }
-
-        @Override
-        public int getItemCount() {
-            return items.size();
-        }
-
-        class MenuViewHolder extends RecyclerView.ViewHolder {
-            final TextView icon;
-            final TextView title;
-            final TextView subtitle;
-
-            MenuViewHolder(@NonNull View itemView) {
-                super(itemView);
-                icon = itemView.findViewById(R.id.tvMenuIcon);
-                title = itemView.findViewById(R.id.tvMenuTitle);
-                subtitle = itemView.findViewById(R.id.tvMenuSubtitle);
-            }
-        }
     }
 
     private static class ActivitySeed {

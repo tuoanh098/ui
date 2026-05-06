@@ -52,12 +52,15 @@ public class LandlordGuestReviewAdapter extends RecyclerView.Adapter<LandlordGue
         holder.tvDoc.setText("CCCD/CMND: " + safe(item.getCmnd()) + " | SĐT: " + safe(item.getSdt()));
         String roomCode = item.getPhongId() == null ? "N/A" : roomCodeById.get(item.getPhongId());
         if (roomCode == null || roomCode.trim().isEmpty()) {
-            roomCode = item.getPhongId() == null ? "N/A" : ("ID " + item.getPhongId());
+            roomCode = item.getPhongId() == null ? "Chưa gán" : "Chưa có tên phòng";
         }
         holder.tvRoom.setText("Phòng: " + roomCode);
         holder.tvMeta.setText("Loại: " + safe(item.getLoai()) + " | Trạng thái: " + safe(item.getApprovalStatus()));
         holder.tvNote.setText("Yêu cầu/Ghi chú: " + safe(item.getGhiChu()));
         holder.tvTime.setText("Thời gian gửi: " + safe(item.getTimestamp()));
+        int imageCount = item.getImagePaths() == null ? 0 : item.getImagePaths().size();
+        holder.tvImages.setVisibility(imageCount > 0 ? View.VISIBLE : View.GONE);
+        holder.tvImages.setText("Ảnh khách: " + imageCount + " ảnh đã lưu");
 
         String status = safe(item.getApprovalStatus()).toUpperCase();
         boolean isClosed = "APPROVED".equals(status) || "REJECTED".equals(status);
@@ -93,6 +96,7 @@ public class LandlordGuestReviewAdapter extends RecyclerView.Adapter<LandlordGue
         TextView tvMeta;
         TextView tvNote;
         TextView tvTime;
+        TextView tvImages;
         Button btnApprove;
         Button btnNeedInfo;
         Button btnReject;
@@ -105,6 +109,7 @@ public class LandlordGuestReviewAdapter extends RecyclerView.Adapter<LandlordGue
             tvMeta = itemView.findViewById(R.id.tvGuestMeta);
             tvNote = itemView.findViewById(R.id.tvGuestNote);
             tvTime = itemView.findViewById(R.id.tvGuestTime);
+            tvImages = itemView.findViewById(R.id.tvGuestImages);
             btnApprove = itemView.findViewById(R.id.btnApproveGuest);
             btnNeedInfo = itemView.findViewById(R.id.btnNeedInfoGuest);
             btnReject = itemView.findViewById(R.id.btnRejectGuest);

@@ -32,15 +32,15 @@ public class RoomRevenueAdapter extends RecyclerView.Adapter<RoomRevenueAdapter.
     @Override
     public void onBindViewHolder(@NonNull RoomRevenueViewHolder holder, int position) {
         RoomRevenueItem item = items.get(position);
-        holder.tvRoomTitle.setText("Phòng: " + safe(item.getRoomCode()) + " (ID " + item.getRoomId() + ")");
+        holder.tvRoomTitle.setText("Phòng: " + safe(item.getRoomCode()));
         holder.tvRoomBuilding.setText("Tòa: " + safe(item.getBuildingName()));
         holder.tvRoomRevenue.setText("Đã thu: " + formatMoney(item.getRevenue()) + " VND | Phải thu: " + formatMoney(item.getExpectedAmount()) + " VND");
         holder.tvRoomStatus.setText("HĐ: " + item.getInvoiceCount()
-                + " | PAID: " + item.getPaidInvoices()
-                + " | UNPAID: " + item.getUnpaidInvoices()
-                + " | PARTIAL: " + item.getPartialInvoices()
-                + " | DRAFT: " + item.getDraftInvoices()
-                + " | OVERDUE: " + item.getOverdueInvoices());
+                + " | Đã TT: " + item.getPaidInvoices()
+                + " | Chưa TT: " + item.getUnpaidInvoices()
+                + " | Một phần: " + item.getPartialInvoices()
+                + " | Nháp: " + item.getDraftInvoices()
+                + " | Trễ hạn: " + item.getOverdueInvoices());
     }
 
     @Override

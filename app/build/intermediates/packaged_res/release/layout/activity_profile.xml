@@ -1,0 +1,204 @@
+<?xml version="1.0" encoding="utf-8"?>
+<ScrollView xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent">
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="vertical"
+        android:padding="16dp">
+
+        <ProgressBar
+            android:id="@+id/progressBar"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_gravity="center"
+            android:layout_marginBottom="12dp"
+            android:visibility="gone" />
+
+        <TextView
+            android:id="@+id/tvHeader"
+            style="@style/Text.TroHub.Title"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="Tài khoản:" />
+
+        <TextView
+            android:id="@+id/tvMode"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="6dp"
+            android:text="Profile"
+            android:textSize="16sp"
+            android:textStyle="bold" />
+
+        <TextView
+            android:id="@+id/tvStatus"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="6dp"
+            android:textColor="@color/app_text_muted" />
+
+        <LinearLayout
+            android:id="@+id/landlordSection"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="16dp"
+            android:background="@drawable/bg_panel"
+            android:orientation="vertical"
+            android:padding="12dp"
+            android:visibility="gone">
+
+            <TextView
+                android:id="@+id/tvLandlordName"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:text="Tên:" />
+
+            <TextView
+                android:id="@+id/tvLandlordEmail"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="4dp"
+                android:text="Email:" />
+
+            <TextView
+                android:id="@+id/tvLandlordPhone"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="4dp"
+                android:text="SĐT:" />
+
+            <TextView
+                android:id="@+id/tvLandlordAddress"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="4dp"
+                android:text="Địa chỉ:" />
+
+            <TextView
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="16dp"
+                android:text="Thông tin ngân hàng tạo QR"
+                android:textStyle="bold" />
+
+            <EditText
+                android:id="@+id/etBankName"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="8dp"
+                android:hint="Tên ngân hàng" />
+
+            <EditText
+                android:id="@+id/etBankOwner"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="8dp"
+                android:hint="Tên chủ tài khoản" />
+
+            <EditText
+                android:id="@+id/etBankAccount"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="8dp"
+                android:hint="Số tài khoản"
+                android:inputType="number" />
+
+            <Button
+                android:id="@+id/btnSaveBank"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="12dp"
+                android:text="Lưu thông tin ngân hàng" />
+        </LinearLayout>
+
+        <LinearLayout
+            android:id="@+id/tenantSection"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="16dp"
+            android:background="@drawable/bg_panel"
+            android:orientation="vertical"
+            android:padding="12dp"
+            android:visibility="gone">
+
+            <TextView
+                android:id="@+id/tvTenantName"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:text="Tên:" />
+
+            <TextView
+                android:id="@+id/tvTenantCccd"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="4dp"
+                android:text="CCCD:" />
+
+            <TextView
+                android:id="@+id/tvTenantRoom"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="4dp"
+                android:text="Phòng:" />
+
+            <EditText
+                android:id="@+id/etTenantPhone"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="12dp"
+                android:hint="SĐT"
+                android:inputType="phone" />
+
+            <EditText
+                android:id="@+id/etTenantAddress"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="8dp"
+                android:hint="Địa chỉ" />
+
+            <EditText
+                android:id="@+id/etTenantQueQuan"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="8dp"
+                android:hint="Quê quán" />
+
+            <EditText
+                android:id="@+id/etTenantJob"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="8dp"
+                android:hint="Nghề nghiệp" />
+
+            <EditText
+                android:id="@+id/etTenantContact"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="8dp"
+                android:hint="Thông tin liên lạc thêm" />
+
+            <Button
+                android:id="@+id/btnSaveTenant"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="12dp"
+                android:text="Cập nhật profile" />
+        </LinearLayout>
+
+        <Button
+            android:id="@+id/btnLogoutProfile"
+            style="@style/Widget.TroHub.Button.Danger"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_gravity="center_horizontal"
+            android:layout_marginTop="24dp"
+            android:layout_marginBottom="12dp"
+            android:minWidth="120dp"
+            android:text="Đăng xuất"
+            android:textSize="12sp" />
+
+    </LinearLayout>
+</ScrollView>

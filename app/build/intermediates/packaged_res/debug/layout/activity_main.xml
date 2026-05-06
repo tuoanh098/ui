@@ -22,18 +22,6 @@
                 android:gravity="center_vertical"
                 android:orientation="horizontal">
 
-                <Button
-                    android:id="@+id/btnFunctionMenu"
-                    android:layout_width="52dp"
-                    android:layout_height="40dp"
-                    android:layout_marginEnd="10dp"
-                    android:minWidth="0dp"
-                    android:minHeight="0dp"
-                    android:padding="0dp"
-                    android:text="☰"
-                    android:textSize="18sp"
-                    android:visibility="gone" />
-
                 <TextView
                     android:id="@+id/tvUser"
                     android:layout_width="0dp"
@@ -298,119 +286,23 @@
                     android:textSize="20sp" />
             </LinearLayout>
 
-            <LinearLayout
-                android:id="@+id/layoutHiddenFunctionButtons"
+            <TextView
+                android:id="@+id/tvLandlordFunctionTitle"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:orientation="vertical"
-                android:visibility="gone">
+                android:layout_marginTop="18dp"
+                android:text="DANH MỤC CHỨC NĂNG"
+                android:textColor="@color/dash_text_secondary"
+                android:textSize="12sp"
+                android:textStyle="bold" />
 
             <GridLayout
+                android:id="@+id/gridLandlordFunctions"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:columnCount="2">
-
-                <Button
-                    android:id="@+id/btnBuildings"
-                    android:layout_width="0dp"
-                    android:layout_height="wrap_content"
-                    android:layout_columnWeight="1"
-                    android:layout_margin="4dp"
-                    android:text="Tòa nhà" />
-
-                <Button
-                    android:id="@+id/btnRooms"
-                    android:layout_width="0dp"
-                    android:layout_height="wrap_content"
-                    android:layout_columnWeight="1"
-                    android:layout_margin="4dp"
-                    android:text="Phòng" />
-
-                <Button
-                    android:id="@+id/btnTenants"
-                    android:layout_width="0dp"
-                    android:layout_height="wrap_content"
-                    android:layout_columnWeight="1"
-                    android:layout_margin="4dp"
-                    android:text="Khách thuê" />
-
-                <Button
-                    android:id="@+id/btnContracts"
-                    android:layout_width="0dp"
-                    android:layout_height="wrap_content"
-                    android:layout_columnWeight="1"
-                    android:layout_margin="4dp"
-                    android:text="Hợp đồng" />
-
-                <Button
-                    android:id="@+id/btnBilling"
-                    android:layout_width="0dp"
-                    android:layout_height="wrap_content"
-                    android:layout_columnWeight="1"
-                    android:layout_margin="4dp"
-                    android:text="Hóa đơn" />
-
-                <Button
-                    android:id="@+id/btnReports"
-                    android:layout_width="0dp"
-                    android:layout_height="wrap_content"
-                    android:layout_columnWeight="1"
-                    android:layout_margin="4dp"
-                    android:text="Thống kê &amp; báo cáo" />
-
-                <Button
-                    android:id="@+id/btnIncidents"
-                    android:layout_width="0dp"
-                    android:layout_height="wrap_content"
-                    android:layout_columnWeight="1"
-                    android:layout_margin="4dp"
-                    android:text="Sự cố" />
-
-                <Button
-                    android:id="@+id/btnGuestEntries"
-                    android:layout_width="0dp"
-                    android:layout_height="wrap_content"
-                    android:layout_columnWeight="1"
-                    android:layout_margin="4dp"
-                    android:text="Khách ra/vào" />
+                android:layout_marginTop="8dp"
+                android:columnCount="3">
             </GridLayout>
-
-            <Button
-                android:id="@+id/btnProfile"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:layout_marginTop="8dp"
-                android:text="Profile cá nhân" />
-
-            <Button
-                android:id="@+id/btnOverviewReports"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:layout_marginTop="6dp"
-                android:text="Thống kê &amp; báo cáo" />
-
-            <LinearLayout
-                android:id="@+id/layoutOtherFunctions"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:layout_marginTop="8dp"
-                android:orientation="vertical">
-                <TextView
-                    android:id="@+id/tvOtherFunctionsTitle"
-                    android:layout_width="match_parent"
-                    android:layout_height="wrap_content"
-                    android:text="Chức năng khác"
-                    android:textColor="@color/dash_text_secondary"
-                    android:textStyle="bold" />
-                <Button
-                    android:id="@+id/btnCreateTenantAccount"
-                    android:layout_width="match_parent"
-                    android:layout_height="wrap_content"
-                    android:layout_marginTop="6dp"
-                    android:text="Tạo tài khoản khách thuê" />
-            </LinearLayout>
-
-            </LinearLayout>
 
             <TextView
                 android:layout_width="match_parent"
@@ -500,47 +392,23 @@
                     android:text="Tòa nhà: N/A" />
             </LinearLayout>
 
-            <Button
-                android:id="@+id/btnTenantProfile"
+            <TextView
+                android:id="@+id/tvTenantFunctionTitle"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:layout_marginTop="12dp"
-                android:text="Hồ sơ của tôi" />
+                android:layout_marginTop="18dp"
+                android:text="DANH MỤC CHỨC NĂNG"
+                android:textColor="@color/dash_text_secondary"
+                android:textSize="12sp"
+                android:textStyle="bold" />
 
-            <Button
-                android:id="@+id/btnTenantRoom"
+            <GridLayout
+                android:id="@+id/gridTenantFunctions"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:layout_marginTop="8dp"
-                android:text="Phòng của tôi" />
-
-            <Button
-                android:id="@+id/btnTenantContract"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:layout_marginTop="8dp"
-                android:text="Hợp đồng của tôi" />
-
-            <Button
-                android:id="@+id/btnTenantBilling"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:layout_marginTop="8dp"
-                android:text="Đóng tiền thuê phòng" />
-
-            <Button
-                android:id="@+id/btnTenantIncident"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:layout_marginTop="8dp"
-                android:text="Báo cáo sự cố" />
-
-            <Button
-                android:id="@+id/btnTenantGuest"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:layout_marginTop="8dp"
-                android:text="Đăng ký khách ra/vào" />
+                android:columnCount="3">
+            </GridLayout>
         </LinearLayout>
 
         <LinearLayout
